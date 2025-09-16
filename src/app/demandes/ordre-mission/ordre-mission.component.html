@@ -1,0 +1,88 @@
+<div class="main-content">
+  <div class="page-content">
+    <div class="container-fluid">
+      <!-- start page title -->
+      <div class="row">
+        <div class="col-12">
+          <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Ordre de mission</h4>
+            <div class="page-title-right">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item"><a href="javascript: void(0);">Gestion RH</a></li>
+                <li class="breadcrumb-item active">Ordre de mission</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end page title -->
+
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Formulaire d’Ordre de mission</h4>
+            </div>
+
+            <!-- Ajout de (ngSubmit) uniquement -->
+            <form (ngSubmit)="onSubmit($event)">
+              <div class="card-body">
+                <div class="row gy-4">
+
+                  <!-- Date début -->
+                  <div class="col-12">
+                    <label for="dateDebut" class="form-label">Date de début</label>
+                    <input type="date" class="form-control" id="dateDebut" #dateDebut required>
+                  </div>
+
+                  <!-- Heure début -->
+                  <div class="col-12">
+                    <label for="heureDebut" class="form-label">Heure de début</label>
+                    <input type="time" class="form-control" id="heureDebut" #heureDebut required>
+                  </div>
+
+                  <!-- Date fin -->
+                  <div class="col-12">
+                    <label for="dateFin" class="form-label">Date de fin</label>
+                    <input type="date" class="form-control" id="dateFin" #dateFin required>
+                  </div>
+
+                  <!-- Heure fin -->
+                  <div class="col-12">
+                    <label for="heureFin" class="form-label">Heure de fin</label>
+                    <input type="time" class="form-control" id="heureFin" #heureFin required>
+                  </div>
+
+                  <!-- Objet de la mission -->
+                  <div class="col-12">
+                    <label for="objetMission" class="form-label">Objet de la mission</label>
+                    <textarea class="form-control" id="objetMission" #objetMission rows="3" required></textarea>
+                  </div>
+
+                  <!-- Messages -->
+                  <div class="col-12" *ngIf="errorMessage">
+                    <div class="alert alert-danger">{{ errorMessage }}</div>
+                  </div>
+                  <div class="col-12" *ngIf="successMessage">
+                    <div class="alert alert-success">{{ successMessage }}</div>
+                  </div>
+
+                </div>
+
+                <!-- Bouton valider -->
+                <div class="row mt-4">
+                  <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">
+                      Envoyer la demande
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+          </div>
+        </div><!-- end col -->
+      </div><!-- end row -->
+    </div> <!-- container-fluid -->
+  </div><!-- End Page-content -->
+</div>

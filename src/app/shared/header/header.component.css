@@ -1,0 +1,15 @@
+#back-to-top {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  z-index: 9999;
+  display: none;
+}
+
+.nav-link.menu-link::after {
+  transition: transform 0.2s !important;
+}
+
+.nav-link.menu-link[aria-expanded="true"]::after {
+  transform: rotate(90deg) !important; /* Tourne la flèche à droite vers le bas */
+}

@@ -1,0 +1,34 @@
+<!-- Phase 1 : formulaire de demande -->
+<div *ngIf="step === 1">
+    <h2>Demande de congé</h2>
+    <form (ngSubmit)="submitDemande()">
+      <label>Type de demande:</label>
+      <input type="text" [(ngModel)]="typeDemande" name="typeDemande" required />
+  
+      <label>Date de début:</label>
+      <input type="date" [(ngModel)]="dateDebut" name="dateDebut" required />
+  
+      <label>Date de fin:</label>
+      <input type="date" [(ngModel)]="dateFin" name="dateFin" required />
+  
+      <button type="submit">Soumettre demande</button>
+    </form>
+  </div>
+  
+  <!-- Phase 2 : intérim -->
+  <div *ngIf="step === 2">
+    <h2>Phase Intérim</h2>
+  
+    <label>
+      <input type="checkbox" [(ngModel)]="pasDInterimChecked" (change)="onPasDInterimChange()" />
+      Pas d’intérim
+    </label>
+  
+    <div *ngIf="!pasDInterimChecked">
+      <label for="interimMatricule">Matricule de l’intérim :</label>
+      <input id="interimMatricule" type="text" [(ngModel)]="interimMatricule" name="interimMatricule" />
+    </div>
+  
+    <button (click)="submitInterim()">Soumettre intérim</button>
+  </div>
+  

@@ -1,0 +1,91 @@
+<div class="main-content">
+  <div class="page-content">
+    <div class="container-fluid">
+      <!-- Titre de la page -->
+      <div class="row">
+        <div class="col-12">
+          <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Demande de Congé exceptionnel</h4>
+            <div class="page-title-right">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item"><a href="javascript: void(0);">Gestion RH</a></li>
+                <li class="breadcrumb-item active">Demande de congé exceptionnel</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Fin titre -->
+
+      <!-- Formulaire -->
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Formulaire de Demande</h4>
+            </div>
+
+            <form (ngSubmit)="onSubmit($event)">
+              <div class="card-body">
+                <div class="row gy-4">
+                  <!-- Type de congé -->
+                  <div class="col-12">
+                    <label for="typeConge" class="form-label">Type de congé</label>
+                    <select class="form-select" id="typeConge" #typeConge required>
+                      <option value="">Sélectionner...</option>
+                      <option *ngFor="let t of typesConge" [value]="t.value">{{ t.label }}</option>
+                    </select>
+                  </div>
+
+                  <!-- Date début -->
+                  <div class="col-12">
+                    <label for="dateDebut" class="form-label">Date début</label>
+                    <input type="date" class="form-control" id="dateDebut" #dateDebut required>
+                  </div>
+
+                  <!-- Date fin -->
+                  <div class="col-12">
+                    <label for="dateFin" class="form-label">Date fin</label>
+                    <input type="date" class="form-control" id="dateFin" #dateFin required>
+                  </div>
+
+                  <!-- Heure début -->
+                  <div class="col-12">
+                    <label for="heureDebut" class="form-label">Heure début (optionnel)</label>
+                    <input type="time" class="form-control" id="heureDebut" #heureDebut>
+                  </div>
+
+                  <!-- Heure fin -->
+                  <div class="col-12">
+                    <label for="heureFin" class="form-label">Heure fin (optionnel)</label>
+                    <input type="time" class="form-control" id="heureFin" #heureFin>
+                  </div>
+
+                  <!-- Alertes -->
+                  <div class="col-12" *ngIf="errorMessage">
+                    <div class="alert alert-danger">{{ errorMessage }}</div>
+                  </div>
+                  <div class="col-12" *ngIf="successMessage">
+                    <div class="alert alert-success">{{ successMessage }}</div>
+                  </div>
+                </div>
+
+                <!-- Bouton -->
+                <div class="row mt-4">
+                  <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">
+                      Envoyer la demande
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+      <!-- Fin formulaire -->
+
+    </div>
+  </div>
+</div>

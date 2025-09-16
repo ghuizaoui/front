@@ -1,0 +1,82 @@
+<section class="auth-page-wrapper vh-100">
+  <div class="container-fluid h-100">
+    <div class="row g-0 h-100">
+      <!-- Partie gauche (image et texte) -->
+      <div class="col-6 d-flex h-100">
+        <div class="auth-left-panel bg-dark text-white d-flex flex-column justify-content-center align-items-center" style="width:800px; background-size: cover; background-position: center;">
+          <div class="text-center p-5">
+            <div class="mt-4">
+              <img src="assets/images/mercedesbenz.png" alt="Steex Logo" style="max-width: 400px;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Partie droite (formulaire de login) -->
+      <div class="col-6 h-100">
+        <div class="card border-0 shadow-none rounded-0 h-100">
+          <div class="card-body d-flex align-items-center justify-content-center p-4">
+            <div class="w-100" style="max-width: 400px;">
+              <div class="text-center">
+                <h5 class="fs-3xl">Sign in to your account</h5>
+                <p class="text-muted">Enter your credentials to access the platform</p>
+              </div>
+
+              <div class="p-2">
+                <form #f="ngForm" (ngSubmit)="onSubmit()">
+                  <div class="mb-3">
+                    <label class="form-label" for="matricule-input">Matricule Administratif</label>
+                    <div class="position-relative">
+                      <input
+                        type="text"
+                        class="form-control pe-5"
+                        [(ngModel)]="matricule"
+                        name="matricule"
+                        placeholder="Enter your matricule"
+                        id="matricule-input"
+                        required
+                      >
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label" for="password-input">Password</label>
+                    <div class="position-relative auth-pass-inputgroup">
+                      <input
+                        type="password"
+                        class="form-control pe-5 password-input"
+                        [(ngModel)]="motDePasse"
+                        name="motDePasse"
+                        placeholder="Enter password"
+                        id="password-input"
+                        required
+                      >
+                      <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button">
+                        <i class="ri-eye-fill align-middle"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="mb-3 text-end">
+                    <a class="text-decoration-none" (click)="onForgotPassword()">Forgot password?</a>
+                  </div>
+
+                  <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="conditions">
+                    <label class="form-check-label" for="conditions">I agree to the terms and conditions</label>
+                  </div>
+
+
+                  <div class="mt-4">
+                    <button class="btn btn-primary w-100" type="submit">Sign in</button>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

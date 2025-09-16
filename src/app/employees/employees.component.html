@@ -1,0 +1,246 @@
+<div class="main-content">
+  <div class="page-content">
+    <div class="container-fluid">
+      <!-- ======= TITLE ======= -->
+
+      <div class="row">
+        <div class="col-12">
+          <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Employees List</h4>
+            <div class="page-title-right">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item"><a href="javascript:void(0);">Employees</a></li>
+                <li class="breadcrumb-item active">List View</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /TITLE -->
+
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card" id="employeesList">
+            <!-- ======= TOOLBAR ======= -->
+            <div class="card-body">
+              <div class="row align-items-center g-2">
+                <div class="col-lg-3 me-auto">
+                  <h6 class="card-title mb-0">
+                    Employees <span class="badge bg-primary ms-1 align-baseline">{{employees.length  || 0 }}</span>
+                  </h6>
+                </div>
+                <div class="col-lg-2">
+                  <div class="search-box">
+                    <input type="text" class="form-control search" placeholder="Search name, role…" >
+                    <i class="ri-search-line search-icon"></i>
+                  </div>
+                </div>
+                <div class="col-lg-auto">
+                  <div class="hstack flex-wrap gap-2">
+                    <a (click)="openAddModal()" class="btn btn-secondary">
+                      <i class="bi bi-plus-circle me-1"></i> Add Employee
+                    </a>
+                    <button class="btn btn-info" data-bs-toggle="offcanvas" data-bs-target="#employeeFilters">
+                      <i class="bi bi-funnel me-1"></i> Filter
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /TOOLBAR -->
+
+            <!-- ======= TABLE ======= -->
+            <div class="card-body">
+              <div class="table-responsive table-card">
+                <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
+                  <thead class="text-muted">
+                  <tr>
+                    <th><input class="form-check-input" type="checkbox" id="checkAll"></th>
+                    <th class="sort" data-sort="matricule">Matricule</th>
+                    <th class="sort" data-sort="name">Nom & Prénom</th>
+                    <th class="sort" data-sort="email">Email</th>
+                    <th class="sort" data-sort="direction">Direction</th>
+                    <th class="sort" data-sort="service">Service</th>
+                    <th class="sort" data-sort="role">Role</th>
+                    <th class="sort" data-sort="grade">Grade</th>
+                    <th class="sort" data-sort="hire">Date d’embauche</th>
+                    <th class="sort" data-sort="contract">Contrat</th>
+                    <th class="sort" data-sort="status">Statut</th>
+                    <th>Action</th>
+                  </tr>
+                  </thead>
+
+                  <tbody class="list form-check-all">
+                  <tr *ngFor="let emp of employees ">
+                    <td><input class="form-check-input" type="checkbox"></td>
+                    <td class="matricule">{{ emp.matricule }}</td>
+                    <td class="name">{{ emp.nom }} {{ emp.prenom }}</td>
+                    <td class="email">{{ emp.email }}</td>
+                    <td class="direction">{{ emp.direction }}</td>
+                    <td class="service">{{ emp.service }}</td>
+                    <td class="role">{{ emp.role }}</td>
+                    <td class="grade">{{ emp.grade }}</td>
+                    <td class="hire">{{ emp.dateEmbauche | date:'dd-MM-yyyy' }}</td>
+                    <td class="contract">{{ emp.typeContrat }}</td>
+                    <td class="status">
+                      <span class="badge"
+                            [ngClass]="emp.premiereConnexion ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'">
+                        {{ emp.premiereConnexion ? 'Première connexion' : 'Active' }}
+                      </span>
+                    </td>
+                    <td>
+                      <ul class="d-flex gap-2 list-unstyled mb-0">
+                        <li>
+                          <button class="btn btn-subtle-secondary btn-icon btn-sm"
+                                  (click)="openEditModal(emp)">
+                            <i class="ph-pencil"></i>
+                          </button>
+                        </li>
+                        <!-- Suppression si tu veux -->
+                        <!--<li>
+                          <button class="btn btn-subtle-danger btn-icon btn-sm" (click)="deleteEmployee(emp.matricule)">
+                            <i class="ph-trash"></i>
+                          </button>
+                        </li>-->
+                      </ul>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+
+                <div class="noresult" *ngIf="employees?.length === 0">
+                  <div class="text-center py-4">
+                    <i class="ph-magnifying-glass fs-1 text-primary"></i>
+                    <h5 class="mt-2">No result found</h5>
+                    <p class="text-muted mb-0">Try changing your search criteria.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PAGINATION - à gérer en option -->
+            </div>
+            <!-- /TABLE -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : ADD / EDIT EMPLOYEE -->
+<div class="modal fade" id="addEmployee" tabindex="-1" aria-labelledby="addEmployeeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form class="modal-content border-0 needs-validation" novalidate (ngSubmit)="saveEmployee(f)" #f="ngForm">
+      <div class="modal-header bg-primary">
+        <h5 class="modal-title text-white" id="addEmployeeLabel">{{ editing ? 'Edit' : 'Add' }} Employee</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="employee-id">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nom<span class="text-danger">*</span></label>
+            <input type="text" class="form-control" required [(ngModel)]="selected.nom" name="nom">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Prénom<span class="text-danger">*</span></label>
+            <input type="text" class="form-control" required [(ngModel)]="selected.prenom" name="prenom">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Email<span class="text-danger">*</span></label>
+            <input type="email" class="form-control" required [(ngModel)]="selected.email" name="email">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Role<span class="text-danger">*</span></label>
+            <select class="form-select" required [(ngModel)]="selected.role" name="role">
+              <option value="EMPLOYE">EMPLOYE</option>
+              <option value="CHEF">CHEF</option>
+              <option value="DRH">DRH</option>
+              <option value="CONCIERGE">CONCIERGE</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Direction</label>
+            <input type="text" class="form-control" [(ngModel)]="selected.direction" name="direction">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Service</label>
+            <input type="text" class="form-control" [(ngModel)]="selected.service" name="service">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Grade</label>
+            <input type="number" class="form-control" [(ngModel)]="selected.grade" name="grade">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Date d’embauche</label>
+            <input type="date" class="form-control" [(ngModel)]="selected.dateEmbauche" name="dateEmbauche">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Type de Contrat</label>
+            <select class="form-select" [(ngModel)]="selected.typeContrat" name="typeContrat">
+              <option value="CDI">CDI</option>
+              <option value="CIVP">CIVP</option>
+              <option value="LETTRE_ENGAGEMENT">LETTRE_ENGAGEMENT</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost-danger" data-bs-dismiss="modal">
+          <i class="bi bi-x-lg me-1"></i>Close
+        </button>
+        <button type="submit" class="btn btn-primary" id="save-employee">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- OFFCANVAS : FILTERS (optionnel, à brancher si besoin) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="employeeFilters" aria-labelledby="employeeFiltersLabel">
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title" id="employeeFiltersLabel">Employee Filters</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <form>
+      <div class="mb-3">
+        <label class="fw-semibold">Role</label>
+        <select class="form-select" id="filter-role" multiple>
+          <option>EMPLOYE</option>
+          <option>CHEF</option>
+          <option>DRH</option>
+          <option>CONCIERGE</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="fw-semibold">Direction</label>
+        <input type="text" class="form-control" id="filter-direction">
+      </div>
+      <div class="mb-3">
+        <label class="fw-semibold">Type de Contrat</label>
+        <select class="form-select" id="filter-contrat" multiple>
+          <option>CDI</option>
+          <option>CIVP</option>
+          <option>LETTRE_ENGAGEMENT</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="fw-semibold">Statut</label><br>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="ACTIVE" id="status-active">
+          <label class="form-check-label" for="status-active">Active</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="INACTIVE" id="status-inactive">
+          <label class="form-check-label" for="status-inactive">Inactive</label>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="offcanvas-footer border-top p-3 d-flex gap-2">
+    <button class="btn btn-subtle-danger w-100">Reset</button>
+    <button class="btn btn-secondary w-100">Apply</button>
+  </div>
+</div>

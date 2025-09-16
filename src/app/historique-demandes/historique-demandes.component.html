@@ -1,0 +1,96 @@
+<!-- src/app/historique-demandes/historique-demandes.component.html -->
+<div class="main-content">
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="card mb-4 shadow-sm rounded-3">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Historique et État de mes Demandes</h5>
+  
+            <!-- Chargement -->
+            <div *ngIf="isLoading" class="text-center p-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+              </div>
+              <p class="mt-2 text-muted">Chargement de l'historique des demandes...</p>
+            </div>
+  
+            <!-- Erreur -->
+            <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+            </div>
+  
+            <!-- Tableau -->
+            <div class="table-responsive table-card" *ngIf="!isLoading && demandes && demandes.length > 0">
+                <table class="table table-hover table-nowrap mb-0 rounded-3">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>Type de Demande</th>
+                    <th>Dates</th>
+                    <th>Statut</th>
+                    <th>Détails de Validation</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let demande of demandes">
+                    <td class="fw-semibold text-muted">#{{ demande.id }}</td>
+                    <td>
+                      <span class="fw-medium">{{ demande.categorie }}</span>
+                      <p *ngIf="demande.typeDemande" class="mb-0 text-muted small">{{ demande.typeDemande }}</p>
+                    </td>
+                    <td>
+                      <div *ngIf="demande.congeDateDebut">
+                        <p class="mb-0">Du: {{ demande.congeDateDebut | date:'shortDate' }}</p>
+                        <p class="mb-0">Au: {{ demande.congeDateFin | date:'shortDate' }}</p>
+                      </div>
+                      <div *ngIf="demande.autoDateDebut">
+                        <p class="mb-0">Du: {{ demande.autoDateDebut | date:'shortDate' }}</p>
+                        <p class="mb-0">Au: {{ demande.autoDateFin | date:'shortDate' }}</p>
+                      </div>
+                      <div *ngIf="demande.missionDateDebut">
+                        <p class="mb-0">Du: {{ demande.missionDateDebut | date:'shortDate' }}</p>
+                        <p class="mb-0">Au: {{ demande.missionDateFin | date:'shortDate' }}</p>
+                        <p *ngIf="demande.missionObjet" class="mb-0 text-muted small">Objet: {{ demande.missionObjet }}</p>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge rounded-pill" [ngClass]="{
+                          'bg-success-subtle text-success': demande.statut === 'VALIDEE',
+                          'bg-warning-subtle text-warning': demande.statut === 'EN_COURS',
+                          'bg-danger-subtle text-danger': demande.statut === 'REFUSEE'
+                        }">{{ demande.statut }}</span>
+                    </td>
+                    <td>
+                      <div *ngIf="demande.statut === 'VALIDEE'">
+                        <p class="mb-0">Validé par: {{ demande.validateur?.nom }} {{ demande.validateur?.prenom }}</p>
+                        <p class="mb-0 text-muted small">Le: {{ demande.dateValidation | date:'mediumDate' }}</p>
+                      </div>
+                      <div *ngIf="demande.statut === 'REFUSEE'">
+                        <p class="mb-0 text-danger fw-medium">Motif:</p>
+                        <p class="mb-0 text-muted small">{{ demande.commentaireRefus }}</p>
+                      </div>
+                      <div *ngIf="demande.statut === 'EN_COURS'">
+                        <p class="mb-0 text-muted fst-italic">En attente de validation</p>
+                      </div>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-outline-info rounded-pill">
+                        <i class="bi bi-info-circle me-1"></i> Détails
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+  
+            <!-- Pas de demande -->
+            <div *ngIf="!isLoading && (!demandes || demandes.length === 0) && !errorMessage" class="p-4 text-center">
+              <p class="mb-0 text-muted"><i class="bi bi-file-earmark-text me-2"></i> Aucune demande soumise n'est disponible dans votre historique.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

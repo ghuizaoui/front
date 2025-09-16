@@ -1,13 +1,61 @@
 <!doctype html>
-<html lang="en">
+<html lang="en"
+      data-layout="vertical"
+      data-sidebar="dark"
+      data-sidebar-size="lg"
+      data-preloader="disable"
+      data-theme="default"
+      data-topbar="dark"
+      data-bs-theme="light"
+      data-layout-width="fluid"
+      data-sidebar-image="none"
+      data-layout-style="default">
 <head>
   <meta charset="utf-8">
   <title>TestFrontEnd</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- (Optionnel mais utile) bloque tout script externe non local -->
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none'">
+
+  <link rel="shortcut icon" href="assets/images/mercedesbenz.png">
+
+  <!-- CSS -->
+  <link id="fontsLink" href="assets/fonts.googleapis.com/css2496c.css?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css">
+  <link href="assets/css/app.min.css" rel="stylesheet" type="text/css">
+  <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-  <app-root></app-root>
+<app-root></app-root>
+
+<!-- JS : UN SEUL bundle Bootstrap (local) -->
+<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/libs/simplebar/simplebar.min.js"></script>
+<script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+<script src="assets/libs/echarts/echarts.min.js"></script>
+<script src="assets/libs/jsvectormap/js/jsvectormap.min.js"></script>
+<script src="assets/libs/jsvectormap/maps/world-merc.js"></script>
+<script src="assets/libs/nouislider/nouislider.min.js"></script>
+<script src="assets/libs/wnumb/wNumb.min.js"></script>
+<script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
+
+<!-- Garde-fou : si un 2e bootstrap.bundle est injecté, on le retire -->
+<script>
+  (function () {
+    var list = Array.from(document.querySelectorAll('script[src*="bootstrap.bundle"]'));
+    if (list.length > 1) {
+      for (var i = 1; i < list.length; i++) list[i].remove();
+      console.warn('[bootstrap] 2e bundle détecté et supprimé.');
+    }
+  })();
+</script>
+<script>
+  window.global = window;
+  window.process = window.process || { env: {} };
+</script>
+
 </body>
 </html>

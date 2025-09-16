@@ -1,0 +1,78 @@
+<!-- src/app/dashboard-employe/dashboard-employe.component.html -->
+<body>
+  <div id="layout-wrapper">
+      <div class="main-content">
+          <div class="page-content">
+              <div class="container-fluid">
+                  <form action="#!">
+                      <div class="card mb-4">
+                          <div class="card-body">
+                              <h5 class="card-title mb-4">Informations Chef</h5>
+                              <!-- *ngIf affiche le formulaire seulement si les données de l'employé et du solde sont chargées -->
+                              <div class="row g-3" *ngIf="employe && soldeConge">
+                                  <div class="col-md-6">
+                                      <label for="nom" class="form-label">Nom</label>
+                                      <input type="text" class="form-control" id="nom" disabled [value]="employe.nom">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="prenom" class="form-label">Prénom</label>
+                                      <input type="text" class="form-control" id="prenom" disabled [value]="employe.prenom">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="direction" class="form-label">Direction</label>
+                                      <input type="text" class="form-control" id="direction" disabled [value]="employe.direction">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="service" class="form-label">Service</label>
+                                      <input type="text" class="form-control" id="service" disabled [value]="employe.service">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="chef1" class="form-label">Chef hiérarchique 1</label>
+                                      <input type="text" class="form-control" id="chef1" disabled [value]="employe.chef1">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="chef2" class="form-label">Chef hiérarchique 2</label>
+                                      <input type="text" class="form-control" id="chef2" disabled [value]="employe.chef2">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="grade" class="form-label">Grade</label>
+                                      <input type="text" class="form-control" id="grade" disabled [value]="employe.grade">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="dateEmbauche" class="form-label">Date d'embauche</label>
+                                      <input type="date" class="form-control" id="dateEmbauche" disabled [value]="employe.dateEmbauche">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="soldePrec" class="form-label">Solde de congé au 20/12/N-1</label>
+                                      <input type="number" class="form-control" id="soldePrec" disabled [value]="soldeConge.soldeAu2012">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="droitCongeN" class="form-label">Droit de congé N</label>
+                                      <input type="number" class="form-control" id="droitCongeN" disabled [value]="soldeConge.droitN">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="congesAcquis" class="form-label">Congés acquis N</label>
+                                      <input type="number" class="form-control" id="congesAcquis" disabled [value]="soldeConge.congesAcquisN">
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label for="soldeActuel" class="form-label">Solde actuel</label>
+                                      <input type="number" class="form-control" id="soldeActuel" disabled [value]="soldeConge.soldeActuel">
+                                  </div>
+
+                                  <div class="col-md-6">
+                                    <label for="soldeActuel" class="form-label">Autorisations cummulées</label>
+                                    <input type="number" class="form-control" id="soldeActuel" disabled [value]="soldeConge.soldeActuel">
+                                </div>
+                              </div>
+                              <!-- Message de chargement en cas d'attente -->
+                              <div *ngIf="!employe || !soldeConge">
+                                  <p>Chargement des informations du Chef...</p>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+</body>

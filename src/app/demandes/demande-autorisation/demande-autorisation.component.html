@@ -1,0 +1,98 @@
+<div class="main-content">
+  <div class="page-content">
+    <div class="container-fluid">
+
+      <div class="row">
+        <div class="col-12">
+          <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Demande d'Autorisation</h4>
+            <div class="page-title-right">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item"><a href="#">Gestion RH</a></li>
+                <li class="breadcrumb-item active">Demande d'autorisation</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Formulaire de Demande</h4>
+            </div>
+
+            <form (ngSubmit)="onSubmit($event)">
+              <div class="card-body">
+                <div class="row gy-4">
+
+                  <!-- Type d'autorisation -->
+                  <div class="col-md-12 col-lg-12">
+                    <label for="typeAutorisation" class="form-label">Type d'autorisation</label>
+                    <select class="form-select" id="typeAutorisation" #typeAutorisation required>
+                      <option value="">Sélectionner...</option>
+                      <option *ngFor="let t of typesAutorisation" [value]="t.value">{{ t.label }}</option>
+                    </select>
+                  </div>
+
+
+                  <!-- Jour & heures PRÉVUS -->
+                  <div class="col-12">
+                    <p class="fw-semibold mb-2">Créneau prévu</p>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="dateAutorisation" class="form-label">Jour</label>
+                    <input type="date" class="form-control" id="dateAutorisation" #dateAutorisation required>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="heureDebut" class="form-label">Heure début</label>
+                    <input type="time" class="form-control" id="heureDebut" #heureDebut required>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="heureFin" class="form-label">Heure fin</label>
+                    <input type="time" class="form-control" id="heureFin" #heureFin required>
+                  </div>
+
+                  <!-- RÉEL (optionnel) -->
+                  <div class="col-12 mt-3">
+                    <div class="form-text mb-1">(Optionnel) Renseigner la réalisation si connue</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="dateReelle" class="form-label">Jour réel</label>
+                    <input type="date" class="form-control" id="dateReelle" #dateReelle>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="heureSortieReelle" class="form-label">Heure sortie réelle</label>
+                    <input type="time" class="form-control" id="heureSortieReelle" #heureSortieReelle>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="heureRetourReel" class="form-label">Heure retour réelle</label>
+                    <input type="time" class="form-control" id="heureRetourReel" #heureRetourReel>
+                  </div>
+
+                  <!-- Alertes -->
+                  <div class="col-12" *ngIf="errorMessage">
+                    <div class="alert alert-danger">{{ errorMessage }}</div>
+                  </div>
+                  <div class="col-12" *ngIf="successMessage">
+                    <div class="alert alert-success">{{ successMessage }}</div>
+                  </div>
+                </div>
+
+                <div class="row mt-4">
+                  <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">Envoyer la demande</button>
+                  </div>
+                </div>
+
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
