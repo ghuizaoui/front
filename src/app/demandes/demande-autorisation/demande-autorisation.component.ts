@@ -1,31 +1,21 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { CommonModule, NgIf, NgFor } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DemandeService } from '../../services/demande/demande.service';
 import { TYPE_AUTORISATION, TYPE_DEMANDE_LABELS, TypeDemande } from '../../models/TypeDemande.model';
 import { AutorisationRequest } from '../../models/AutorisationRequest.model';
+import { PopupComponent } from '../../shared/popup/popup.component';
+
 
 @Component({
   selector: 'app-demande-autorisation',
   standalone: true,
-  imports: [CommonModule, NgIf, NgFor, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PopupComponent],
   templateUrl: './demande-autorisation.component.html',
   styleUrls: ['./demande-autorisation.component.css']
 })
 export class DemandeAutorisationComponent implements OnInit {
-  @ViewChild('typeAutorisation') typeAutorisationRef!: ElementRef<HTMLSelectElement>;
-
-  // PRÉVU
-  @ViewChild('dateAutorisation') dateAutorisationRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('heureDebut') heureDebutRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('heureFin') heureFinRef!: ElementRef<HTMLInputElement>;
-
-  // RÉEL (optionnel)
-  @ViewChild('dateReelle') dateReelleRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('heureSortieReelle') heureSortieReelleRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('heureRetourReel') heureRetourReelRef!: ElementRef<HTMLInputElement>;
-
-
+  congeForm: FormGroup;
   showPopup = false;
   popupTitle = '';
   popupMessage = '';
@@ -35,14 +25,22 @@ export class DemandeAutorisationComponent implements OnInit {
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
- 
-
   typesAutorisation = TYPE_AUTORISATION.map(t => ({
     value: t,
     label: TYPE_DEMANDE_LABELS[t]
   }));
 
-  constructor(private demandeService: DemandeService) {}
+  constructor(private demandeService: DemandeService, private fb: FormBuilder) {
+    this.congeForm = this.fb.group({
+      typeDemande: ['', Validators.required],
+      dateAutorisation: ['', Validators.required],
+      heureDebut: ['', Validators.required],
+      heureFin: ['', Validators.required],
+      dateReelle: [''],
+      heureSortieReelle: [''],
+      heureRetourReel: ['']
+    });
+  }
 
   ngOnInit(): void {
     const now = new Date();
@@ -52,66 +50,53 @@ export class DemandeAutorisationComponent implements OnInit {
     const hh = this.pad2(now.getHours());
     const min = this.pad2(now.getMinutes());
 
-    setTimeout(() => {
-      if (this.dateAutorisationRef) this.dateAutorisationRef.nativeElement.value = `${yyyy}-${mm}-${dd}`;
-      if (this.heureDebutRef) this.heureDebutRef.nativeElement.value = `${hh}:${min}`;
-      if (this.heureFinRef) this.heureFinRef.nativeElement.value = `${this.pad2(now.getHours() + 1)}:${min}`;
-    }, 0);
+    this.congeForm.patchValue({
+      dateAutorisation: `${yyyy}-${mm}-${dd}`,
+      heureDebut: `${hh}:${min}`,
+      heureFin: `${this.pad2(now.getHours() + 1)}:${min}`
+    });
   }
 
-  onSubmit(event: Event): void {
-    event.preventDefault();
+  onSubmit(): void {
     this.errorMessage = null;
     this.successMessage = null;
 
-    const typeAutorisation = this.typeAutorisationRef.nativeElement.value as TypeDemande | '';
-
-    // PRÉVU (requis)
-    const dateAutorisation = this.dateAutorisationRef.nativeElement.value; // yyyy-MM-dd
-    const heureDebut = this.heureDebutRef.nativeElement.value;             // HH:mm
-    const heureFin   = this.heureFinRef.nativeElement.value;               // HH:mm
-
-    if (!typeAutorisation) {
-      this.errorMessage = 'Veuillez sélectionner un type d’autorisation.';
-      return;
-    }
-    if (!dateAutorisation || !heureDebut || !heureFin) {
-      this.errorMessage = 'Veuillez renseigner le jour et les heures prévues.';
+    if (this.congeForm.invalid) {
+      this.errorMessage = 'Veuillez renseigner tous les champs obligatoires correctement.';
+      this.congeForm.markAllAsTouched();
       return;
     }
 
-    // RÉEL (optionnel)
-    const dateReelle        = this.dateReelleRef?.nativeElement?.value ?? '';
-    const heureSortieReelle = this.heureSortieReelleRef?.nativeElement?.value ?? '';
-    const heureRetourReel   = this.heureRetourReelRef?.nativeElement?.value ?? '';
-
-    // Si l’un des 3 réels est saisi, exiger les 3
-    const anyReal = !!(dateReelle || heureSortieReelle || heureRetourReel);
-    if (anyReal && (!dateReelle || !heureSortieReelle || !heureRetourReel)) {
+    const formValue = this.congeForm.value;
+    const anyReal = !!(formValue.dateReelle || formValue.heureSortieReelle || formValue.heureRetourReel);
+    if (anyReal && (!formValue.dateReelle || !formValue.heureSortieReelle || !formValue.heureRetourReel)) {
       this.errorMessage = 'Si vous renseignez le réel, fournissez la date réelle, l’heure de sortie réelle et l’heure de retour réelle.';
+      this.congeForm.markAllAsTouched();
+      this.showErrorPopup('Erreur', this.errorMessage, null, true);
       return;
     }
 
-    // Construction du payload aligné backend
     const body: AutorisationRequest = {
-      typeDemande: typeAutorisation,
-      dateAutorisation: this.toDDMMYYYY(dateAutorisation),
-      heureDebut,
-      heureFin,
+      typeDemande: formValue.typeDemande as TypeDemande,
+      dateAutorisation: this.toDDMMYYYY(formValue.dateAutorisation),
+      heureDebut: formValue.heureDebut,
+      heureFin: formValue.heureFin,
       ...(anyReal ? {
-        dateReelle: this.toDDMMYYYY(dateReelle),
-        heureSortieReelle,
-        heureRetourReel
+        dateReelle: this.toDDMMYYYY(formValue.dateReelle),
+        heureSortieReelle: formValue.heureSortieReelle,
+        heureRetourReel: formValue.heureRetourReel
       } : {})
     };
 
     this.demandeService.createAutorisation(body).subscribe({
       next: () => {
         this.successMessage = 'Demande d’autorisation envoyée avec succès !';
+        this.showSuccessPopup('Succès', this.successMessage, null, false);
         this.resetForm();
       },
       error: (err: any) => {
-        this.errorMessage = (err?.error?.message || err?.message) ?? 'Erreur lors de l’envoi.';
+        this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
+        this.showErrorPopup('Erreur','Erreur lors de l’envoi.' , null, true);
       }
     });
   }
@@ -121,17 +106,30 @@ export class DemandeAutorisationComponent implements OnInit {
     const [y, m, d] = yyyyMMdd.split('-');
     return `${d}/${m}/${y}`;
   }
-  private pad2(n: number): string { return n < 10 ? `0${n}` : `${n}`; }
+
+  private pad2(n: number): string {
+    return n < 10 ? `0${n}` : `${n}`;
+  }
 
   private resetForm(): void {
-    this.typeAutorisationRef.nativeElement.value = '';
-    this.dateAutorisationRef.nativeElement.value = '';
-    this.heureDebutRef.nativeElement.value = '';
-    this.heureFinRef.nativeElement.value = '';
-    if (this.dateReelleRef) this.dateReelleRef.nativeElement.value = '';
-    if (this.heureSortieReelleRef) this.heureSortieReelleRef.nativeElement.value = '';
-    if (this.heureRetourReelRef) this.heureRetourReelRef.nativeElement.value = '';
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = this.pad2(now.getMonth() + 1);
+    const dd = this.pad2(now.getDate());
+    const hh = this.pad2(now.getHours());
+    const min = this.pad2(now.getMinutes());
+
+    this.congeForm.reset({
+      typeDemande: '',
+      dateAutorisation: `${yyyy}-${mm}-${dd}`,
+      heureDebut: `${hh}:${min}`,
+      heureFin: `${this.pad2(now.getHours() + 1)}:${min}`,
+      dateReelle: '',
+      heureSortieReelle: '',
+      heureRetourReel: ''
+    });
   }
+
   showSuccessPopup(title: string, message: string, path: string | null, showCancelButton: boolean): void {
     this.popupTitle = title;
     this.popupMessage = message;

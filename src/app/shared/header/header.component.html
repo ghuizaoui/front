@@ -69,20 +69,54 @@
           <ng-container *ngIf="userRole === 'CONCIERGE'">
             <li class="menu-title"><span>Menu</span></li>
             <li class="nav-item">
-              <a routerLink="/dashboard-concierge" class="nav-link">
+              <a routerLink="/dashboard-employe" class="nav-link">
                 <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
               </a>
             </li>
-            <li class="nav-item">
-              <a routerLink="/exit" class="nav-link">
-                <i class="bi bi-box-arrow-right"></i> <span>Exit</span>
-              </a>
-            </li>
+          
             <li class="nav-item">
               <a routerLink="/calendar" class="nav-link">
                 <i class="bi bi-calendar2-week"></i> <span>Calendar</span>
               </a>
             </li>
+
+
+            <li class="nav-item">
+              <a href="#sidebarRequests"
+                 (click)="isRequestsOpen = !isRequestsOpen; $event.preventDefault()"
+                 class="nav-link menu-link d-flex justify-content-between align-items-center"
+                 data-bs-toggle="collapse"
+                 [attr.aria-expanded]="isRequestsOpen"
+                 aria-controls="sidebarRequests">
+                <span>
+                  <i class="bi bi-journal-plus"></i> <span>Demandes</span>
+                </span>
+              </a>
+              <div class="menu-dropdown collapse" [ngClass]="{'show': isRequestsOpen}" id="sidebarRequests">
+                <ul class="nav nav-sm flex-column">
+                  <li class="nav-item">
+                    <a routerLink="/demande-conge" class="nav-link">Congé standard</a>
+                  </li>
+                  <li class="nav-item">
+                    <a routerLink="/demande-conge-exceptionnel" class="nav-link">Congé exceptionnel</a>
+                  </li>
+                  <li class="nav-item">
+                    <a routerLink="/demande-autorisation" class="nav-link">Autorisation</a>
+                  </li>
+                  <li class="nav-item">
+                    <a routerLink="/ordre-mission" class="nav-link">Ordre de mission</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+
+
+            <li class="nav-item">
+              <a routerLink="/exit" class="nav-link">
+                <i class="bi bi-box-arrow-right"></i> <span>Exit</span>
+              </a>
+            </li>
+
           </ng-container>
 
 
@@ -95,7 +129,7 @@
 
             <!-- Dashboard chef -->
             <li class="nav-item">
-              <a routerLink="/dashboard-chef" class="nav-link">
+              <a routerLink="/dashboard-drh" class="nav-link">
                 <i class="bi bi-person-vcard"></i> <span>Dashboard</span>
               </a>
             </li>
@@ -141,12 +175,7 @@
               </div>
             </li>
 
-            <!-- Historique -->
-            <li class="nav-item">
-              <a routerLink="/historique" class="nav-link">
-                <i class="bi bi-clock-history"></i> <span>Historique</span>
-              </a>
-            </li>
+      
           </ng-container>
 
 
@@ -163,10 +192,6 @@
       <i class="bi bi-person-vcard"></i> <span>Dashboard</span>
     </a>
   </li>
-
-
-
-
 
 
   <!-- Demandes -->
@@ -200,11 +225,7 @@
   </li>
 
   <!-- Historique -->
-  <li class="nav-item">
-    <a routerLink="/historique" class="nav-link">
-      <i class="bi bi-clock-history"></i> <span>Historique</span>
-    </a>
-  </li>
+  
 
 
 

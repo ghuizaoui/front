@@ -92,13 +92,13 @@ export class LoginComponent {
         this.router.navigate(['/dashboard-employe']);
         break;
       case 'CHEF':
-        this.router.navigate(['/dashboard-chef']);
+        this.router.navigate(['/dashboard-drf']);
         break;
       case 'DRH':
         this.router.navigate(['/dashboard-drh']);
         break;
       case 'CONCIERGE':
-        this.router.navigate(['/dashboard-concierge']);
+        this.router.navigate(['/dashboard-employe']);
         break;
       default:
         console.warn('[LOGIN] Unknown role:', role);

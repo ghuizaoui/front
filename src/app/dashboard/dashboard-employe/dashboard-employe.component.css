@@ -1,0 +1,24 @@
+.dashboard-container {
+    margin-left: 250px; /* Adjust based on your sidebar width */
+    padding: 20px;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    transition: margin-left 0.3s ease;
+}
+
+/* If sidebar is collapsed */
+.sidebar-collapsed .dashboard-container {
+    margin-left: 80px; /* Adjust based on collapsed sidebar width */
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+    .dashboard-container {
+        margin-left: 0;
+        padding: 15px;
+    }
+    
+    .sidebar-open .dashboard-container {
+        margin-left: 250px;
+    }
+}

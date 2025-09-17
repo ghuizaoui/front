@@ -1,0 +1,287 @@
+.card {
+    width: 100%;
+    max-width: 800px; /* Slightly wider to accommodate grid layout */
+    margin: 2rem auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .card-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+  }
+  
+  .card-header .card-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  .form-control,
+  .form-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #f9fafb;
+  }
+  
+  .form-control:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    background-color: white;
+  }
+  
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+  }
+  
+  .text-danger {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: #ef4444;
+  }
+  
+  .is-invalid {
+    border-color: #ef4444;
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+  
+  .is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  }
+  
+  .fw-semibold {
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .form-text {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+  
+  .alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .alert-danger {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  
+  .alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+  
+  .btn-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.625rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .btn-primary {
+    background-color: #4f46e5;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: #4338ca;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-primary:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .btn-secondary {
+    background-color: white;
+    color: #4f46e5;
+    border: 1px solid #d1d5db;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-3px); }
+    40%, 60% { transform: translateX(3px); }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .card {
+      margin: 1rem;
+      max-width: 95%;
+    }
+  
+    .card-body {
+      padding: 1rem;
+    }
+  
+    .btn-container {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .btn {
+      width: 100%;
+    }
+  
+    .row.gy-4 > div {
+      margin-bottom: 1rem;
+    }
+  }
+  
+  /* Micro-interactions */
+  .form-control:hover,
+  .form-select:hover {
+    border-color: #9ca3af;
+  }
+  
+  .btn:active {
+    transform: translateY(1px);
+  }
+  
+  /* Accessibility focus styles */
+  .form-control:focus-visible,
+  .form-select:focus-visible,
+  .btn:focus-visible {
+    outline: 2px solid #4f46e5;
+    outline-offset: 2px;
+  }
+  
+  /* Smooth transitions for form elements */
+  .form-control,
+  .form-select,
+  .btn {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /* Input placeholder styling */
+  .form-control::placeholder,
+  .form-select::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+  }
+  
+  /* Date input specific styling */
+  input[type="date"] {
+    position: relative;
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+  }
+  
+  /* Select input specific styling */
+  .form-select option {
+    background-color: white;
+    color: #374151;
+  }
+  
+  /* Optional fields styling */
+  .form-text + .form-group .form-label {
+    color: #6b7280; /* Lighter color for optional fields */
+  }
+  
+  /* Scrollbar styling for card body */
+  .card-body::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .card-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  .card-body::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+  }
+  
+  .card-body::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+  
+  /* Success state */
+  .is-valid {
+    border-color: #10b981;
+  }
+  
+  .is-valid:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  }

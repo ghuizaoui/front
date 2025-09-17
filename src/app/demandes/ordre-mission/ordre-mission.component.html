@@ -24,39 +24,52 @@
               <h4 class="card-title mb-0">Formulaire d’Ordre de mission</h4>
             </div>
 
-            <!-- Ajout de (ngSubmit) uniquement -->
-            <form (ngSubmit)="onSubmit($event)">
+            <form [formGroup]="ordreMissionForm" (ngSubmit)="onSubmit()">
               <div class="card-body">
                 <div class="row gy-4">
-
                   <!-- Date début -->
                   <div class="col-12">
                     <label for="dateDebut" class="form-label">Date de début</label>
-                    <input type="date" class="form-control" id="dateDebut" #dateDebut required>
+                    <input type="date" class="form-control" id="dateDebut" formControlName="dateDebut" required>
+                    <ng-container *ngIf="ordreMissionForm.get('dateDebut')?.touched && ordreMissionForm.get('dateDebut')?.invalid">
+                      <span class="text-danger">La date de début est obligatoire.</span>
+                    </ng-container>
                   </div>
 
                   <!-- Heure début -->
                   <div class="col-12">
                     <label for="heureDebut" class="form-label">Heure de début</label>
-                    <input type="time" class="form-control" id="heureDebut" #heureDebut required>
+                    <input type="time" class="form-control" id="heureDebut" formControlName="heureDebut" required>
+                    <ng-container *ngIf="ordreMissionForm.get('heureDebut')?.touched && ordreMissionForm.get('heureDebut')?.invalid">
+                      <span class="text-danger">L’heure de début est obligatoire.</span>
+                    </ng-container>
                   </div>
 
                   <!-- Date fin -->
                   <div class="col-12">
                     <label for="dateFin" class="form-label">Date de fin</label>
-                    <input type="date" class="form-control" id="dateFin" #dateFin required>
+                    <input type="date" class="form-control" id="dateFin" formControlName="dateFin" required>
+                    <ng-container *ngIf="ordreMissionForm.get('dateFin')?.touched && ordreMissionForm.get('dateFin')?.invalid">
+                      <span class="text-danger">La date de fin est obligatoire.</span>
+                    </ng-container>
                   </div>
 
                   <!-- Heure fin -->
                   <div class="col-12">
                     <label for="heureFin" class="form-label">Heure de fin</label>
-                    <input type="time" class="form-control" id="heureFin" #heureFin required>
+                    <input type="time" class="form-control" id="heureFin" formControlName="heureFin" required>
+                    <ng-container *ngIf="ordreMissionForm.get('heureFin')?.touched && ordreMissionForm.get('heureFin')?.invalid">
+                      <span class="text-danger">L’heure de fin est obligatoire.</span>
+                    </ng-container>
                   </div>
 
                   <!-- Objet de la mission -->
                   <div class="col-12">
                     <label for="objetMission" class="form-label">Objet de la mission</label>
-                    <textarea class="form-control" id="objetMission" #objetMission rows="3" required></textarea>
+                    <textarea class="form-control" id="objetMission" formControlName="objetMission" rows="3" required></textarea>
+                    <ng-container *ngIf="ordreMissionForm.get('objetMission')?.touched && ordreMissionForm.get('objetMission')?.invalid">
+                      <span class="text-danger">L’objet de la mission est obligatoire.</span>
+                    </ng-container>
                   </div>
 
                   <!-- Messages -->
@@ -66,23 +79,30 @@
                   <div class="col-12" *ngIf="successMessage">
                     <div class="alert alert-success">{{ successMessage }}</div>
                   </div>
-
                 </div>
 
                 <!-- Bouton valider -->
                 <div class="row mt-4">
                   <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" [disabled]="ordreMissionForm.invalid">
                       Envoyer la demande
                     </button>
                   </div>
                 </div>
               </div>
             </form>
-
           </div>
         </div><!-- end col -->
       </div><!-- end row -->
+
+      <app-popup *ngIf="showPopup"
+        [title]="popupTitle"
+        [message]="popupMessage"
+        [isSuccess]="popupIsSuccess"
+        [redirectPath]="popupRedirectPath"
+        [showCancelButton]="showCancelButton"
+        (closed)="closePopup()">
+      </app-popup>
     </div> <!-- container-fluid -->
   </div><!-- End Page-content -->
 </div>
