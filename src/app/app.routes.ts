@@ -21,6 +21,9 @@ import {ResetPasswordComponent} from './reset-password/reset-password.component'
 import { HistoriqueDemandesComponent } from './historique-demandes/historique-demandes.component';
 import {DrhDemandesComponent} from './drh-demandes/drh-demandes.component';
 import {ChefDemandesComponent} from './chef-demandes/chef-demandes.component';
+import { Component } from '@angular/core';
+import { Calendar } from '@fullcalendar/core/index.js';
+import { CalendarComponent } from './calendar/calendar.component';
 
 export const routes: Routes = [
   // --- pages SANS shell (ex : login) ------------------------------
@@ -46,6 +49,7 @@ export const routes: Routes = [
       { path: 'employees', component: EmployeesComponent },
       { path: 'historique', component: HistoriqueDemandesComponent},
       { path: 'historique-chef', component: DashboardChefComponent },
+      {path:'calendar',component: CalendarComponent}
 
 
     ]

@@ -6,15 +6,24 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../services/auth/auth.service';
 import { FirstLoginService } from '../services/Firstlogin/first-login.service';
 import { LoginResponse, LoginRequest } from '../models/Auth.model';
+import { PopupComponent } from "../shared/popup/popup.component";
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [FormsModule, RouterLink]
+  imports: [FormsModule, RouterLink, PopupComponent,CommonModule]
 })
 export class LoginComponent {
+    // popup variables ///////////////////////////////////////////////////////////////
+    showPopup = false;
+    popupTitle = '';
+    popupMessage = '';
+    popupIsSuccess = false;
+    popupRedirectPath: string | null = null;
+    showCancelButton = false;
   matricule = '';
   motDePasse = '';
   error = '';
@@ -65,9 +74,12 @@ export class LoginComponent {
           this.router.navigate(['/reset-password']);
           return;
         }
+        this.handleLoginError(err);
+        console.log(this.error)
+        this.showErrorPopup("Login failed",this.error,null,true);
 
         // Autres erreurs
-        this.handleLoginError(err);
+      
       }
     });
   }
@@ -127,4 +139,35 @@ export class LoginComponent {
     this.motDePasse = '';
     this.error = '';
   }
+
+
+
+
+
+   /// popup methods //////////////////////////////////////////
+
+   showSuccessPopup(title: string , message: string,path: string|null,showCancelButton:boolean) {
+    this.popupTitle =  title;
+    this.popupMessage =  message;
+    this.popupIsSuccess = true;
+    this.popupRedirectPath = path;
+    this.showCancelButton = showCancelButton;
+    this.showPopup = true;
+  }
+
+  showErrorPopup(title : string,errorMessage: string,path:string|null,showCancelButton:boolean) {
+    console.log('show error popup actived')
+    this.popupTitle = title;
+    this.popupMessage = errorMessage;
+    this.popupIsSuccess = false;
+    this.popupRedirectPath = path;
+    this.showCancelButton = showCancelButton;
+    this.showPopup = true;
+  }
+
+  closePopup() {
+    this.showPopup = false;
+  }
+////////////////////////////////////
+
 }

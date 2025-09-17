@@ -1,0 +1,38 @@
+<div class="network-growth-chart">
+  <div class="chart-header">
+
+    <div class="chart-legend">
+      <span class="legend-item">
+        <span class="legend-color"></span>
+        <span class="legend-label">New Connections</span>
+      </span>
+    </div>
+  </div>
+  <div class="chart-visualization">
+    <apx-chart
+      [series]="chartOptions['series']"
+      [chart]="chartOptions['chart']"
+      [xaxis]="chartOptions['xaxis']"
+      [yaxis]="chartOptions['yaxis']"
+      [stroke]="chartOptions['stroke']"
+      [fill]="chartOptions['fill']"
+      [colors]="chartOptions['colors']"
+      [title]="chartOptions['title']"
+      [theme]="chartOptions['theme']"
+      [tooltip]="chartOptions['tooltip']"
+      [markers]="chartOptions['markers']"
+    ></apx-chart>
+  </div>
+  <div class="chart-footer">
+    <div class="network-stats">
+      <div class="stat-item">
+        <span class="stat-value">12M+</span>
+        <span class="stat-label">Total Network</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">24%</span>
+        <span class="stat-label">YoY Growth</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<!-- shared/components/popup/popup.component.html -->
+<div class="modal-backdrop show"></div>
+
+<div class="custom-modal show" tabindex="-1" role="dialog" aria-modal="true" [attr.aria-labelledby]="'popupTitle'" [attr.aria-describedby]="'popupMessage'">
+  <div class="modal-dialog-container">
+    <div class="modal-content-wrapper">
+      <div class="modal-header-wrapper" [ngClass]="{'success-header': isSuccess, 'error-header': !isSuccess}">
+        <h5 id="popupTitle" class="modal-title-text">{{ title }}</h5>
+        <button type="button" class="close-button" (click)="close()" aria-label="Close popup">
+          <span aria-hidden="true" class="close-icon">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body-content">
+        <p id="popupMessage" class="modal-message">{{ message }}</p>
+      </div>
+      <div class="modal-footer-actions">
+        <button *ngIf="showCancelButton"
+                type="button"
+                class="cancel-btn"
+                (click)="close()">
+          Cancel
+        </button>
+        <button *ngIf="redirectPath"
+                type="button"
+                class="continue-btn"
+                [ngClass]="{'success-btn': isSuccess, 'error-btn': !isSuccess}"
+                [routerLink]="redirectPath">
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

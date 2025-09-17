@@ -25,8 +25,17 @@ export class DemandeAutorisationComponent implements OnInit {
   @ViewChild('heureSortieReelle') heureSortieReelleRef!: ElementRef<HTMLInputElement>;
   @ViewChild('heureRetourReel') heureRetourReelRef!: ElementRef<HTMLInputElement>;
 
+
+  showPopup = false;
+  popupTitle = '';
+  popupMessage = '';
+  popupIsSuccess = false;
+  popupRedirectPath: string | null = null;
+  showCancelButton = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
+
+ 
 
   typesAutorisation = TYPE_AUTORISATION.map(t => ({
     value: t,
@@ -122,5 +131,27 @@ export class DemandeAutorisationComponent implements OnInit {
     if (this.dateReelleRef) this.dateReelleRef.nativeElement.value = '';
     if (this.heureSortieReelleRef) this.heureSortieReelleRef.nativeElement.value = '';
     if (this.heureRetourReelRef) this.heureRetourReelRef.nativeElement.value = '';
+  }
+  showSuccessPopup(title: string, message: string, path: string | null, showCancelButton: boolean): void {
+    this.popupTitle = title;
+    this.popupMessage = message;
+    this.popupIsSuccess = true;
+    this.popupRedirectPath = path;
+    this.showCancelButton = showCancelButton;
+    this.showPopup = true;
+  }
+
+  showErrorPopup(title: string, errorMessage: string, path: string | null, showCancelButton: boolean): void {
+    console.log('show error popup activated');
+    this.popupTitle = title;
+    this.popupMessage = errorMessage;
+    this.popupIsSuccess = false;
+    this.popupRedirectPath = path;
+    this.showCancelButton = showCancelButton;
+    this.showPopup = true;
+  }
+
+  closePopup(): void {
+    this.showPopup = false;
   }
 }

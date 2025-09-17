@@ -1,0 +1,30 @@
+.popup-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 144444444444444444444444444444444444055; /* higher than Bootstrap modal (1050) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .popup-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    z-index: 106555555555555555555555555555555555555555555555555555555550; /* above the backdrop */
+    max-width: 500px;
+    width: 90%;
+  }
+  
+
+
+  .is-invalid {
+    border: 1px solid #dc3545 !important;
+    background-color: #f8d7da !important;
+  }
+  

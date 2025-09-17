@@ -1,0 +1,32 @@
+<div class="kpi-dashboard">
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="kpi-error">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card" *ngFor="let kpi of kpis">
+      <div class="kpi-card-inner">
+        <div class="kpi-header">
+          <i class="fas fa-network-wired kpi-network-icon"></i>
+          <h4 class="kpi-title">{{ kpi.title }}</h4>
+        </div>
+        <div class="kpi-value-wrapper">
+          <p class="kpi-value">{{ kpi.value | number }}</p>
+          <div class="kpi-sparkline">
+            <div class="sparkline-dot"></div>
+            <div class="sparkline-dot"></div>
+            <div class="sparkline-dot"></div>
+            <div class="sparkline-dot"></div>
+          </div>
+        </div>
+        <div class="kpi-connection">
+          <div class="connection-line"></div>
+          <i class="fas fa-server connection-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

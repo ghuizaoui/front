@@ -1,0 +1,230 @@
+/* ===== Networking KPI Dashboard ===== */
+/* Base Styles */
+.kpi-dashboard {
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  padding: 2rem;
+  background-color: #f8fafc;
+}
+
+/* Error Message */
+.kpi-error {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  
+  i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  span {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+/* KPI Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+/* KPI Card */
+.kpi-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #f1f5f9;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    
+    .kpi-network-icon {
+      transform: scale(1.1);
+      color: #3b82f6;
+    }
+    
+    .sparkline-dot {
+      background-color: #3b82f6;
+    }
+  }
+}
+
+.kpi-card-inner {
+  padding: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Card Header */
+.kpi-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-network-icon {
+  font-size: 1.25rem;
+  color: #94a3b8;
+  margin-right: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.kpi-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+}
+
+/* KPI Value */
+.kpi-value-wrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1;
+}
+
+/* Sparkline */
+.kpi-sparkline {
+  display: flex;
+  align-items: flex-end;
+  height: 40px;
+  gap: 4px;
+}
+
+.sparkline-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  position: relative;
+  
+  &:nth-child(1) { height: 10px; }
+  &:nth-child(2) { height: 16px; }
+  &:nth-child(3) { height: 22px; }
+  &:nth-child(4) { height: 12px; }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: inherit;
+    animation: pulse 2s infinite;
+  }
+  
+  &:nth-child(1)::after { animation-delay: 0s; }
+  &:nth-child(2)::after { animation-delay: 0.5s; }
+  &:nth-child(3)::after { animation-delay: 1s; }
+  &:nth-child(4)::after { animation-delay: 1.5s; }
+}
+
+/* Connection Elements */
+.kpi-connection {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.connection-line {
+  height: 1px;
+  width: 100%;
+  background-color: #e2e8f0;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background-color: #3b82f6;
+    animation: connect 3s infinite;
+  }
+}
+
+.connection-icon {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.5rem;
+  color: #cbd5e1;
+  font-size: 1rem;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.8); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes connect {
+  0% { width: 0; }
+  50% { width: 100%; }
+  100% { width: 0; }
+}
+
+/* Network Nodes (Decorative) */
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(59, 130, 246, 0.2);
+  
+  &:nth-child(1) {
+    top: 20%;
+    left: 10%;
+  }
+  &:nth-child(2) {
+    bottom: 30%;
+    right: 15%;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .kpi-dashboard {
+    padding: 1.5rem;
+  }
+}
+
+/* Empty State */
+.kpi-grid:empty::after {
+  content: 'No KPIs available';
+  display: block;
+  text-align: center;
+  grid-column: 1 / -1;
+  color: #94a3b8;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 0.5rem;
+}

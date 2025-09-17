@@ -26,12 +26,13 @@
               <div class="row align-items-center g-2">
                 <div class="col-lg-3 me-auto">
                   <h6 class="card-title mb-0">
-                    Employees <span class="badge bg-primary ms-1 align-baseline">{{employees.length  || 0 }}</span>
+                    Employees <span class="badge bg-primary ms-1 align-baseline">{{employees.length || 0 }}</span>
                   </h6>
                 </div>
                 <div class="col-lg-2">
                   <div class="search-box">
-                    <input type="text" class="form-control search" placeholder="Search name, role…" >
+                    <input type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" class="form-control search"
+                      placeholder="Search name, role…">
                     <i class="ri-search-line search-icon"></i>
                   </div>
                 </div>
@@ -54,57 +55,56 @@
               <div class="table-responsive table-card">
                 <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
                   <thead class="text-muted">
-                  <tr>
-                    <th><input class="form-check-input" type="checkbox" id="checkAll"></th>
-                    <th class="sort" data-sort="matricule">Matricule</th>
-                    <th class="sort" data-sort="name">Nom & Prénom</th>
-                    <th class="sort" data-sort="email">Email</th>
-                    <th class="sort" data-sort="direction">Direction</th>
-                    <th class="sort" data-sort="service">Service</th>
-                    <th class="sort" data-sort="role">Role</th>
-                    <th class="sort" data-sort="grade">Grade</th>
-                    <th class="sort" data-sort="hire">Date d’embauche</th>
-                    <th class="sort" data-sort="contract">Contrat</th>
-                    <th class="sort" data-sort="status">Statut</th>
-                    <th>Action</th>
-                  </tr>
+                    <tr>
+                      <th><input class="form-check-input" type="checkbox" id="checkAll"></th>
+                      <th class="sort" data-sort="matricule">Matricule</th>
+                      <th class="sort" data-sort="name">Nom & Prénom</th>
+                      <th class="sort" data-sort="email">Email</th>
+                      <th class="sort" data-sort="direction">Direction</th>
+                      <th class="sort" data-sort="service">Service</th>
+                      <th class="sort" data-sort="role">Role</th>
+                      <th class="sort" data-sort="grade">Grade</th>
+                      <th class="sort" data-sort="hire">Date d’embauche</th>
+                      <th class="sort" data-sort="contract">Contrat</th>
+                      <th class="sort" data-sort="status">Statut</th>
+                      <th>Action</th>
+                    </tr>
                   </thead>
 
                   <tbody class="list form-check-all">
-                  <tr *ngFor="let emp of employees ">
-                    <td><input class="form-check-input" type="checkbox"></td>
-                    <td class="matricule">{{ emp.matricule }}</td>
-                    <td class="name">{{ emp.nom }} {{ emp.prenom }}</td>
-                    <td class="email">{{ emp.email }}</td>
-                    <td class="direction">{{ emp.direction }}</td>
-                    <td class="service">{{ emp.service }}</td>
-                    <td class="role">{{ emp.role }}</td>
-                    <td class="grade">{{ emp.grade }}</td>
-                    <td class="hire">{{ emp.dateEmbauche | date:'dd-MM-yyyy' }}</td>
-                    <td class="contract">{{ emp.typeContrat }}</td>
-                    <td class="status">
-                      <span class="badge"
-                            [ngClass]="emp.premiereConnexion ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'">
-                        {{ emp.premiereConnexion ? 'Première connexion' : 'Active' }}
-                      </span>
-                    </td>
-                    <td>
-                      <ul class="d-flex gap-2 list-unstyled mb-0">
-                        <li>
-                          <button class="btn btn-subtle-secondary btn-icon btn-sm"
-                                  (click)="openEditModal(emp)">
-                            <i class="ph-pencil"></i>
-                          </button>
-                        </li>
-                        <!-- Suppression si tu veux -->
-                        <!--<li>
+                    <tr *ngFor="let emp of filterEmploye ">
+                      <td><input class="form-check-input" type="checkbox"></td>
+                      <td class="matricule">{{ emp.matricule }}</td>
+                      <td class="name">{{ emp.nom }} {{ emp.prenom }}</td>
+                      <td class="email">{{ emp.email }}</td>
+                      <td class="direction">{{ emp.direction }}</td>
+                      <td class="service">{{ emp.service }}</td>
+                      <td class="role">{{ emp.role }}</td>
+                      <td class="grade">{{ emp.grade }}</td>
+                      <td class="hire">{{ emp.dateEmbauche | date:'dd-MM-yyyy' }}</td>
+                      <td class="contract">{{ emp.typeContrat }}</td>
+                      <td class="status">
+                        <span class="badge"
+                          [ngClass]="emp.premiereConnexion ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'">
+                          {{ emp.premiereConnexion ? 'Première connexion' : 'Active' }}
+                        </span>
+                      </td>
+                      <td>
+                        <ul class="d-flex gap-2 list-unstyled mb-0">
+                          <li>
+                            <button class="btn btn-subtle-secondary btn-icon btn-sm" (click)="openEditModal(emp)">
+                              <i class="ph-pencil"></i>
+                            </button>
+                          </li>
+                          <!-- Suppression si tu veux -->
+                          <!--<li>
                           <button class="btn btn-subtle-danger btn-icon btn-sm" (click)="deleteEmployee(emp.matricule)">
                             <i class="ph-trash"></i>
                           </button>
                         </li>-->
-                      </ul>
-                    </td>
-                  </tr>
+                        </ul>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
 
@@ -130,55 +130,107 @@
 <!-- MODAL : ADD / EDIT EMPLOYEE -->
 <div class="modal fade" id="addEmployee" tabindex="-1" aria-labelledby="addEmployeeLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <form class="modal-content border-0 needs-validation" novalidate (ngSubmit)="saveEmployee(f)" #f="ngForm">
+    <form class="modal-content border-0" [formGroup]="employeeForm" (ngSubmit)="saveEmployee()">
       <div class="modal-header bg-primary">
-        <h5 class="modal-title text-white" id="addEmployeeLabel">{{ editing ? 'Edit' : 'Add' }} Employee</h5>
+        <h5 class="modal-title text-white" id="addEmployeeLabel">
+          {{ editing ? 'Edit' : 'Add' }} Employee
+        </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
-        <input type="hidden" id="employee-id">
         <div class="row g-3">
+
+          <!-- NOM -->
           <div class="col-md-6">
-            <label class="form-label">Nom<span class="text-danger">*</span></label>
-            <input type="text" class="form-control" required [(ngModel)]="selected.nom" name="nom">
+            <label class="form-label">Nom <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="nom"
+              [ngClass]="{'is-invalid': employeeForm.get('nom')?.invalid && employeeForm.get('nom')?.touched}">
+            <ng-container *ngIf="employeeForm.get('nom')?.touched && employeeForm.get('nom')?.invalid">
+              <small class="text-danger" *ngIf="employeeForm.get('nom')?.errors?.['required']">
+                Le nom est requis.
+              </small>
+              <small class="text-danger" *ngIf="employeeForm.get('nom')?.errors?.['minlength']">
+                Le nom doit contenir au moins 3 caractères.
+              </small>
+            </ng-container>
           </div>
+
+          <!-- PRENOM -->
           <div class="col-md-6">
-            <label class="form-label">Prénom<span class="text-danger">*</span></label>
-            <input type="text" class="form-control" required [(ngModel)]="selected.prenom" name="prenom">
+            <label class="form-label">Prénom <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="prenom"
+              [ngClass]="{'is-invalid': employeeForm.get('prenom')?.invalid && employeeForm.get('prenom')?.touched}">
+            <ng-container *ngIf="employeeForm.get('prenom')?.touched && employeeForm.get('prenom')?.invalid">
+              <small class="text-danger" *ngIf="employeeForm.get('prenom')?.errors?.['required']">
+                Le prénom est requis.
+              </small>
+              <small class="text-danger" *ngIf="employeeForm.get('prenom')?.errors?.['minlength']">
+                Le prénom doit contenir au moins 3 caractères.
+              </small>
+            </ng-container>
           </div>
+
+          <!-- EMAIL -->
           <div class="col-md-6">
-            <label class="form-label">Email<span class="text-danger">*</span></label>
-            <input type="email" class="form-control" required [(ngModel)]="selected.email" name="email">
+            <label class="form-label">Email <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" formControlName="email"
+              [ngClass]="{'is-invalid': employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched}">
+            <ng-container *ngIf="employeeForm.get('email')?.touched && employeeForm.get('email')?.invalid">
+              <small class="text-danger" *ngIf="employeeForm.get('email')?.errors?.['required']">
+                L'email est requis.
+              </small>
+              <small class="text-danger" *ngIf="employeeForm.get('email')?.errors?.['email']">
+                Format d'email invalide.
+              </small>
+            </ng-container>
           </div>
+
+          <!-- ROLE -->
           <div class="col-md-6">
-            <label class="form-label">Role<span class="text-danger">*</span></label>
-            <select class="form-select" required [(ngModel)]="selected.role" name="role">
+            <label class="form-label">Role <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="role"
+              [ngClass]="{'is-invalid': employeeForm.get('role')?.invalid && employeeForm.get('role')?.touched}">
+              <option value="">-- Sélectionnez un rôle --</option>
               <option value="EMPLOYE">EMPLOYE</option>
               <option value="CHEF">CHEF</option>
               <option value="DRH">DRH</option>
               <option value="CONCIERGE">CONCIERGE</option>
             </select>
+            <ng-container *ngIf="employeeForm.get('role')?.touched && employeeForm.get('role')?.invalid">
+              <small class="text-danger">Le rôle est requis.</small>
+            </ng-container>
           </div>
+
+          <!-- DIRECTION -->
           <div class="col-md-6">
             <label class="form-label">Direction</label>
-            <input type="text" class="form-control" [(ngModel)]="selected.direction" name="direction">
+            <input type="text" class="form-control" formControlName="direction">
           </div>
+
+          <!-- SERVICE -->
           <div class="col-md-6">
             <label class="form-label">Service</label>
-            <input type="text" class="form-control" [(ngModel)]="selected.service" name="service">
+            <input type="text" class="form-control" formControlName="service">
           </div>
+
+          <!-- GRADE -->
           <div class="col-md-6">
             <label class="form-label">Grade</label>
-            <input type="number" class="form-control" [(ngModel)]="selected.grade" name="grade">
+            <input type="number" class="form-control" formControlName="grade">
           </div>
+
+          <!-- DATE EMBAUCHE -->
           <div class="col-md-6">
             <label class="form-label">Date d’embauche</label>
-            <input type="date" class="form-control" [(ngModel)]="selected.dateEmbauche" name="dateEmbauche">
+            <input type="date" class="form-control" formControlName="dateEmbauche">
           </div>
+
+          <!-- TYPE CONTRAT -->
           <div class="col-md-6">
             <label class="form-label">Type de Contrat</label>
-            <select class="form-select" [(ngModel)]="selected.typeContrat" name="typeContrat">
+            <select class="form-select" formControlName="typeContrat">
+              <option value="">-- Sélectionnez un type --</option>
               <option value="CDI">CDI</option>
               <option value="CIVP">CIVP</option>
               <option value="LETTRE_ENGAGEMENT">LETTRE_ENGAGEMENT</option>
@@ -191,11 +243,14 @@
         <button class="btn btn-ghost-danger" data-bs-dismiss="modal">
           <i class="bi bi-x-lg me-1"></i>Close
         </button>
-        <button type="submit" class="btn btn-primary" id="save-employee">Save</button>
+        <button type="submit" class="btn btn-primary" id="save-employee" [disabled]="employeeForm.invalid">
+          Save
+        </button>
       </div>
     </form>
   </div>
 </div>
+
 
 <!-- OFFCANVAS : FILTERS (optionnel, à brancher si besoin) -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="employeeFilters" aria-labelledby="employeeFiltersLabel">
@@ -244,3 +299,9 @@
     <button class="btn btn-secondary w-100">Apply</button>
   </div>
 </div>
+
+
+
+<app-popup *ngIf="showPopup" [title]="popupTitle" [message]="popupMessage" [isSuccess]="popupIsSuccess"
+  [redirectPath]="popupRedirectPath" [showCancelButton]="showCancelButton" (closed)="closePopup()">
+</app-popup>

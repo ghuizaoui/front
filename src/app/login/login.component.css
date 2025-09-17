@@ -1,62 +1,385 @@
+/* Modern UI/UX Design for Login Page */
+:root {
+  --primary-color: #000000;
+  --primary-hover: #333333;
+  --accent-color: #00D2BE;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --light-bg: #f8f9fa;
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* General page styling */
 .auth-page-wrapper {
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  overflow: auto;
+  margin: 0;
+  padding: 20px;
 }
 
+/* Container fluid for full-width responsiveness */
+.container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Row styling for layout */
+.row {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: nowrap;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: white;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* Left panel styling with dark background for logo */
 .auth-left-panel {
-  color: #fff;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  padding: 2rem;
 }
 
-.btn-outline-dark {
-  border: 1px solid #000;
-  color: #000;
-  background-color: #fff;
-  transition: all 0.3s ease;
+/* Logo image styling */
+.auth-left-panel img {
+  max-width: 280px;
+  width: 80%;
+  height: auto;
+  object-fit: contain;
+  filter: brightness(1) invert(0);
+  transition: transform 0.4s ease, filter 0.4s ease;
+  z-index: 1;
+  margin-bottom: 2rem;
 }
 
-.btn-outline-dark:hover {
-  background-color: #000;
-  color: #fff;
+/* Logo hover effect */
+.auth-left-panel img:hover {
+  transform: scale(1.05);
 }
 
+/* Right panel card styling */
+.card {
+  background-color: #ffffff;
+  border-radius: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: var(--transition);
+}
+
+/* Card body styling */
+.card-body {
+  padding: 3rem 2.5rem;
+  max-width: 450px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Heading typography */
+h5.fs-3xl {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Subheading text */
+.text-muted {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Form styling */
+form {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Form label styling */
+.form-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Input fields */
 .form-control {
-  border-radius: 0.25rem;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  height: 50px;
+  background-color: #ffffff;
+  color: var(--text-primary);
   box-shadow: none;
-  border-color: #ced4da;
+  transition: var(--transition);
 }
 
+/* Input hover state */
+.form-control:hover {
+  border-color: #b1b7c3;
+  background-color: #fafbfc;
+}
+
+/* Input focus state */
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  outline: none;
+  background-color: #ffffff;
+}
+
+/* Placeholder styling */
+.form-control::placeholder {
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+/* Password input group */
+.auth-pass-inputgroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Password input specific styling */
+.password-input {
+  padding-right: 3rem;
+  width: 100%;
+  background-color: #ffffff;
+}
+
+/* Password toggle button */
+.password-addon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 12px;
+  font-size: 1.2rem;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  transition: color 0.2s ease;
+  z-index: 10;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Password toggle hover */
+.password-addon:hover {
+  color: var(--primary-color);
+}
+
+/* Forgot password link */
+.text-decoration-none {
+  font-size: 0.95rem;
+  color: var(--primary-color);
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-weight: 500;
+}
+
+/* Forgot password link hover */
+.text-decoration-none:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* Checkbox styling */
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.form-check-input {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  background-color: #ffffff;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  margin-top: 0;
+  margin-right: 0.75rem;
+}
+
+/* Checkbox hover state */
+.form-check-input:hover {
+  border-color: var(--primary-color);
+}
+
+/* Checkbox checked state */
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Checkbox label */
+.form-check-label {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* Sign-in button */
 .btn-primary {
-  background-color: #000000;
-  border-color: #000000;
-  border-radius: 0.25rem;
+  background-color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
 }
 
+/* Sign-in button hover */
 .btn-primary:hover {
-  background-color: #000000;
-  border-color: #000000;
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
-@media (max-width: 768px) {
-  .col-6 {
-    flex: 0 0 100%;
-    max-width: 100%;
+/* Sign-in button active */
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Additional spacing */
+.mb-3 {
+  margin-bottom: 1.5rem !important;
+}
+
+.mt-4 {
+  margin-top: 2rem !important;
+}
+
+/* Text alignment for form elements */
+.text-end {
+  text-align: right !important;
+}
+
+/* Responsive adjustments for medium screens */
+@media (max-width: 992px) {
+  .row {
+    flex-direction: column;
+    max-width: 500px;
   }
+  
   .auth-left-panel {
-    display: none;
+    min-height: 200px;
+    padding: 1.5rem;
+  }
+  
+  .auth-left-panel img {
+    max-width: 200px;
+    margin-bottom: 1rem;
+  }
+  
+  .card-body {
+    padding: 2.5rem 2rem;
   }
 }
-.container,
-.container-fluid,
-.container-lg,
-.container-md,
-.container-sm,
-.container-xl,
-.container-xxl {
-  --tb-gutter-x: 0 !important; /* Reset gutter to 0, overriding any previous value */
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  width: 100% !important; /* Ensure full width if no padding is desired */
-  max-width: none !important; /* Remove any max-width constraints */
+
+/* Responsive adjustments for small screens */
+@media (max-width: 576px) {
+  .auth-page-wrapper {
+    padding: 10px;
+  }
+  
+  .card-body {
+    padding: 2rem 1.5rem;
+  }
+  
+  h5.fs-3xl {
+    font-size: 1.625rem;
+  }
+}
+
+/* Focus states for accessibility */
+.form-control:focus,
+.form-check-input:focus,
+.btn-primary:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for form elements */
+.form-control,
+.btn-primary,
+.form-check-input,
+.text-decoration-none {
+  transition: var(--transition);
+}
+
+/* Ensure proper button alignment */
+.btn-primary {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Add subtle shadow to inputs */
+.form-control {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }

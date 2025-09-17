@@ -1,24 +1,26 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { CommonModule, NgIf, NgFor } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DemandeService } from '../../services/demande/demande.service';
 import { CongeRequest } from '../../models/CongeRequest.model';
 import { TYPE_CONGE_EXCEPTIONNEL, TypeDemande, TYPE_DEMANDE_LABELS } from '../../models/TypeDemande.model';
-import {DemandeService} from '../../services/demande/demande.service';
+import { PopupComponent } from "../../shared/popup/popup.component";
 
 @Component({
   selector: 'app-demande-conge-exceptionnel',
   standalone: true,
-  imports: [CommonModule, NgIf, NgFor, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PopupComponent],
   templateUrl: './demande-conge-exceptionnel.component.html',
   styleUrls: ['./demande-conge-exceptionnel.component.css']
 })
 export class DemandeCongeExceptionnelComponent implements OnInit {
-  @ViewChild('typeConge') typeCongeRef!: ElementRef<HTMLSelectElement>;
-  @ViewChild('dateDebut') dateDebutRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('dateFin') dateFinRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('heureDebut') heureDebutRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('heureFin') heureFinRef!: ElementRef<HTMLInputElement>;
-
+  congeForm: FormGroup;
+  showPopup = false;
+  popupTitle = '';
+  popupMessage = '';
+  popupIsSuccess = false;
+  popupRedirectPath: string | null = null;
+  showCancelButton = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
@@ -27,56 +29,92 @@ export class DemandeCongeExceptionnelComponent implements OnInit {
     label: TYPE_DEMANDE_LABELS[type]
   }));
 
-  constructor(private demandeService: DemandeService) {}
+  constructor(private demandeService: DemandeService, private fb: FormBuilder) {
+    this.congeForm = this.fb.group({
+      typeDemande: ['', Validators.required],
+      dateDebut: ['', Validators.required],
+      dateFin: ['', Validators.required],
+      heureDebut: [''],
+      heureFin: [''],
+      interimaireMatricule: [''],
+      pasDInterim: [false],
+      validationManuelleDRH: [false]
+    });
+  }
 
   ngOnInit(): void {}
 
-  onSubmit(event: Event): void {
-    event.preventDefault();
+  onSubmit(): void {
     this.errorMessage = null;
     this.successMessage = null;
 
-    const typeCongeValeur = this.typeCongeRef.nativeElement.value as TypeDemande;
-    const dateDebutValeur = this.dateDebutRef.nativeElement.value;
-    const dateFinValeur = this.dateFinRef.nativeElement.value;
-    const heureDebutValeur = this.heureDebutRef.nativeElement.value;
-    const heureFinValeur = this.heureFinRef.nativeElement.value;
-
-    if (!typeCongeValeur || !dateDebutValeur || !dateFinValeur) {
-      this.errorMessage = 'Veuillez renseigner tous les champs obligatoires.';
+    if (this.congeForm.invalid) {
+      this.errorMessage = 'Veuillez renseigner tous les champs obligatoires correctement.';
+      this.congeForm.markAllAsTouched();
       return;
     }
 
+    const formValue = this.congeForm.value;
     const body: CongeRequest = {
-      typeDemande: typeCongeValeur,
-      dateDebut: this.toDDMMYYYY(dateDebutValeur),
-      dateFin: this.toDDMMYYYY(dateFinValeur),
-      heureDebut: heureDebutValeur || undefined,
-      heureFin: heureFinValeur || undefined
+      typeDemande: formValue.typeDemande as TypeDemande,
+      dateDebut: this.toDDMMYYYY(formValue.dateDebut),
+      dateFin: this.toDDMMYYYY(formValue.dateFin),
+      heureDebut: formValue.heureDebut || undefined,
+      heureFin: formValue.heureFin || undefined,
     };
 
     this.demandeService.createCongeExceptionnel(body).subscribe({
       next: () => {
         this.successMessage = 'Demande de congé exceptionnel envoyée avec succès !';
+        this.showSuccessPopup('Succès', this.successMessage, null, false);
         this.resetForm();
       },
-      error: (err: unknown) => {
-        const anyErr = err as any;
-        this.errorMessage = (anyErr?.error?.message || anyErr?.message) ?? 'Erreur lors de l’envoi.';
+      error: (err: any) => {
+        this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
+        this.showErrorPopup('Erreur','Erreur lors de l’envoi.', null, true);
       }
     });
   }
 
   private toDDMMYYYY(dateStr: string): string {
+    if (!dateStr) return '';
     const [y, m, d] = dateStr.split('-');
     return `${d}/${m}/${y}`;
   }
 
   private resetForm(): void {
-    this.typeCongeRef.nativeElement.value = '';
-    this.dateDebutRef.nativeElement.value = '';
-    this.dateFinRef.nativeElement.value = '';
-    this.heureDebutRef.nativeElement.value = '';
-    this.heureFinRef.nativeElement.value = '';
+    this.congeForm.reset({
+      typeDemande: '',
+      dateDebut: '',
+      dateFin: '',
+      heureDebut: '',
+      heureFin: '',
+      interimaireMatricule: '',
+      pasDInterim: false,
+      validationManuelleDRH: false
+    });
+  }
+
+  showSuccessPopup(title: string, message: string, path: string | null, showCancelButton: boolean): void {
+    this.popupTitle = title;
+    this.popupMessage = message;
+    this.popupIsSuccess = true;
+    this.popupRedirectPath = path;
+    this.showCancelButton = showCancelButton;
+    this.showPopup = true;
+  }
+
+  showErrorPopup(title: string, errorMessage: string, path: string | null, showCancelButton: boolean): void {
+    console.log('show error popup activated');
+    this.popupTitle = title;
+    this.popupMessage = errorMessage;
+    this.popupIsSuccess = false;
+    this.popupRedirectPath = path;
+    this.showCancelButton = showCancelButton;
+    this.showPopup = true;
+  }
+
+  closePopup(): void {
+    this.showPopup = false;
   }
 }

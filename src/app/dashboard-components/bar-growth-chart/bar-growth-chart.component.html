@@ -1,0 +1,62 @@
+<div class="analytics-card">
+  <div class="card-header">
+    <div class="header-content">
+      <h3 class="card-title">Job Postings Analytics</h3>
+      <div class="time-filter">
+        <button class="filter-btn active">Monthly</button>
+        <button class="filter-btn">Quarterly</button>
+        <button class="filter-btn">Yearly</button>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="action-btn export">
+        <i class="icon-download"></i> Export
+      </button>
+      <button class="action-btn refresh" (click)="retryLoadData()">
+        <i class="icon-refresh"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Chart area -->
+  <div class="chart-container" *ngIf="!isLoading && !errorMessage">
+    <apx-chart
+      [series]="chartOptions.series"
+      [chart]="chartOptions.chart"
+      [xaxis]="chartOptions.xaxis"
+      [yaxis]="chartOptions.yaxis"
+      [plotOptions]="chartOptions.plotOptions"
+      [fill]="chartOptions.fill"
+      [title]="chartOptions.title"
+      [theme]="chartOptions.theme"
+      [tooltip]="chartOptions.tooltip"
+      [dataLabels]="chartOptions.dataLabels"
+      [grid]="chartOptions.grid"
+      [stroke]="chartOptions.stroke"
+    ></apx-chart>
+  </div>
+
+  <!-- Loading state -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading company postings data...</p>
+  </div>
+
+  <!-- Error state -->
+  <div class="error-state" *ngIf="errorMessage && !isLoading">
+    <i class="icon-error"></i>
+    <p>{{ errorMessage }}</p>
+    <button class="retry-btn" (click)="retryLoadData()">Retry</button>
+  </div>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    <div class="trend-indicator">
+      <i class="icon-trend-up"></i>
+      <span>Positive hiring trend observed</span>
+    </div>
+    <div class="view-all">
+      <a href="#">View all Companies <i class="icon-arrow-right"></i></a>
+    </div>
+  </div>
+</div>

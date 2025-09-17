@@ -21,6 +21,10 @@ export class DemandeService {
     return this.http.post<Demande>(`${this.apiUrl}/conge-standard`, body);
   }
 
+  getAllDemandes(): Observable<Demande[]>{
+    return this.http.get<Demande[]>(`${this.apiUrl}/get-all`)
+  }
+
   createCongeExceptionnel(body: CongeRequest): Observable<Demande> {
     return this.http.post<Demande>(`${this.apiUrl}/conge-exceptionnel`, body);
   }
@@ -100,5 +104,79 @@ export class DemandeService {
   refuser(demandeId: number, commentaire: string): Observable<Demande> {
     return this.http.post<Demande>(`${this.apiUrl}/${demandeId}/refuser`, { commentaire });
   }
+
+
+
+
+
+  //***************************** Dashboard  */
+
+  /**
+ * Récupère le nombre de demandes par catégorie.
+ * Exemple retour JSON: [["CONGE_STANDARD", 12], ["AUTORISATION", 8]]
+ */
+getCountByCategorie(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/count/categorie`);
+}
+
+/**
+ * Récupère le nombre de demandes par employé (matricule).
+ * Exemple retour JSON: [["e1234", 6], ["e5678", 9]]
+ */
+getCountByEmploye(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/count/employe`);
+}
+
+/**
+ * Récupère le nombre de demandes par service.
+ * Exemple retour JSON: [["RH", 10], ["IT", 8]]
+ */
+getCountByService(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/count/service`);
+}
+
+/**
+ * Récupère le temps moyen de validation (en secondes).
+ * Exemple retour JSON: 125.5
+ */
+getAverageValidationTime(): Observable<number> {
+  return this.http.get<number>(`${this.apiUrl}/average-validation-time`);
+}
+
+
+
+// -------------------- CHARTS / TIME SERIES --------------------
+countDemandesPerMonth(start: string, end: string): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/chart/month?start=${start}&end=${end}`);
+}
+
+countDemandesPerMonthAndYear(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/chart/month-year`);
+}
+
+countDemandesByCategoriePerMonth(start: string, end: string): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/chart/category-month?start=${start}&end=${end}`);
+}
+
+countDemandesByType(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/chart/type`);
+}
+
+// -------------------- FILTERS / SEARCH --------------------
+findByEmployeAndStatut(matricule: string, statut: string): Observable<Demande[]> {
+  return this.http.get<Demande[]>(`${this.apiUrl}/filter/employe-statut?matricule=${matricule}&statut=${statut}`);
+}
+
+findByTypeDemande(typeDemande: string): Observable<Demande[]> {
+  return this.http.get<Demande[]>(`${this.apiUrl}/filter/type?type=${typeDemande}`);
+}
+
+findByDateCreationBetween(start: string, end: string): Observable<Demande[]> {
+  return this.http.get<Demande[]>(`${this.apiUrl}/filter/date-range?start=${start}&end=${end}`);
+}
+
+countByEmployeAndDateRange(matricule: string, start: string, end: string): Observable<number> {
+  return this.http.get<number>(`${this.apiUrl}/filter/count-employe-date?matricule=${matricule}&start=${start}&end=${end}`);
+}
 }
 

@@ -1,4 +1,6 @@
 <section class="auth-page-wrapper vh-100">
+
+
   <div class="container-fluid h-100">
     <div class="row g-0 h-100">
       <!-- Partie gauche (image et texte) -->
@@ -6,12 +8,12 @@
         <div class="auth-left-panel bg-dark text-white d-flex flex-column justify-content-center align-items-center" style="width:800px; background-size: cover; background-position: center;">
           <div class="text-center p-5">
             <div class="mt-4">
-              <img src="assets/images/mercedesbenz.png" alt="Steex Logo" style="max-width: 400px;">
+              <img src="assets/images/mercedesbenz.png" alt="Steex Logo" >
             </div>
           </div>
         </div>
       </div>
-
+    
       <!-- Partie droite (formulaire de login) -->
       <div class="col-6 h-100">
         <div class="card border-0 shadow-none rounded-0 h-100">
@@ -68,7 +70,7 @@
 
 
                   <div class="mt-4">
-                    <button class="btn btn-primary w-100" type="submit">Sign in</button>
+                    <button style="z-index: 54545; background-color: aqua;;" class="btn btn-primary w-100" type="submit">Sign in</button>
                   </div>
                 </form>
               </div>
@@ -80,3 +82,15 @@
     </div>
   </div>
 </section>
+
+
+
+
+<app-popup *ngIf="showPopup"
+[title]="popupTitle"
+[message]="popupMessage"
+[isSuccess]="popupIsSuccess"
+[redirectPath]="popupRedirectPath"
+[showCancelButton]="showCancelButton"
+(closed)="closePopup()">
+</app-popup>
