@@ -25,6 +25,7 @@ import { Component } from '@angular/core';
 import { Calendar } from '@fullcalendar/core/index.js';
 import { CalendarComponent } from './calendar/calendar.component';
 import { AutorisationComponent } from './autorisation/autorisation.component';
+import { DemandesEtSoldeComponent } from './demandes-et-solde/demandes-et-solde.component';
 
 export const routes: Routes = [
   // --- pages SANS shell (ex : login) ------------------------------
@@ -51,7 +52,8 @@ export const routes: Routes = [
       { path: 'historique', component: HistoriqueDemandesComponent},
       { path: 'historique-chef', component: DashboardChefComponent },
       {path:'calendar',component: CalendarComponent},
-      {path:'autorisation',component: AutorisationComponent}
+      {path:'autorisation',component: AutorisationComponent},
+      {path:'demandes-et-solde',component: DemandesEtSoldeComponent}
 
 
     ]

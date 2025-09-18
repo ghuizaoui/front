@@ -70,8 +70,11 @@ export class DemandeCongeExceptionnelComponent implements OnInit {
         this.resetForm();
       },
       error: (err: any) => {
+
+      
         this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
         this.showErrorPopup('Erreur','Erreur lors de l’envoi.', null, true);
+        
       }
     });
   }

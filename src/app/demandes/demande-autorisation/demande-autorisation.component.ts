@@ -95,8 +95,14 @@ export class DemandeAutorisationComponent implements OnInit {
         this.resetForm();
       },
       error: (err: any) => {
+        if (err.status === 400) {
+          // Message personnalisé pour le code 400
+          this.showErrorPopup('Erreur', 'Solde insuffisant.', null, true);
+      
+        }else{
         this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
         this.showErrorPopup('Erreur','Erreur lors de l’envoi.' , null, true);
+        }
       }
     });
   }

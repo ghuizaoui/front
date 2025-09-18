@@ -1,0 +1,219 @@
+<div class="container-fluid py-4">
+    <!-- Employee Information Card -->
+    <div class="card employee-card mb-4 shadow-sm" *ngIf="empSol">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0" style="color: aliceblue;"><i class="fas fa-user me-2"></i >Informations Employé</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="info-item">
+              <label>Nom & Prénom:</label>
+              <p class="value">{{empSol.prenom}} {{empSol.nom}}</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-item">
+              <label>Grade:</label>
+              <p class="value">{{empSol.grade}}</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-item">
+              <label>Service:</label>
+              <p class="value">{{empSol.service}}</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-item">
+              <label>Année:</label>
+              <p class="value">{{empSol.annee}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Solde Information Card -->
+    <div class="card solde-card mb-4 shadow-sm" *ngIf="empSol">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0" style="color: aliceblue;"><i class="fas fa-coins me-2"></i>Solde de Congés</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-2 col-6">
+            <div class="solde-item">
+              <label>Solde au 2012:</label>
+              <p class="value">{{empSol.soldeAu2012}} j</p>
+            </div>
+          </div>
+          <div class="col-md-2 col-6">
+            <div class="solde-item">
+              <label>Droit annuel:</label>
+              <p class="value">{{empSol.droitAnnuel}} j</p>
+            </div>
+          </div>
+          <div class="col-md-2 col-6">
+            <div class="solde-item">
+              <label>Droit N:</label>
+              <p class="value">{{empSol.droitN}} j</p>
+            </div>
+          </div>
+          <div class="col-md-2 col-6">
+            <div class="solde-item">
+              <label>Congés acquis N:</label>
+              <p class="value">{{empSol.congesAcquisN}} j</p>
+            </div>
+          </div>
+          <div class="col-md-2 col-6">
+            <div class="solde-item">
+              <label>Retards N:</label>
+              <p class="value">{{empSol.retardsN}} j</p>
+            </div>
+          </div>
+          <div class="col-md-2 col-6">
+            <div class="solde-item">
+              <label>Autorisations N:</label>
+              <p class="value">{{empSol.autorisationsN}} j</p>
+            </div>
+          </div>
+        </div>
+        <div class="total-solde mt-3">
+          <h4 class="text-center">Solde actuel: <span class="badge bg-success">{{empSol.soldeActuel}} jours</span></h4>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Demandes Section -->
+    <div class="card demandes-card shadow-sm">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0" style="color: aliceblue;"><i class="fas fa-list me-2"></i>Mes Demandes</h5>
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" 
+                  class="btn" 
+                  [class.btn-primary]="activeTab === 'all'"
+                  [class.btn-outline-primary]="activeTab !== 'all'"
+                  (click)="activeTab = 'all'">
+            Toutes
+          </button>
+          <button type="button" 
+                  class="btn" 
+                  [class.btn-warning]="activeTab === 'en_cours'"
+                  [class.btn-outline-warning]="activeTab !== 'en_cours'"
+                  (click)="activeTab = 'en_cours'">
+            En Cours
+          </button>
+          <button type="button" 
+                  class="btn" 
+                  [class.btn-success]="activeTab === 'validee'"
+                  [class.btn-outline-success]="activeTab !== 'validee'"
+                  (click)="activeTab = 'validee'">
+            Validées
+          </button>
+          <button type="button" 
+                  class="btn" 
+                  [class.btn-danger]="activeTab === 'refusee'"
+                  [class.btn-outline-danger]="activeTab !== 'refusee'"
+                  (click)="activeTab = 'refusee'">
+            Refusées
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>Date Début</th>
+                <th>Date Fin</th>
+                <th>Heure Début</th>
+                <th>Heure Fin</th>
+                <th>Date Création</th>
+                <th>Date Validation</th>
+                <th>Commentaire</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoading">
+                <td colspan="11" class="text-center py-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="!isLoading && getFilteredDemandes().length === 0">
+                <td colspan="11" class="text-center py-4">
+                  <p class="text-muted">Aucune demande trouvée</p>
+                </td>
+              </tr>
+              <tr *ngFor="let demande of getFilteredDemandes()" class="demande-row">
+                <td>{{demande.id}}</td>
+                <td>
+                  <span class="badge bg-secondary">{{demande.categorie}}</span>
+                  <span *ngIf="demande.typeDemande" class="badge bg-light text-dark ms-1">{{demande.typeDemande}}</span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusClass(demande.statut)">
+                    {{getStatusLabel(demande.statut)}}
+                  </span>
+                </td>
+                <td>
+                  <span *ngIf="demande.congeDateDebut">{{formatDate(demande.congeDateDebut)}}</span>
+                  <span *ngIf="demande.autoDateDebut">{{formatDate(demande.autoDateDebut)}}</span>
+                  <span *ngIf="demande.missionDateDebut">{{formatDate(demande.missionDateDebut)}}</span>
+                  <span *ngIf="!demande.congeDateDebut && !demande.autoDateDebut && !demande.missionDateDebut">N/A</span>
+                </td>
+                <td>
+                  <span *ngIf="demande.congeDateFin">{{formatDate(demande.congeDateFin)}}</span>
+                  <span *ngIf="demande.autoDateFin">{{formatDate(demande.autoDateFin)}}</span>
+                  <span *ngIf="demande.missionDateFin">{{formatDate(demande.missionDateFin)}}</span>
+                  <span *ngIf="!demande.congeDateFin && !demande.autoDateFin && !demande.missionDateFin">N/A</span>
+                </td>
+                <td>
+                  <span *ngIf="demande.congeHeureDebut">{{demande.congeHeureDebut}}</span>
+                  <span *ngIf="demande.autoHeureDebut">{{demande.autoHeureDebut}}</span>
+                  <span *ngIf="demande.missionHeureDebut">{{demande.missionHeureDebut}}</span>
+                  <span *ngIf="!demande.congeHeureDebut && !demande.autoHeureDebut && !demande.missionHeureDebut">N/A</span>
+                </td>
+                <td>
+                  <span *ngIf="demande.congeHeureFin">{{demande.congeHeureFin}}</span>
+                  <span *ngIf="demande.autoHeureFin">{{demande.autoHeureFin}}</span>
+                  <span *ngIf="demande.missionHeureFin">{{demande.missionHeureFin}}</span>
+                  <span *ngIf="!demande.congeHeureFin && !demande.autoHeureFin && !demande.missionHeureFin">N/A</span>
+                </td>
+                <td>{{formatDate(demande.dateCreation)}}</td>
+                <td>{{formatDate(demande.dateValidation)}}</td>
+                <td>
+                  <span *ngIf="demande.commentaireRefus" class="commentaire-refus">
+                    {{demande.commentaireRefus}}
+                  </span>
+                  <span *ngIf="!demande.commentaireRefus">N/A</span>
+                </td>
+                <td>
+                  <button *ngIf="demande.statut === 'EN_COURS'" 
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="cancelDemande(demande.id)">
+                    Annuler
+                  </button>
+                  <span *ngIf="demande.statut !== 'EN_COURS'" class="text-muted">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <app-popup *ngIf="showPopup" 
+             [title]="popupTitle" 
+             [message]="popupMessage" 
+             [isSuccess]="popupIsSuccess" 
+             [redirectPath]="popupRedirectPath"
+             [showCancelButton]="showCancelButton"
+             (close)="closePopup()">
+  </app-popup>

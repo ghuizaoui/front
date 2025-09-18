@@ -9,6 +9,7 @@ import { AutorisationRequest } from '../../models/AutorisationRequest.model';
 import { OrdreMissionRequest } from '../../models/OrdreMissionRequest.model';
 import {DemandeListDTO} from '../../models/DemandeListDTO';
 import {DemandeDetailDTO} from '../../models/DemandeDetailDTO';
+import { EmployeSoldeDto } from '../../models/EmployeSoldeDto';
 
 @Injectable({ providedIn: 'root' })
 export class DemandeService {
@@ -62,12 +63,7 @@ export class DemandeService {
     return this.http.post(url, body);
   }
 
-    /**
-     * Récupère la liste complète des demandes soumises par l'employé connecté.
-     */
-    getHistoriqueDemandes(): Observable<Demande[]> {
-      return this.http.get<Demande[]>(`${this.apiUrl}/historique`);
-    }
+   
     /**
    * Récupère toutes les demandes en attente de validation pour le chef connecté.
    * L'API back-end utilise le contexte de sécurité pour identifier le chef.
@@ -186,5 +182,23 @@ countByEmployeAndDateRange(matricule: string, start: string, end: string): Obser
 getAllAutorisation():Observable<Demande[]>{
   return this.http.get<Demande[]>(`${this.apiUrl}/get-all-autorisation`)
 }
+
+
+ /**
+     * Récupère la liste complète des demandes soumises par l'employé connecté.
+     */
+ getHistoriqueDemandes(): Observable<Demande[]> {
+  return this.http.get<Demande[]>(`${this.apiUrl}/historique`);
+}
+
+
+getEmployeSolde():Observable<EmployeSoldeDto>{
+  return this.http.get<EmployeSoldeDto>(`${this.apiUrl}/get-employe-solde`)
+}
+
+cancelDemande(demandeId: number): Observable<any> {
+  return this.http.delete<any>(`${this.apiUrl}/cancel-demande/${demandeId}`);
+}
+
 }
 
