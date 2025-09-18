@@ -24,6 +24,7 @@ import {ChefDemandesComponent} from './chef-demandes/chef-demandes.component';
 import { Component } from '@angular/core';
 import { Calendar } from '@fullcalendar/core/index.js';
 import { CalendarComponent } from './calendar/calendar.component';
+import { AutorisationComponent } from './autorisation/autorisation.component';
 
 export const routes: Routes = [
   // --- pages SANS shell (ex : login) ------------------------------
@@ -49,7 +50,8 @@ export const routes: Routes = [
       { path: 'employees', component: EmployeesComponent },
       { path: 'historique', component: HistoriqueDemandesComponent},
       { path: 'historique-chef', component: DashboardChefComponent },
-      {path:'calendar',component: CalendarComponent}
+      {path:'calendar',component: CalendarComponent},
+      {path:'autorisation',component: AutorisationComponent}
 
 
     ]

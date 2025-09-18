@@ -178,5 +178,13 @@ findByDateCreationBetween(start: string, end: string): Observable<Demande[]> {
 countByEmployeAndDateRange(matricule: string, start: string, end: string): Observable<number> {
   return this.http.get<number>(`${this.apiUrl}/filter/count-employe-date?matricule=${matricule}&start=${start}&end=${end}`);
 }
+
+
+
+
+//
+getAllAutorisation():Observable<Demande[]>{
+  return this.http.get<Demande[]>(`${this.apiUrl}/get-all-autorisation`)
+}
 }
 

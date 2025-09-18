@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [FormsModule, RouterLink, PopupComponent,CommonModule]
+  imports: [FormsModule, PopupComponent,CommonModule]
 })
 export class LoginComponent {
     // popup variables ///////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ export class LoginComponent {
         this.router.navigate(['/dashboard-employe']);
         break;
       case 'CHEF':
-        this.router.navigate(['/dashboard-drf']);
+        this.router.navigate(['/dashboard-drh']);
         break;
       case 'DRH':
         this.router.navigate(['/dashboard-drh']);
