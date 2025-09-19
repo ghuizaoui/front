@@ -45,43 +45,76 @@ export class DemandeCongeComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onSubmit(): void {
-    this.errorMessage = null;
-    this.successMessage = null;
+ // Convertir une date en nombre (timestamp) pour comparaison
+private parseDateToNumber(date: string): number {
+  const [day, month, year] = date.split('/').map(Number);
+  return new Date(year, month - 1, day).getTime();
+}
 
-    if (this.congeForm.invalid) {
-      this.errorMessage = 'Veuillez remplir tous les champs obligatoires correctement.';
-      this.congeForm.markAllAsTouched();
+// Convertir une heure en minutes
+private parseTimeToMinutes(time: string): number {
+  if (!time) return -1; // sécuriser si vide
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+onSubmit(): void {
+  this.errorMessage = null;
+  this.successMessage = null;
+
+  if (this.congeForm.invalid) {
+    this.errorMessage = 'Veuillez remplir tous les champs obligatoires correctement.';
+    this.congeForm.markAllAsTouched();
+    return;
+  }
+
+  const formValue = this.congeForm.value;
+  const body: CongeRequest = {
+    typeDemande: formValue.typeDemande as TypeDemande,
+    dateDebut: this.toDDMMYYYY(formValue.dateDebut),
+    dateFin: this.toDDMMYYYY(formValue.dateFin),
+    heureDebut: formValue.heureDebut || undefined,
+    heureFin: formValue.heureFin || undefined,
+  };
+
+  //  Validation des dates
+  const debutDateNum = this.parseDateToNumber(body.dateDebut);
+  const finDateNum = this.parseDateToNumber(body.dateFin);
+
+  if (debutDateNum > finDateNum) {
+    this.showErrorPopup('Erreur', 'La date de début doit être antérieure ou égale à la date de fin.', null, true);
+    return;
+  }
+
+  //  Validation des heures (uniquement si même jour)
+  if (debutDateNum === finDateNum && body.heureDebut && body.heureFin) {
+    const debutMinutes = this.parseTimeToMinutes(body.heureDebut);
+    const finMinutes = this.parseTimeToMinutes(body.heureFin);
+
+    if (debutMinutes >= finMinutes) {
+      this.showErrorPopup('Erreur', 'L’heure de début doit être inférieure à l’heure de fin.', null, true);
       return;
     }
-
-    const formValue = this.congeForm.value;
-    const body: CongeRequest = {
-      typeDemande: formValue.typeDemande as TypeDemande,
-      dateDebut: this.toDDMMYYYY(formValue.dateDebut),
-      dateFin: this.toDDMMYYYY(formValue.dateFin),
-      heureDebut: formValue.heureDebut || undefined,
-      heureFin: formValue.heureFin || undefined,
-    };
-
-    this.demandeService.createCongeStandard(body).subscribe({
-      next: () => {
-        this.successMessage = 'Demande de congé soumise avec succès !';
-        this.showSuccessPopup('Succès', 'Demande de congé soumise avec succès !', null, false);
-        this.resetForm();
-      },
-      error: (err: any) => {
-        if (err.status === 400) {
-          console.log("400 status h")
-          // Message personnalisé pour le code 400
-          this.showErrorPopup('Erreur', 'Solde insuffisant.', null, true);
-      
-        }else{
-        this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
-        this.showErrorPopup('Erreur','Erreur lors de l’envoi.'  , null, true);
-        }
-  }});
   }
+
+  // Envoi API si tout est bon
+  this.demandeService.createCongeStandard(body).subscribe({
+    next: () => {
+      this.successMessage = 'Demande de congé soumise avec succès !';
+      this.showSuccessPopup('Succès', this.successMessage, null, false);
+      this.resetForm();
+    },
+    error: (err: any) => {
+      if (err.status === 400) {
+        this.showErrorPopup('Erreur', 'Solde insuffisant.', null, true);
+      } else {
+        this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
+        this.showErrorPopup('Erreur', 'Erreur lors de l’envoi.', null, true);
+      }
+    }
+  });
+}
+
 
   private toDDMMYYYY(yyyyMMdd: string): string {
     if (!yyyyMMdd) return '';

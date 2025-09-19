@@ -57,6 +57,12 @@ export class DemandeAutorisationComponent implements OnInit {
     });
   }
 
+
+// to can   parse the time in minutes to check the  end and the bingen
+  private parseTimeToMinutes(time: string): number {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  }
   onSubmit(): void {
     this.errorMessage = null;
     this.successMessage = null;
@@ -87,6 +93,13 @@ export class DemandeAutorisationComponent implements OnInit {
         heureRetourReel: formValue.heureRetourReel
       } : {})
     };
+    const debutMinutes = this.parseTimeToMinutes(body.heureDebut);
+    const finMinutes = this.parseTimeToMinutes(body.heureFin);
+    
+    if (debutMinutes >= finMinutes) {
+      this.showErrorPopup('Erreur', 'L’heure de début doit être inférieure à l’heure de fin.', null, true);
+      return; 
+    }else{
 
     this.demandeService.createAutorisation(body).subscribe({
       next: () => {
@@ -104,7 +117,7 @@ export class DemandeAutorisationComponent implements OnInit {
         this.showErrorPopup('Erreur','Erreur lors de l’envoi.' , null, true);
         }
       }
-    });
+    });}
   }
 
   private toDDMMYYYY(yyyyMMdd: string): string {
