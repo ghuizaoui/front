@@ -1,96 +1,212 @@
-<!-- src/app/historique-demandes/historique-demandes.component.html -->
-<div class="main-content">
-    <div class="page-content">
-      <div class="container-fluid">
-        <div class="card mb-4 shadow-sm rounded-3">
-          <div class="card-body">
-            <h5 class="card-title mb-4">Historique et État de mes Demandes</h5>
-  
-            <!-- Chargement -->
-            <div *ngIf="isLoading" class="text-center p-5">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Chargement...</span>
-              </div>
-              <p class="mt-2 text-muted">Chargement de l'historique des demandes...</p>
-            </div>
-  
-            <!-- Erreur -->
-            <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
-            </div>
-  
-            <!-- Tableau -->
-            <div class="table-responsive table-card" *ngIf="!isLoading && demandes && demandes.length > 0">
-                <table class="table table-hover table-nowrap mb-0 rounded-3">
-                <thead class="table-light">
-                  <tr>
-                    <th>ID</th>
-                    <th>Type de Demande</th>
-                    <th>Dates</th>
-                    <th>Statut</th>
-                    <th>Détails de Validation</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let demande of demandes">
-                    <td class="fw-semibold text-muted">#{{ demande.id }}</td>
-                    <td>
-                      <span class="fw-medium">{{ demande.categorie }}</span>
-                      <p *ngIf="demande.typeDemande" class="mb-0 text-muted small">{{ demande.typeDemande }}</p>
-                    </td>
-                    <td>
-                      <div *ngIf="demande.congeDateDebut">
-                        <p class="mb-0">Du: {{ demande.congeDateDebut | date:'shortDate' }}</p>
-                        <p class="mb-0">Au: {{ demande.congeDateFin | date:'shortDate' }}</p>
-                      </div>
-                      <div *ngIf="demande.autoDateDebut">
-                        <p class="mb-0">Du: {{ demande.autoDateDebut | date:'shortDate' }}</p>
-                        <p class="mb-0">Au: {{ demande.autoDateFin | date:'shortDate' }}</p>
-                      </div>
-                      <div *ngIf="demande.missionDateDebut">
-                        <p class="mb-0">Du: {{ demande.missionDateDebut | date:'shortDate' }}</p>
-                        <p class="mb-0">Au: {{ demande.missionDateFin | date:'shortDate' }}</p>
-                        <p *ngIf="demande.missionObjet" class="mb-0 text-muted small">Objet: {{ demande.missionObjet }}</p>
-                      </div>
-                    </td>
-                    <td>
-                      <span class="badge rounded-pill" [ngClass]="{
-                          'bg-success-subtle text-success': demande.statut === 'VALIDEE',
-                          'bg-warning-subtle text-warning': demande.statut === 'EN_COURS',
-                          'bg-danger-subtle text-danger': demande.statut === 'REFUSEE'
-                        }">{{ demande.statut }}</span>
-                    </td>
-                    <td>
-                      <div *ngIf="demande.statut === 'VALIDEE'">
-                        <p class="mb-0">Validé par: {{ demande.validateur?.nom }} {{ demande.validateur?.prenom }}</p>
-                        <p class="mb-0 text-muted small">Le: {{ demande.dateValidation | date:'mediumDate' }}</p>
-                      </div>
-                      <div *ngIf="demande.statut === 'REFUSEE'">
-                        <p class="mb-0 text-danger fw-medium">Motif:</p>
-                        <p class="mb-0 text-muted small">{{ demande.commentaireRefus }}</p>
-                      </div>
-                      <div *ngIf="demande.statut === 'EN_COURS'">
-                        <p class="mb-0 text-muted fst-italic">En attente de validation</p>
-                      </div>
-                    </td>
-                    <td>
-                      <button type="button" class="btn btn-sm btn-outline-info rounded-pill">
-                        <i class="bi bi-info-circle me-1"></i> Détails
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-  
-            <!-- Pas de demande -->
-            <div *ngIf="!isLoading && (!demandes || demandes.length === 0) && !errorMessage" class="p-4 text-center">
-              <p class="mb-0 text-muted"><i class="bi bi-file-earmark-text me-2"></i> Aucune demande soumise n'est disponible dans votre historique.</p>
-            </div>
+<!-- historique-demandes.component.html -->
+<div class="historique-container" style="margin-top: 10em;">
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">📋 Historique des Demandes</h1>
+      <p class="card-subtitle">Consultez l'historique complet de toutes vos demandes</p>
+    </div>
+
+    <div class="card-body">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement des demandes...</p>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-message">
+        <span class="error-icon">⚠️</span>
+        {{ errorMessage }}
+        <button (click)="loadDemandes()" class="retry-btn">Réessayer</button>
+      </div>
+
+      <!-- Filters Section -->
+      <div *ngIf="!isLoading" class="filters-section">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>🔍 Recherche</label>
+            <input type="text" [(ngModel)]="searchText" (input)="applyFilters()" 
+                   placeholder="Rechercher par ID, nom, type..." class="form-control">
+          </div>
+
+          <div class="filter-group">
+            <label>📂 Catégorie</label>
+            <select [(ngModel)]="selectedCategory" (change)="applyFilters()" class="form-select">
+              <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>📊 Statut</label>
+            <select [(ngModel)]="selectedStatus" (change)="applyFilters()" class="form-select">
+              <option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>📅 Période</label>
+            <select [(ngModel)]="dateRange" (change)="applyFilters()" class="form-select">
+              <option *ngFor="let range of dateRanges" [value]="range.value">{{ range.label }}</option>
+            </select>
+          </div>
+
+          <div *ngIf="dateRange === 'custom'" class="filter-group custom-dates">
+            <label>Du</label>
+            <input type="date" [(ngModel)]="startDate" (change)="applyFilters()" class="form-control">
+            <label>Au</label>
+            <input type="date" [(ngModel)]="endDate" (change)="applyFilters()" class="form-control">
+          </div>
+
+          <div class="filter-actions">
+            <button (click)="clearFilters()" class="btn btn-secondary">
+              🗑️ Effacer les filtres
+            </button>
+            <span class="results-count">{{ filteredDemandes.length }} résultat(s)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div *ngIf="!isLoading && !errorMessage" class="tabs-navigation">
+        <button [class.active]="activeTab === 'all'" (click)="activeTab = 'all'" class="tab-btn">
+          📋 Toutes les demandes ({{ filteredDemandes.length }})
+        </button>
+        <button [class.active]="activeTab === 'validated'" (click)="activeTab = 'validated'" class="tab-btn">
+          ✅ Validées ({{ validatedDemandes.length }})
+        </button>
+        <button [class.active]="activeTab === 'refused'" (click)="activeTab = 'refused'" class="tab-btn">
+          ❌ Refusées ({{ refusedDemandes.length }})
+        </button>
+      </div>
+
+      <!-- All Demands Table -->
+      <div *ngIf="!isLoading && !errorMessage && activeTab === 'all'" class="table-section">
+        <div class="table-container">
+          <table class="demandes-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Employé</th>
+                <th>Type</th>
+                <th>Période</th>
+                <th>Date création</th>
+                <th>Statut</th>
+                <th>Détails</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let demande of filteredDemandes" [class]="getStatusClass(demande.statut)">
+                <td class="demande-id">#{{ demande.id }}</td>
+                <td class="employe-info">
+                  <span class="employe-name">{{ demande.employe?.prenom }} {{ demande.employe?.nom }}</span>
+                  <span class="employe-matricule">{{ demande.employe?.matricule }}</span>
+                </td>
+                <td class="demande-type">{{ getCategoryLabel(demande.categorie) }}</td>
+                <td class="demande-period">{{ getDemandePeriod(demande) }}</td>
+                <td class="demande-date">{{ formatDateTime(demande.dateCreation) }}</td>
+                <td class="demande-status">
+                  <span class="status-badge">{{ STATUT_LABELS[demande.statut] }}</span>
+                </td>
+                <td class="demande-details">{{ getDemandeDetails(demande) }}</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div *ngIf="filteredDemandes.length === 0" class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>Aucune demande trouvée</h3>
+            <p>Aucune demande ne correspond à vos critères de recherche.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Validated Demands Table -->
+      <div *ngIf="!isLoading && !errorMessage && activeTab === 'validated'" class="table-section">
+        <div class="table-container">
+          <table class="demandes-table validated-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Employé</th>
+                <th>Type</th>
+                <th>Période</th>
+                <th>Date validation</th>
+                <th>Validateur</th>
+                <th>Détails</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let demande of validatedDemandes" class="status-validated">
+                <td class="demande-id">#{{ demande.id }}</td>
+                <td class="employe-info">
+                  <span class="employe-name">{{ demande.employe?.prenom }} {{ demande.employe?.nom }}</span>
+                  <span class="employe-matricule">{{ demande.employe?.matricule }}</span>
+                </td>
+                <td class="demande-type">{{ getCategoryLabel(demande.categorie) }}</td>
+                <td class="demande-period">{{ getDemandePeriod(demande) }}</td>
+                <td class="demande-date">{{ formatDateTime(demande.dateValidation) }}</td>
+                <td class="validateur-info">
+                  <span *ngIf="demande.validateur">{{ demande.validateur.prenom }} {{ demande.validateur.nom }}</span>
+                  <span *ngIf="!demande.validateur">Système</span>
+                </td>
+                <td class="demande-details">{{ getDemandeDetails(demande) }}</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div *ngIf="validatedDemandes.length === 0" class="empty-state">
+            <div class="empty-icon">✅</div>
+            <h3>Aucune demande validée</h3>
+            <p>Aucune demande validée ne correspond à vos critères de recherche.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Refused Demands Table -->
+      <div *ngIf="!isLoading && !errorMessage && activeTab === 'refused'" class="table-section">
+        <div class="table-container">
+          <table class="demandes-table refused-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Employé</th>
+                <th>Type</th>
+                <th>Période</th>
+                <th>Date refus</th>
+                <th>Motif</th>
+                <th>Validateur</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let demande of refusedDemandes" class="status-refused">
+                <td class="demande-id">#{{ demande.id }}</td>
+                <td class="employe-info">
+                  <span class="employe-name">{{ demande.employe?.prenom }} {{ demande.employe?.nom }}</span>
+                  <span class="employe-matricule">{{ demande.employe?.matricule }}</span>
+                </td>
+                <td class="demande-type">{{ getCategoryLabel(demande.categorie) }}</td>
+                <td class="demande-period">{{ getDemandePeriod(demande) }}</td>
+                <td class="demande-date">{{ formatDateTime(demande.dateValidation) }}</td>
+                <td class="refusal-reason">
+                  <span class="reason-text">{{ demande.commentaireRefus || 'Aucun motif spécifié' }}</span>
+                </td>
+                <td class="validateur-info">
+                  <span *ngIf="demande.validateur">{{ demande.validateur.prenom }} {{ demande.validateur.nom }}</span>
+                  <span *ngIf="!demande.validateur">Système</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div *ngIf="refusedDemandes.length === 0" class="empty-state">
+            <div class="empty-icon">❌</div>
+            <h3>Aucune demande refusée</h3>
+            <p>Aucune demande refusée ne correspond à vos critères de recherche.</p>
           </div>
         </div>
       </div>
     </div>
   </div>
-  
+</div>

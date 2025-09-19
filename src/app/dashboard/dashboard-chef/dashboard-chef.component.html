@@ -1,78 +1,94 @@
-<!-- src/app/dashboard-employe/dashboard-employe.component.html -->
-<body>
-  <div id="layout-wrapper">
-      <div class="main-content">
-          <div class="page-content">
-              <div class="container-fluid">
-                  <form action="#!">
-                      <div class="card mb-4">
-                          <div class="card-body">
-                              <h5 class="card-title mb-4">Informations Chef</h5>
-                              <!-- *ngIf affiche le formulaire seulement si les données de l'employé et du solde sont chargées -->
-                              <div class="row g-3" *ngIf="employe && soldeConge">
-                                  <div class="col-md-6">
-                                      <label for="nom" class="form-label">Nom</label>
-                                      <input type="text" class="form-control" id="nom" disabled [value]="employe.nom">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="prenom" class="form-label">Prénom</label>
-                                      <input type="text" class="form-control" id="prenom" disabled [value]="employe.prenom">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="direction" class="form-label">Direction</label>
-                                      <input type="text" class="form-control" id="direction" disabled [value]="employe.direction">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="service" class="form-label">Service</label>
-                                      <input type="text" class="form-control" id="service" disabled [value]="employe.service">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="chef1" class="form-label">Chef hiérarchique 1</label>
-                                      <input type="text" class="form-control" id="chef1" disabled [value]="employe.chef1">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="chef2" class="form-label">Chef hiérarchique 2</label>
-                                      <input type="text" class="form-control" id="chef2" disabled [value]="employe.chef2">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="grade" class="form-label">Grade</label>
-                                      <input type="text" class="form-control" id="grade" disabled [value]="employe.grade">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="dateEmbauche" class="form-label">Date d'embauche</label>
-                                      <input type="date" class="form-control" id="dateEmbauche" disabled [value]="employe.dateEmbauche">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="soldePrec" class="form-label">Solde de congé au 20/12/N-1</label>
-                                      <input type="number" class="form-control" id="soldePrec" disabled [value]="soldeConge.soldeAu2012">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="droitCongeN" class="form-label">Droit de congé N</label>
-                                      <input type="number" class="form-control" id="droitCongeN" disabled [value]="soldeConge.droitN">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="congesAcquis" class="form-label">Congés acquis N</label>
-                                      <input type="number" class="form-control" id="congesAcquis" disabled [value]="soldeConge.congesAcquisN">
-                                  </div>
-                                  <div class="col-md-6">
-                                      <label for="soldeActuel" class="form-label">Solde actuel</label>
-                                      <input type="number" class="form-control" id="soldeActuel" disabled [value]="soldeConge.soldeActuel">
-                                  </div>
+<!-- dashboard-drh.component.html -->
+<div class="dashboard-container" style="padding-top: 10em;">
+    <app-welcome-card></app-welcome-card>
+    <app-kpi-cards [kpis]="kpis" [errorMessage]="errorMessage"></app-kpi-cards>
 
-                                  <div class="col-md-6">
-                                    <label for="soldeActuel" class="form-label">Autorisations cummulées</label>
-                                    <input type="number" class="form-control" id="soldeActuel" disabled [value]="soldeConge.soldeActuel">
-                                </div>
-                              </div>
-                              <!-- Message de chargement en cas d'attente -->
-                              <div *ngIf="!employe || !soldeConge">
-                                  <p>Chargement des informations du Chef...</p>
-                              </div>
-                          </div>
-                      </div>
-                  </form>
-              </div>
-          </div>
-      </div>
-  </div>
-</body>
+    <!-- Chart Navigation -->
+    <div class="chart-navigation">
+        <button 
+            [class.active]="activeChart === 'monthly'" 
+            (click)="showChart('monthly')"
+            class="chart-btn">
+            📅 Par Mois
+        </button>
+        <button 
+            [class.active]="activeChart === 'category'" 
+            (click)="showChart('category')"
+            class="chart-btn">
+            📊 Par Catégorie
+        </button>
+        <button 
+            [class.active]="activeChart === 'type'" 
+            (click)="showChart('type')"
+            class="chart-btn">
+            🎯 Par Type
+        </button>
+        <button 
+            [class.active]="activeChart === 'monthYear'" 
+            (click)="showChart('monthYear')"
+            class="chart-btn">
+            📈 Mois/Année
+        </button>
+    </div>
+
+    <!-- Main Chart Section -->
+    <div class="chart-section">
+        <app-generic-chart
+          [chartData]="getCurrentChartData()"
+          [chartCategories]="getCurrentChartCategories()"
+          [chartTitle]="getCurrentChartTitle()"
+          [chartType]="getCurrentChartType()"
+          [seriesName]="getCurrentSeriesName()"
+          [color]="getCurrentColor()"
+          [showLegend]="activeChart === 'type'"
+        ></app-generic-chart>
+    </div>
+
+    <!-- Mini Charts Grid -->
+    <div class="mini-charts-grid">
+        <div class="mini-chart">
+            <h4>📅 Demandes Mois</h4>
+            <app-generic-chart
+                [chartData]="monthlyChartData"
+                [chartCategories]="monthlyChartCategories"
+                chartTitle=""
+                chartType="bar"
+                seriesName="Mois"
+                [color]="'#4a6cf7'"
+                [chartHeight]="200"
+                [showToolbar]="false"
+                [showLegend]="false"
+            ></app-generic-chart>
+        </div>
+
+        <div class="mini-chart">
+            <h4>📊 Par Catégorie</h4>
+            <app-generic-chart
+                [chartData]="categoryMonthlyChartData"
+                [chartCategories]="categoryMonthlyChartCategories"
+                chartTitle=""
+                chartType="area"
+                seriesName="Catégorie"
+                [color]="'#10b981'"
+                [chartHeight]="200"
+                [showToolbar]="false"
+                [showLegend]="false"
+            ></app-generic-chart>
+        </div>
+
+        <div class="mini-chart">
+            <h4>🎯 Par Type</h4>
+            <app-generic-chart
+                [chartData]="typeChartData"
+                [chartCategories]="typeChartCategories"
+                chartTitle=""
+                chartType="pie"
+                seriesName="Type"
+                [color]="'#f59e0b'"
+                [chartHeight]="200"
+                [showToolbar]="false"
+                [showLegend]="false"
+            ></app-generic-chart>
+        </div>
+    </div>
+</div>

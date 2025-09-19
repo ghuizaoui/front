@@ -1,4 +1,4 @@
-// growth-chart.component.ts
+// generic-chart.component.ts
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { CommonModule } from '@angular/common';
@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./generic-chart.component.css']
 })
 export class GenericChartComponent implements OnChanges {
-  // Required Inputs
+  // Required Inputs with proper initialization
   @Input() chartData: any[] = [];
   @Input() chartCategories: string[] = [];
   
@@ -30,25 +30,41 @@ export class GenericChartComponent implements OnChanges {
   public chartOptions: any;
 
   constructor() {
+    // Initialize with safe defaults
     this.updateChartOptions();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['chartData'] || changes['chartCategories'] || 
-        changes['chartType'] || changes['chartHeight'] || 
-        changes['chartTitle'] || changes['yAxisTitle'] || 
-        changes['seriesName'] || changes['color'] || 
-        changes['showToolbar'] || changes['strokeCurve']) {
+    if (this.hasChartChanges(changes)) {
       this.updateChartOptions();
-      console.log(this.chartData)
+      console.log("this is the data in the chart "+this.chartData)
     }
   }
 
+  private hasChartChanges(changes: SimpleChanges): boolean {
+    return !!(
+      changes['chartData'] || 
+      changes['chartCategories'] || 
+      changes['chartType'] || 
+      changes['chartHeight'] || 
+      changes['chartTitle'] || 
+      changes['yAxisTitle'] || 
+      changes['seriesName'] || 
+      changes['color'] || 
+      changes['showToolbar'] || 
+      changes['strokeCurve']
+    );
+  }
+
   private updateChartOptions(): void {
+    // Ensure we have valid data arrays
+    const safeChartData = this.getSafeChartData();
+    const safeChartCategories = this.getSafeChartCategories();
+
     this.chartOptions = {
       series: [{
         name: this.seriesName,
-        data: this.chartData
+        data: safeChartData
       }],
       chart: {
         type: this.chartType,
@@ -67,6 +83,11 @@ export class GenericChartComponent implements OnChanges {
             reset: true
           },
           autoSelected: 'zoom'
+        },
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800
         }
       },
       stroke: {
@@ -75,7 +96,7 @@ export class GenericChartComponent implements OnChanges {
         colors: [this.color]
       },
       xaxis: {
-        categories: this.chartCategories,
+        categories: safeChartCategories,
         labels: {
           style: {
             colors: '#4a5568',
@@ -138,7 +159,8 @@ export class GenericChartComponent implements OnChanges {
           fontSize: '20px',
           fontFamily: 'Inter, sans-serif',
           fontWeight: 600
-        }
+        },
+        margin: 20
       },
       theme: {
         mode: 'light'
@@ -167,13 +189,97 @@ export class GenericChartComponent implements OnChanges {
       },
       legend: {
         show: this.showLegend,
-        position: 'top'
+        position: 'top',
+        horizontalAlign: 'right',
+        fontSize: '14px',
+        fontFamily: 'Inter, sans-serif',
+        markers: {
+          width: 12,
+          height: 12,
+          radius: 6
+        }
+      },
+      noData: {
+        text: 'No data available',
+        align: 'center',
+        verticalAlign: 'middle',
+        style: {
+          color: '#6b7280',
+          fontSize: '16px',
+          fontFamily: 'Inter, sans-serif'
+        }
       }
     };
+
+    // Special handling for pie charts
+    if (this.chartType === 'pie') {
+      this.chartOptions.labels = safeChartCategories;
+      delete this.chartOptions.xaxis;
+      delete this.chartOptions.yaxis;
+    }
+  }
+
+  private getSafeChartData(): any[] {
+    // Ensure we always have a valid array
+    if (!this.chartData || !Array.isArray(this.chartData)) {
+      console.warn('Invalid chartData provided, using default empty array');
+      return [0]; // Return at least one value to prevent the null length error
+    }
+
+    // Filter out null/undefined values and ensure numbers
+    const filteredData = this.chartData
+      .filter(item => item !== null && item !== undefined)
+      .map(item => {
+        const num = Number(item);
+        return isNaN(num) ? 0 : num;
+      });
+
+    // If we end up with empty array, provide default data
+    return filteredData.length > 0 ? filteredData : [0];
+  }
+
+  private getSafeChartCategories(): string[] {
+    // Ensure we always have valid categories
+    if (!this.chartCategories || !Array.isArray(this.chartCategories)) {
+      console.warn('Invalid chartCategories provided, using default categories');
+      return ['Default'];
+    }
+
+    // Filter out null/undefined values and ensure strings
+    const filteredCategories = this.chartCategories
+      .filter(cat => cat !== null && cat !== undefined)
+      .map(cat => String(cat));
+
+    // If we end up with empty array, provide default categories
+    if (filteredCategories.length === 0) {
+      return ['Category 1', 'Category 2', 'Category 3'];
+    }
+
+    // Ensure categories match data length
+    const safeData = this.getSafeChartData();
+    if (filteredCategories.length !== safeData.length) {
+      console.warn('Categories length does not match data length, adjusting categories');
+      
+      // If we have more categories than data, truncate
+      if (filteredCategories.length > safeData.length) {
+        return filteredCategories.slice(0, safeData.length);
+      }
+      // If we have more data than categories, extend with default names
+      else {
+        const extendedCategories = [...filteredCategories];
+        for (let i = filteredCategories.length; i < safeData.length; i++) {
+          extendedCategories.push(`Item ${i + 1}`);
+        }
+        return extendedCategories;
+      }
+    }
+
+    return filteredCategories;
   }
 
   private adjustColor(color: string, amount: number): string {
-    // Simple color adjustment for gradient
-    return color; // Implement proper color adjustment if needed
+    // Simple color lightening for gradient effect
+    // This is a basic implementation - you might want to use a proper color library
+    return color; // Return the original color for now
   }
 }

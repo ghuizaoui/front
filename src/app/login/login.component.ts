@@ -92,7 +92,7 @@ export class LoginComponent {
         this.router.navigate(['/dashboard-employe']);
         break;
       case 'CHEF':
-        this.router.navigate(['/dashboard-drh']);
+        this.router.navigate(['/dashboard-chef']);
         break;
       case 'DRH':
         this.router.navigate(['/dashboard-drh']);
