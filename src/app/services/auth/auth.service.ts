@@ -141,7 +141,10 @@ export class AuthService {
 
   getMatricule(): string | null {
     const user = this.currentUser$.value;
+    console.log("this is the  get matricule form the  authservice "+user)
     return user?.matricule || null;
+
+  
   }
 
   changePassword(payload: { matricule: string; nouveauMotDePasse: string }): Observable<LoginResponse> {

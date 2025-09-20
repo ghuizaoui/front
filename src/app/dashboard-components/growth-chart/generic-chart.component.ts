@@ -1,5 +1,4 @@
-// generic-chart.component.ts
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { CommonModule } from '@angular/common';
 
@@ -7,16 +6,39 @@ import { CommonModule } from '@angular/common';
   selector: 'app-generic-chart',
   standalone: true,
   imports: [CommonModule, NgApexchartsModule],
-  templateUrl: './generic-chart.component.html',
-  styleUrls: ['./generic-chart.component.css']
+  template: `
+    <div *ngIf="isValidChartData; else noData">
+      <apx-chart
+        [series]="chartOptions.series"
+        [chart]="chartOptions.chart"
+        [xaxis]="chartOptions.xaxis"
+        [yaxis]="chartOptions.yaxis"
+        [title]="chartOptions.title"
+        [stroke]="chartOptions.stroke"
+        [fill]="chartOptions.fill"
+        [colors]="chartOptions.colors"
+        [markers]="chartOptions.markers"
+        [theme]="chartOptions.theme"
+        [tooltip]="chartOptions.tooltip"
+        [grid]="chartOptions.grid"
+        [dataLabels]="chartOptions.dataLabels"
+        [legend]="chartOptions.legend"
+        [labels]="chartOptions.labels"
+        [noData]="chartOptions.noData"
+      ></apx-chart>
+    </div>
+    <ng-template #noData>
+      <p>No data available for the chart.</p>
+    </ng-template>
+  `,
+  styleUrls: ['./generic-chart.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class GenericChartComponent implements OnChanges {
-  // Required Inputs with proper initialization
   @Input() chartData: any[] = [];
   @Input() chartCategories: string[] = [];
-  
-  // Optional Customization Inputs
-  @Input() chartType: 'line' | 'bar' | 'area' | 'pie' = 'line';
+
+  @Input() chartType: 'line' | 'bar' | 'area' | 'pie' | 'doughnut' = 'line';
   @Input() chartHeight: number = 350;
   @Input() chartTitle: string = 'Data Visualization';
   @Input() yAxisTitle: string = 'Values';
@@ -28,46 +50,63 @@ export class GenericChartComponent implements OnChanges {
   @Input() footerStats?: { value: string; label: string }[];
 
   public chartOptions: any;
+  public isValidChartData: boolean = false;
 
   constructor() {
-    // Initialize with safe defaults
     this.updateChartOptions();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.hasChartChanges(changes)) {
       this.updateChartOptions();
-      console.log("this is the data in the chart "+this.chartData)
+      console.log('********************************* Chart data:', this.chartData, 'Categories:', this.chartCategories);
     }
   }
 
   private hasChartChanges(changes: SimpleChanges): boolean {
     return !!(
-      changes['chartData'] || 
-      changes['chartCategories'] || 
-      changes['chartType'] || 
-      changes['chartHeight'] || 
-      changes['chartTitle'] || 
-      changes['yAxisTitle'] || 
-      changes['seriesName'] || 
-      changes['color'] || 
-      changes['showToolbar'] || 
+      changes['chartData'] ||
+      changes['chartCategories'] ||
+      changes['chartType'] ||
+      changes['chartHeight'] ||
+      changes['chartTitle'] ||
+      changes['yAxisTitle'] ||
+      changes['seriesName'] ||
+      changes['color'] ||
+      changes['showToolbar'] ||
       changes['strokeCurve']
     );
   }
 
   private updateChartOptions(): void {
-    // Ensure we have valid data arrays
     const safeChartData = this.getSafeChartData();
     const safeChartCategories = this.getSafeChartCategories();
 
+    this.isValidChartData =
+      safeChartData.length > 0 &&
+      safeChartCategories.length > 0 &&
+      safeChartData.length === safeChartCategories.length;
+
+    const series =
+      this.chartType === 'pie' || this.chartType === 'doughnut'
+        ? safeChartData
+        : [
+            {
+              name: this.seriesName,
+              data: safeChartData
+            }
+          ];
+
+    // 🎨 couleurs différentes pour chaque catégorie dans pie/doughnut
+    const colors =
+      this.chartType === 'pie' || this.chartType === 'doughnut'
+        ? this.generateCategoryColors(safeChartCategories.length)
+        : [this.color];
+
     this.chartOptions = {
-      series: [{
-        name: this.seriesName,
-        data: safeChartData
-      }],
+      series,
       chart: {
-        type: this.chartType,
+        type: this.chartType === 'doughnut' ? 'donut' : this.chartType,
         height: this.chartHeight,
         background: '#ffffff',
         foreColor: '#2d3748',
@@ -91,46 +130,52 @@ export class GenericChartComponent implements OnChanges {
         }
       },
       stroke: {
-        width: 4,
+        width: this.chartType === 'pie' || this.chartType === 'doughnut' ? 0 : 4,
         curve: this.strokeCurve,
-        colors: [this.color]
+        colors
       },
-      xaxis: {
-        categories: safeChartCategories,
-        labels: {
-          style: {
-            colors: '#4a5568',
-            fontFamily: 'Inter, sans-serif'
-          }
-        },
-        axisBorder: {
-          show: true,
-          color: '#e2e8f0'
-        },
-        axisTicks: {
-          color: '#e2e8f0'
-        }
-      },
-      yaxis: {
-        title: {
-          text: this.yAxisTitle,
-          style: {
-            color: '#4a5568',
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 600
-          }
-        },
-        labels: {
-          style: {
-            colors: '#4a5568',
-            fontFamily: 'Inter, sans-serif'
-          }
-        },
-        min: 0,
-        forceNiceScale: true
-      },
+      xaxis:
+        this.chartType === 'pie' || this.chartType === 'doughnut'
+          ? undefined
+          : {
+              categories: safeChartCategories,
+              labels: {
+                style: {
+                  colors: '#4a5568',
+                  fontFamily: 'Inter, sans-serif'
+                }
+              },
+              axisBorder: {
+                show: true,
+                color: '#e2e8f0'
+              },
+              axisTicks: {
+                color: '#e2e8f0'
+              }
+            },
+      yaxis:
+        this.chartType === 'pie' || this.chartType === 'doughnut'
+          ? undefined
+          : {
+              title: {
+                text: this.yAxisTitle,
+                style: {
+                  color: '#4a5568',
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 600
+                }
+              },
+              labels: {
+                style: {
+                  colors: '#4a5568',
+                  fontFamily: 'Inter, sans-serif'
+                }
+              },
+              min: 0,
+              forceNiceScale: true
+            },
       fill: {
-        type: 'gradient',
+        type: this.chartType === 'pie' || this.chartType === 'doughnut' ? 'solid' : 'gradient',
         gradient: {
           shade: 'light',
           gradientToColors: [this.adjustColor(this.color, 20)],
@@ -141,9 +186,9 @@ export class GenericChartComponent implements OnChanges {
           stops: [0, 100]
         }
       },
-      colors: [this.color],
+      colors,
       markers: {
-        size: 6,
+        size: this.chartType === 'pie' || this.chartType === 'doughnut' ? 0 : 6,
         colors: ['#ffffff'],
         strokeColors: this.color,
         strokeWidth: 2,
@@ -185,7 +230,7 @@ export class GenericChartComponent implements OnChanges {
         }
       },
       dataLabels: {
-        enabled: false
+        enabled: this.chartType === 'pie' || this.chartType === 'doughnut'
       },
       legend: {
         show: this.showLegend,
@@ -199,6 +244,7 @@ export class GenericChartComponent implements OnChanges {
           radius: 6
         }
       },
+      labels: this.chartType === 'pie' || this.chartType === 'doughnut' ? safeChartCategories : undefined,
       noData: {
         text: 'No data available',
         align: 'center',
@@ -210,76 +256,59 @@ export class GenericChartComponent implements OnChanges {
         }
       }
     };
-
-    // Special handling for pie charts
-    if (this.chartType === 'pie') {
-      this.chartOptions.labels = safeChartCategories;
-      delete this.chartOptions.xaxis;
-      delete this.chartOptions.yaxis;
-    }
   }
 
-  private getSafeChartData(): any[] {
-    // Ensure we always have a valid array
-    if (!this.chartData || !Array.isArray(this.chartData)) {
+  private getSafeChartData(): number[] {
+    if (!this.chartData || !Array.isArray(this.chartData) || this.chartData.length === 0) {
       console.warn('Invalid chartData provided, using default empty array');
-      return [0]; // Return at least one value to prevent the null length error
+      return [0];
     }
-
-    // Filter out null/undefined values and ensure numbers
     const filteredData = this.chartData
       .filter(item => item !== null && item !== undefined)
       .map(item => {
         const num = Number(item);
         return isNaN(num) ? 0 : num;
       });
-
-    // If we end up with empty array, provide default data
     return filteredData.length > 0 ? filteredData : [0];
   }
 
   private getSafeChartCategories(): string[] {
-    // Ensure we always have valid categories
-    if (!this.chartCategories || !Array.isArray(this.chartCategories)) {
+    if (!this.chartCategories || !Array.isArray(this.chartCategories) || this.chartCategories.length === 0) {
       console.warn('Invalid chartCategories provided, using default categories');
       return ['Default'];
     }
-
-    // Filter out null/undefined values and ensure strings
     const filteredCategories = this.chartCategories
       .filter(cat => cat !== null && cat !== undefined)
       .map(cat => String(cat));
-
-    // If we end up with empty array, provide default categories
-    if (filteredCategories.length === 0) {
-      return ['Category 1', 'Category 2', 'Category 3'];
-    }
-
-    // Ensure categories match data length
     const safeData = this.getSafeChartData();
     if (filteredCategories.length !== safeData.length) {
       console.warn('Categories length does not match data length, adjusting categories');
-      
-      // If we have more categories than data, truncate
       if (filteredCategories.length > safeData.length) {
         return filteredCategories.slice(0, safeData.length);
-      }
-      // If we have more data than categories, extend with default names
-      else {
+      } else {
         const extendedCategories = [...filteredCategories];
         for (let i = filteredCategories.length; i < safeData.length; i++) {
-          extendedCategories.push(`Item ${i + 1}`);
+          extendedCategories.push(`Category ${i + 1}`);
         }
         return extendedCategories;
       }
     }
-
     return filteredCategories;
   }
 
   private adjustColor(color: string, amount: number): string {
-    // Simple color lightening for gradient effect
-    // This is a basic implementation - you might want to use a proper color library
-    return color; // Return the original color for now
+    return color;
+  }
+
+  private generateCategoryColors(count: number): string[] {
+    const palette = [
+      '#4a6cf7', '#f76c6c', '#6cf7a6', '#f7d36c',
+      '#a66cf7', '#6cccf7', '#f76ccd', '#6cf79b'
+    ];
+    const colors: string[] = [];
+    for (let i = 0; i < count; i++) {
+      colors.push(palette[i % palette.length]);
+    }
+    return colors;
   }
 }

@@ -1,4 +1,115 @@
+<!-- src/app/dashboard-employe/dashboard-employe.component.html -->
 <div class="dashboard-container" style="padding-top: 10em;">
     <app-welcome-card></app-welcome-card>
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading">
+        <div class="spinner"></div>
+        <p>Chargement de votre tableau de bord...</p>
+    </div>
 
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="error-message">
+        <p>{{ errorMessage }}</p>
+        <button (click)="refreshDashboard()" class="retry-btn">Réessayer</button>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div *ngIf="dashboardData && !isLoading" class="dashboard-content">
+        <!-- KPI Cards -->
+        <app-kpi-cards [kpis]="kpis" [errorMessage]="errorMessage"></app-kpi-cards>
+
+        <!-- Main Content Grid -->
+        <div class="dashboard-grid">
+            <!-- Recent Demands Section -->
+            <div class="dashboard-section recent-demands">
+                <h3>📋 Mes Demandes Récentes</h3>
+                <div class="section-content">
+                    <div *ngIf="dashboardData.demandesRecentes.length === 0" class="empty-state">
+                        <p>Aucune demande récente</p>
+                    </div>
+                    <div *ngFor="let demande of dashboardData.demandesRecentes" class="demande-card">
+                        <div class="demande-header">
+                            <span class="categorie-badge">{{ demande.categorie }}</span>
+                            <span class="statut-badge" [class]="'statut-' + demande.statut.toLowerCase()">
+                                {{ demande.statut }}
+                            </span>
+                        </div>
+                        <div class="demande-body">
+                            <p class="demande-type">{{ demande.typeDemande || 'Sans type' }}</p>
+                            <p class="demande-dates">
+                                Du {{ demande.dateDebut }} au {{ demande.dateFin }}
+                            </p>
+                            <p class="demande-creation">Créée le: {{ demande.dateCreation | date:'dd/MM/yyyy' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="dashboard-section charts">
+                <h3>📊 Statistiques</h3>
+                <div class="charts-grid">
+                    <!-- Status Distribution Chart -->
+                    <div class="chart-container">
+                        <h4>Répartition par Statut</h4>
+                        <app-generic-chart
+                            [chartData]="statutChartData"
+                            [chartCategories]="statutChartCategories"
+                            chartTitle=""
+                            chartType="pie"
+                            seriesName="Statut"
+                            [color]="'#4a6cf7'"
+                            [chartHeight]="250"
+                            [showToolbar]="false"
+                            [showLegend]="true"
+                        ></app-generic-chart>
+                    </div>
+
+                    <!-- Category Distribution Chart -->
+                    <div class="chart-container">
+                        <h4>Répartition par Catégorie</h4>
+                        <app-generic-chart
+                            [chartData]="categorieChartData"
+                            [chartCategories]="categorieChartCategories"
+                            chartTitle=""
+                            chartType="doughnut"
+                            seriesName="Catégorie"
+                            [color]="'#10b981'"
+                            [chartHeight]="250"
+                            [showToolbar]="false"
+                            [showLegend]="true"
+                        ></app-generic-chart>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Authorizations (Concierge Only) -->
+            <div *ngIf="isConcierge() && dashboardData.autorisationsAujourdhui && dashboardData.autorisationsAujourdhui.length > 0" class="dashboard-section autorisations">
+                <h3>👁️ Autorisations Aujourd'hui ({{ getTodayAuthorizationsCount() }})</h3>
+                <div class="section-content">
+                    <div *ngFor="let auth of dashboardData.autorisationsAujourdhui" class="auth-card">
+                        <div class="auth-header">
+                            <span class="employe-name">{{ auth.employePrenom }} {{ auth.employeNom }}</span>
+                            <span class="employe-service">{{ auth.service }}</span>
+                        </div>
+                        <div class="auth-body">
+                            <p class="auth-matricule">Matricule: {{ auth.employeMatricule }}</p>
+                            <p class="auth-hours">
+                                De {{ auth.heureDebut }} à {{ auth.heureFin }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state for concierge when no authorizations -->
+            <div *ngIf="isConcierge() && (!dashboardData.autorisationsAujourdhui || dashboardData.autorisationsAujourdhui.length === 0)" class="dashboard-section autorisations">
+                <h3>👁️ Autorisations Aujourd'hui</h3>
+                <div class="empty-state">
+                    <p>Aucune autorisation aujourd'hui</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
