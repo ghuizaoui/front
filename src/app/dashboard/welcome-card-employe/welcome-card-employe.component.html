@@ -1,59 +1,59 @@
 <div class="welcome-container">
-    <div class="welcome-card">
-      <div class="welcome-header">
-        <div class="greeting">
-          <h2>{{ greeting }}, <span class="username">{{ me?.prenom }} {{ me?.nom }}</span>!</h2>
-          <p class="date">{{ today | date:'fullDate' }}</p>
+  <div class="welcome-card">
+    <div class="welcome-header">
+      <div class="greeting">
+        <h2>{{ greeting }}, <span class="username">{{ me?.prenom }} {{ me?.nom }}</span> !</h2>
+        <p class="date">{{ today | date:'fullDate' }}</p>
+      </div>
+      <div class="welcome-icon">
+        <i class="fas fa-user-tie"></i>
+      </div>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <p class="subtitle">Votre profil employé</p>
+    
+    <div class="employee-info-grid">
+      <div class="info-card">
+        <div class="info-icon department-icon">
+          <i class="fas fa-building"></i>
         </div>
-        <div class="welcome-icon">
-          <i class="fas fa-user-tie"></i>
+        <div class="info-content">
+          <h3>{{ me?.direction }}</h3>
+          <span>Direction</span>
         </div>
       </div>
       
-      <div class="divider"></div>
+      <div class="info-card">
+        <div class="info-icon role-icon">
+          <i class="fas fa-id-badge"></i>
+        </div>
+        <div class="info-content">
+          <h3>{{ me?.role }}</h3>
+          <span>Rôle</span>
+        </div>
+      </div>
       
-      <p class="subtitle">Your Employee Profile</p>
+      <div class="info-card">
+        <div class="info-icon hire-date-icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="info-content">
+          <h3>{{ me?.dateEmbauche | date:'mediumDate' }}</h3>
+          <span>Date d’embauche</span>
+        </div>
+      </div>
       
-      <div class="employee-info-grid">
-        <div class="info-card">
-          <div class="info-icon department-icon">
-            <i class="fas fa-building"></i>
-          </div>
-          <div class="info-content">
-            <h3>{{ me?.direction }}</h3>
-            <span>Department</span>
-          </div>
+      <div class="info-card">
+        <div class="info-icon email-icon">
+          <i class="fas fa-envelope"></i>
         </div>
-        
-        <div class="info-card">
-          <div class="info-icon role-icon">
-            <i class="fas fa-id-badge"></i>
-          </div>
-          <div class="info-content">
-            <h3>{{ me?.role }}</h3>
-            <span>Role</span>
-          </div>
-        </div>
-        
-        <div class="info-card">
-          <div class="info-icon hire-date-icon">
-            <i class="fas fa-calendar-alt"></i>
-          </div>
-          <div class="info-content">
-            <h3>{{ me?.dateEmbauche | date:'mediumDate' }}</h3>
-            <span>Hire Date</span>
-          </div>
-        </div>
-        
-        <div class="info-card">
-          <div class="info-icon email-icon">
-            <i class="fas fa-envelope"></i>
-          </div>
-          <div class="info-content">
-            <h3>{{ me?.email }}</h3>
-            <span>Email</span>
-          </div>
+        <div class="info-content">
+          <h3>{{ me?.email }}</h3>
+          <span>Adresse e-mail</span>
         </div>
       </div>
     </div>
   </div>
+</div>

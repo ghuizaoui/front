@@ -12,6 +12,8 @@ export interface EmployeSoldeDto {
     congesAcquisN: number;    // Congés acquis année N
     retardsN: number;         // Retards année N
     autorisationsN: number;   // Autorisations année N
-    soldeActuel: number;      // Solde actuel
+    soldeActuel: number; 
+    chefHierarchique1Matricule:string;
+    chefHierarchique2Matricule:string    // Solde actuel
   }
   

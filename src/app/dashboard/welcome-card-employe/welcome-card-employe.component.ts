@@ -26,13 +26,14 @@ export class WelcomeCardEmployeComponent implements OnInit {
   private setGreeting(): void {
     const hour = this.today.getHours();
     if (hour < 12) {
-      this.greeting = 'Good morning';
+      this.greeting = 'Bonjour';
     } else if (hour < 18) {
-      this.greeting = 'Good afternoon';
+      this.greeting = 'Bon après-midi';
     } else {
-      this.greeting = 'Good evening';
+      this.greeting = 'Bonsoir';
     }
   }
+  
 
   loadMe(): void {
     this.employeService.me().subscribe({
