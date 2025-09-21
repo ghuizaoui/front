@@ -26,6 +26,12 @@ export class DemandeService {
     return this.http.get<Demande[]>(`${this.apiUrl}/get-all`)
   }
 
+
+
+  getAllDemandesByService():Observable<Demande[]>{
+    return this.http.get<Demande[]>(`${this.apiUrl}/get-all-v-r`)
+  }
+
   createCongeExceptionnel(body: CongeRequest): Observable<Demande> {
     return this.http.post<Demande>(`${this.apiUrl}/conge-exceptionnel`, body);
   }

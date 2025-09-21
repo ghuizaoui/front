@@ -22,4 +22,5 @@ export interface Employe {
   soldesConges?: SoldeConge[];
   chef1: string;
   chef2: string;
+  estBanni?:boolean;
 }

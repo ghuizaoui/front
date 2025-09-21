@@ -9,6 +9,7 @@ import { Subscription, filter } from 'rxjs';
 import {WsNotificationService} from '../../services/WsNotification/ws-notification.service';
 import {NotificationService} from '../../services/notification/notification.service';
 import {NotificationPayload} from '../../models/NotificationPayload';
+import { EmployeService } from '../../services/employe/employe.service';
 
 declare const bootstrap: any;
 
@@ -41,6 +42,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isRequestsOpen = false;
   private _wsStarted = false;
 
+  issuper:boolean=false;
+
   searchQuery = '';
   currentRoute = '';
   currentTheme: string = 'light';
@@ -63,6 +66,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
+    private employeService: EmployeService,
+    
 
     // =========================
     // AJOUTS: services notif/WS
@@ -73,6 +78,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.currentRoute = this.router.url.split('/').pop() || '';
+    this.loadEstSuper();
     this.loadThemePreference();
     window.addEventListener('scroll', this.toggleBackToTop);
 
@@ -488,5 +494,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.totalPages = page.totalPages;
       this.cdr.detectChanges();
     });
+  }
+
+
+  // check the employ is super drh or not 
+  loadEstSuper(){
+    this.employeService.estSuper().subscribe(
+      req=>{
+        console.log("//////////////////////////////////////"+req)
+        this.issuper= req
+
+      },
+      error=>{
+        console.log(error);
+        console.log("employe est  ne pas super drh ")
+
+      }
+    )
   }
 }

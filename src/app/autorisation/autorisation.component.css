@@ -7,11 +7,13 @@
     --text-secondary: #6b7280; /* Light gray */
     --light-bg: #f8fafc; /* Light background */
     --border-radius: 12px;
-    --transition: all 0.3s ease;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     --table-border: #e5e7eb;
     --table-hover: #f1f5f9;
     --table-header-bar: #7c3aed; /* Elegant purple for table header bar */
+    --black-header-bg: #0d0d0e; /* Black for header */
+    --black-header-gradient: linear-gradient(135deg, #0d0d0e 0%, #4b5563 100%);
 }
 
 /* Main content styling */
@@ -19,6 +21,7 @@
     background: var(--light-bg);
     min-height: 100vh;
     padding: 1.5rem;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
 /* Page content */
@@ -43,6 +46,7 @@
     margin-bottom: 1.5rem;
     padding: 0.5rem 0;
     border-bottom: 1px solid var(--table-border);
+    animation: fadeIn 0.6s ease-out;
 }
 
 /* Page title */
@@ -95,7 +99,7 @@
     background: white;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    transition: all 0.3s ease;
+    transition: var(--transition);
     overflow: hidden;
 }
 
@@ -108,13 +112,32 @@
 /* Card header */
 .card-header {
     padding: 1.75rem;
-    background: linear-gradient(135deg, var(--primary-color), #60a5fa);
-    color: white;
+    background: var(--black-header-gradient);
+    color: #030303;
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     font-weight: 700;
     font-size: 1.5rem;
     text-align: center;
-    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(0, 0, 0, 0.15), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(200%) rotate(45deg); }
 }
 
 /* Card title */
@@ -123,6 +146,13 @@
     font-size: 1.5rem;
     font-weight: 600;
     line-height: 1.3;
+    background: linear-gradient(135deg, #ffffff 0%, #e4e9f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    position: relative;
+    z-index: 1;
 }
 
 /* Card body */
@@ -186,7 +216,8 @@
 .table {
     width: 100%;
     margin-bottom: 0;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     background: white;
     border: 1px solid var(--table-border);
     border-radius: 8px;
@@ -259,11 +290,8 @@
 /* Table hover effect */
 .table-hover tbody tr:hover {
     background-color: var(--table-hover);
-    transition: background-color 0.2s ease;
-}
-
-.table-hover tbody tr:hover td {
-    color: var(--primary-color);
+    transition: var(--transition);
+    transform: translateX(4px);
 }
 
 /* Table striped rows */
@@ -328,7 +356,7 @@
     min-height: 24px;
     line-height: 1.5;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
+    transition: var(--transition);
 }
 
 /* Badge hover effect */
@@ -338,20 +366,23 @@
 
 /* Success badge */
 .bg-success {
-    background-color: var(--accent-color);
-    color: white;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 1px solid #a7f3d0;
 }
 
 /* Danger badge */
 .bg-danger {
-    background-color: #ef4444;
-    color: white;
+    background: linear-gradient(135deg, #fee2e2 0%, #fed7d7 100%);
+    color: #b91c1c;
+    border: 1px solid #fed7d7;
 }
 
 /* Primary badge */
 .bg-primary {
-    background-color: var(--primary-color);
-    color: white;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
 }
 
 /* Alert styling */
@@ -363,19 +394,19 @@
     font-weight: 500;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: opacity 0.3s ease;
+    transition: var(--transition);
 }
 
 /* Alert info */
 .alert-info {
-    background-color: #e0f2fe;
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
     color: #0ea5e9;
     border: 1px solid #7dd3fc;
 }
 
 /* Alert danger */
 .alert-danger {
-    background-color: #fee2e2;
+    background: linear-gradient(135deg, #fee2e2 0%, #fed7d7 100%);
     color: #b91c1c;
     border: 1px solid #fca5a5;
 }
@@ -388,6 +419,12 @@
     border-right-color: transparent;
     color: var(--primary-color);
     margin: 2rem auto;
+    animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Visually hidden for accessibility */
@@ -506,5 +543,65 @@
     .table-responsive {
         border-radius: 8px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Scrollbar for Firefox */
+.card-body,
+.table-responsive {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f1f1f1;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .card,
+    .table-hover tbody tr,
+    .badge,
+    .alert,
+    .card-header::before {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .card {
+        border: 2px solid var(--text-primary);
+    }
+
+    .table th,
+    .table td {
+        border: 2px solid var(--text-primary);
+    }
+
+    .badge,
+    .alert {
+        border: 2px solid var(--text-primary);
+    }
+}
+
+/* Print styles */
+@media print {
+    .main-content {
+        padding: 0;
+        background: #ffffff;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid var(--table-border);
+        border-radius: 0;
+    }
+
+    .card-header {
+        background: #000000;
+        color: #ffffff;
+    }
+
+    .table-hover tbody tr:hover {
+        background: none;
+        transform: none;
     }
 }

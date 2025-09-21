@@ -1,94 +1,288 @@
-<!-- dashboard-drh.component.html -->
 <div class="dashboard-container" style="padding-top: 10em;">
-    <app-welcome-card></app-welcome-card>
-    <app-kpi-cards [kpis]="kpis" [errorMessage]="errorMessage"></app-kpi-cards>
-
-    <!-- Chart Navigation -->
-    <div class="chart-navigation">
-        <button 
-            [class.active]="activeChart === 'monthly'" 
-            (click)="showChart('monthly')"
-            class="chart-btn">
-            📅 Par Mois
-        </button>
-        <button 
-            [class.active]="activeChart === 'category'" 
-            (click)="showChart('category')"
-            class="chart-btn">
-            📊 Par Catégorie
-        </button>
-        <button 
-            [class.active]="activeChart === 'type'" 
-            (click)="showChart('type')"
-            class="chart-btn">
-            🎯 Par Type
-        </button>
-        <button 
-            [class.active]="activeChart === 'monthYear'" 
-            (click)="showChart('monthYear')"
-            class="chart-btn">
-            📈 Mois/Année
-        </button>
+    <app-welcome-card-employe></app-welcome-card-employe>
+    
+    <!-- Header with service info -->
+    <div class="dashboard-header">
+        <h1>📊 Tableau de Bord Chef de Service</h1>
+        <p>Vue consolidée des demandes et congés de votre service</p>
+    </div>
+    
+    <!-- Date Filters -->
+    <div class="filters-section">
+        <div class="filter-group">
+            <label>Période:</label>
+            <input type="date" [(ngModel)]="startDate">
+            <span>au</span>
+            <input type="date" [(ngModel)]="endDate">
+            <button (click)="applyFilters()" class="apply-btn">Appliquer</button>
+        </div>
     </div>
 
-    <!-- Main Chart Section -->
-    <div class="chart-section">
-        <app-generic-chart
-          [chartData]="getCurrentChartData()"
-          [chartCategories]="getCurrentChartCategories()"
-          [chartTitle]="getCurrentChartTitle()"
-          [chartType]="getCurrentChartType()"
-          [seriesName]="getCurrentSeriesName()"
-          [color]="getCurrentColor()"
-          [showLegend]="activeChart === 'type'"
-        ></app-generic-chart>
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement des données de votre service...</p>
     </div>
 
-    <!-- Mini Charts Grid -->
-    <div class="mini-charts-grid">
-        <div class="mini-chart">
-            <h4>📅 Demandes Mois</h4>
-            <app-generic-chart
-                [chartData]="monthlyChartData"
-                [chartCategories]="monthlyChartCategories"
-                chartTitle=""
-                chartType="bar"
-                seriesName="Mois"
-                [color]="'#4a6cf7'"
-                [chartHeight]="200"
-                [showToolbar]="false"
-                [showLegend]="false"
-            ></app-generic-chart>
+    <!-- Error Message -->
+    <div *ngIf="errorMessage && !isLoading" class="error-message">
+        {{ errorMessage }}
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div *ngIf="!isLoading && !errorMessage && dashboardData" class="dashboard-content">
+        
+        <!-- Navigation Tabs -->
+        <div class="dashboard-tabs">
+            <button [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">
+                📊 Vue d'ensemble
+            </button>
+            <button [class.active]="activeTab === 'status'" (click)="activeTab = 'status'">
+                📋 Statuts demandes
+            </button>
+            <button [class.active]="activeTab === 'types'" (click)="activeTab = 'types'">
+                🗂️ Types demandes
+            </button>
+            <button [class.active]="activeTab === 'conges'" (click)="activeTab = 'conges'">
+                🏖️ Congés & Soldes
+            </button>
+            <button [class.active]="activeTab === 'comparaison'" (click)="activeTab = 'comparaison'">
+                📈 Comparaison services
+            </button>
+            <button [class.active]="activeTab === 'employes'" (click)="activeTab = 'employes'">
+                👥 Soldes employés
+            </button>
         </div>
 
-        <div class="mini-chart">
-            <h4>📊 Par Catégorie</h4>
-            <app-generic-chart
-                [chartData]="categoryMonthlyChartData"
-                [chartCategories]="categoryMonthlyChartCategories"
-                chartTitle=""
-                chartType="area"
-                seriesName="Catégorie"
-                [color]="'#10b981'"
-                [chartHeight]="200"
-                [showToolbar]="false"
-                [showLegend]="false"
-            ></app-generic-chart>
+        <!-- Overview Tab -->
+        <div *ngIf="activeTab === 'overview'" class="tab-content">
+            <h2>Vue d'ensemble du service</h2>
+            
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">📋</div>
+                    <div class="kpi-title">Demandes totales</div>
+                    <div class="kpi-value">{{ dashboardData.vueEnsembleDemandes.totalDemandes || 0 }}</div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-icon">✅</div>
+                    <div class="kpi-title">Demandes validées</div>
+                    <div class="kpi-value">{{ dashboardData.repartitionStatuts.validees || 0 }}</div>
+                    <div class="kpi-subtitle">{{ formatPercentage(dashboardData.repartitionStatuts.pourcentageValidees) }}</div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-icon">⏳</div>
+                    <div class="kpi-title">En attente</div>
+                    <div class="kpi-value">{{ dashboardData.repartitionStatuts.enCours || 0 }}</div>
+                    <div class="kpi-subtitle">{{ formatPercentage(dashboardData.repartitionStatuts.pourcentageEnCours) }}</div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-icon">🏖️</div>
+                    <div class="kpi-title">Jours de congés pris</div>
+                    <div class="kpi-value">{{ dashboardData.joursCongesPris.joursPris || 0 }}</div>
+                    <div class="kpi-subtitle">{{ formatPercentage(dashboardData.joursCongesPris.pourcentagePris) }} du solde</div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-row">
+                    <div class="stat-item">
+                        <span class="stat-label">Congés standards:</span>
+                        <span class="stat-value">{{ dashboardData.vueEnsembleDemandes.totalConges }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Autorisations:</span>
+                        <span class="stat-value">{{ dashboardData.vueEnsembleDemandes.totalAutorisations }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Ordres de mission:</span>
+                        <span class="stat-value">{{ dashboardData.vueEnsembleDemandes.totalOrdresMission }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="mini-chart">
-            <h4>🎯 Par Type</h4>
-            <app-generic-chart
-                [chartData]="typeChartData"
-                [chartCategories]="typeChartCategories"
-                chartTitle=""
-                chartType="pie"
-                seriesName="Type"
-                [color]="'#f59e0b'"
-                [chartHeight]="200"
-                [showToolbar]="false"
-                [showLegend]="false"
-            ></app-generic-chart>
+        <!-- Status Distribution Tab -->
+        <div *ngIf="activeTab === 'status'" class="tab-content">
+            <h2>Répartition des statuts des demandes</h2>
+            
+            <div class="chart-container">
+                <app-generic-chart
+                    [chartData]="getStatusDistributionChartData().data"
+                    [chartCategories]="getStatusDistributionChartData().categories"
+                    [chartType]="'pie'"
+                    [chartTitle]="'Répartition des statuts'"
+                    [seriesName]="'Demandes'"
+                    >
+                </app-generic-chart>
+            </div>
+            
+            <div class="status-details">
+                <div class="status-item">
+                    <span class="status-badge status-en_cours"></span>
+                    <span class="status-name">En cours</span>
+                    <span class="status-count">{{ dashboardData.repartitionStatuts.enCours }} demandes</span>
+                    <span class="status-percentage">{{ formatPercentage(dashboardData.repartitionStatuts.pourcentageEnCours) }}</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-badge status-validee"></span>
+                    <span class="status-name">Validées</span>
+                    <span class="status-count">{{ dashboardData.repartitionStatuts.validees }} demandes</span>
+                    <span class="status-percentage">{{ formatPercentage(dashboardData.repartitionStatuts.pourcentageValidees) }}</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-badge status-refusee"></span>
+                    <span class="status-name">Refusées</span>
+                    <span class="status-count">{{ dashboardData.repartitionStatuts.refusees }} demandes</span>
+                    <span class="status-percentage">{{ formatPercentage(dashboardData.repartitionStatuts.pourcentageRefusees) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demand Types Tab -->
+        <div *ngIf="activeTab === 'types'" class="tab-content">
+            <h2>Répartition par type de demandes</h2>
+            
+            <div class="chart-container">
+                <app-generic-chart
+                    [chartData]="getDemandTypesChartData().data"
+                    [chartCategories]="getDemandTypesChartData().categories"
+                    [chartType]="'pie'"
+                    [chartTitle]="'Types de demandes'"
+                    [seriesName]="'Demandes'"
+                   >
+                </app-generic-chart>
+            </div>
+            
+            <div class="types-details">
+                <div class="type-item">
+                    <span class="type-icon">🏖️</span>
+                    <span class="type-name">Congés</span>
+                    <span class="type-count">{{ dashboardData.vueEnsembleDemandes.totalConges }} demandes</span>
+                    <span class="type-percentage">{{ formatPercentage(dashboardData.vueEnsembleDemandes.pourcentageConges) }}</span>
+                </div>
+                <div class="type-item">
+                    <span class="type-icon">⏰</span>
+                    <span class="type-name">Autorisations</span>
+                    <span class="type-count">{{ dashboardData.vueEnsembleDemandes.totalAutorisations }} demandes</span>
+                    <span class="type-percentage">{{ formatPercentage(dashboardData.vueEnsembleDemandes.pourcentageAutorisations) }}</span>
+                </div>
+                <div class="type-item">
+                    <span class="type-icon">✈️</span>
+                    <span class="type-name">Ordres de mission</span>
+                    <span class="type-count">{{ dashboardData.vueEnsembleDemandes.totalOrdresMission }} demandes</span>
+                    <span class="type-percentage">{{ formatPercentage(dashboardData.vueEnsembleDemandes.pourcentageOrdresMission) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conges Tab -->
+        <div *ngIf="activeTab === 'conges'" class="tab-content">
+            <h2>Gestion des congés du service</h2>
+            
+            <div class="leave-overview">
+                <div class="leave-stats-grid">
+                    <div class="leave-stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-title">Jours pris</div>
+                        <div class="stat-value">{{ dashboardData.joursCongesPris.joursPris }}</div>
+                    </div>
+                    <div class="leave-stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-title">Solde total</div>
+                        <div class="stat-value">{{ dashboardData.joursCongesPris.soldeTotal }}</div>
+                    </div>
+                    <div class="leave-stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-title">Taux d'utilisation</div>
+                        <div class="stat-value">{{ formatPercentage(dashboardData.joursCongesPris.pourcentagePris) }}</div>
+                    </div>
+                    <div class="leave-stat-card highlight">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-title">Solde restant</div>
+                        <div class="stat-value">{{ dashboardData.joursCongesPris.soldeRestant }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="evolution-section">
+                <h3>Évolution mensuelle des congés pris</h3>
+                <div class="chart-container">
+                    <app-generic-chart
+                        [chartData]="getLeaveEvolutionChartData().data"
+                        [chartCategories]="getLeaveEvolutionChartData().categories"
+                        [chartType]="'line'"
+                        [chartTitle]="'Évolution des congés pris'"
+                        [seriesName]="'Jours de congés'"
+                       >
+                    </app-generic-chart>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparaison Tab -->
+        <div *ngIf="activeTab === 'comparaison'" class="tab-content">
+            <h2>Comparaison avec les autres services</h2>
+            
+            <div class="chart-container">
+                <app-generic-chart
+                    [chartData]="getAcceptedRequestsChartData().data"
+                    [chartCategories]="getAcceptedRequestsChartData().categories"
+                    [chartType]="'bar'"
+                    [chartTitle]="'Demandes acceptées par service'"
+                    [seriesName]="'Demandes acceptées'"
+                   >
+                </app-generic-chart>
+            </div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Direction</th>
+                            <th>Demandes acceptées</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let service of dashboardData.demandesAccepteesServices">
+                            <td>{{ service.service }}</td>
+                            <td>{{ service.direction }}</td>
+                            <td>{{ service.demandesAcceptees }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Employes Tab -->
+        <div *ngIf="activeTab === 'employes'" class="tab-content">
+            <h2>Soldes de congés par employé</h2>
+            
+            <div class="employees-grid">
+                <div *ngFor="let employe of dashboardData.soldesEmployes" 
+                     class="employee-card" 
+                     [class.highlight]="employe.plusGrandSolde">
+                    <div class="employee-header">
+                        <h4>{{ employe.prenom }} {{ employe.nom }}</h4>
+                        <span class="matricule">{{ employe.matricule }}</span>
+                    </div>
+                    <div class="employee-solde">
+                        <span class="solde-label">Solde congés:</span>
+                        <span class="solde-value">{{ employe.solde }} jours</span>
+                    </div>
+                    <div *ngIf="employe.plusGrandSolde" class="highest-badge">
+                        Plus grand solde
+                    </div>
+                </div>
+            </div>
+            
+           
         </div>
     </div>
 </div>

@@ -1,242 +1,142 @@
-// dashboard-drh.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DemandeService } from '../../services/demande/demande.service';
+import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-import { Kpi } from '../../models/kpi';
 import { KpiCardsComponent } from "../../dashboard-components/kpi-cards/kpi-cards.component";
 import { WelcomeCardComponent } from "../../dashboard-components/welcome-card/welcome-card.component";
 import { GenericChartComponent } from "../../dashboard-components/growth-chart/generic-chart.component";
+import { DashboardChefService, DashboardChefDTO, VueEnsembleDemandes, RepartitionStatuts, JoursCongesPris, DemandesAccepteesService, SoldeEmploye } from '../../services/dashboard-chef/dashboard-chef.service';
+import { WelcomeCardEmployeComponent } from "../welcome-card-employe/welcome-card-employe.component";
 
 @Component({
   selector: 'app-dashboard-chef',
   standalone: true,
-  imports: [CommonModule, KpiCardsComponent, WelcomeCardComponent, GenericChartComponent],
+  imports: [CommonModule, FormsModule, KpiCardsComponent, WelcomeCardComponent, GenericChartComponent, WelcomeCardEmployeComponent],
   templateUrl: './dashboard-chef.component.html',
   styleUrls: ['./dashboard-chef.component.css']
 })
 export class DashboardChefComponent implements OnInit {
-  kpis: Kpi[] = [];
-  errorMessage: string | null = null; 
+  // Dashboard data
+  dashboardData: DashboardChefDTO | null = null;
+  
+  // Selected service for detailed view
+  selectedService: string = '';
+  
+  // Date filters
+  startDate: string = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0];
+  endDate: string = new Date(new Date().getFullYear(), 11, 31).toISOString().split('T')[0];
+  
+  // UI state
   isLoading: boolean = true;
+  errorMessage: string | null = null;
+  activeTab: string = 'overview';
+  showEmployeeDetails: boolean = false;
 
-  // Multiple chart data
-  monthlyChartData: number[] = [];
-  monthlyChartCategories: string[] = [];
-  
-  categoryMonthlyChartData: number[] = [];
-  categoryMonthlyChartCategories: string[] = [];
-  
-  typeChartData: number[] = [];
-  typeChartCategories: string[] = [];
-  
-  monthYearChartData: number[] = [];
-  monthYearChartCategories: string[] = [];
-
-  // Chart type toggles
-  showMonthlyChart: boolean = true;
-  showCategoryChart: boolean = false;
-  showTypeChart: boolean = false;
-  showMonthYearChart: boolean = false;
-
-  // Current active chart
-  activeChart: string = 'monthly';
-
-  constructor(private demandeService: DemandeService) {}
+  constructor(private dashboardChefService: DashboardChefService) {}
 
   ngOnInit(): void {
-    this.loadKpis();
-    this.loadAllCharts();
+    this.loadDashboardData();
   }
 
-  private loadKpis(): void {
+  // Load all dashboard data
+  loadDashboardData(): void {
     this.isLoading = true;
     this.errorMessage = null;
 
-    forkJoin({
-      byCategorie: this.demandeService.getCountByCategorie(),
-      byEmploye: this.demandeService.getCountByEmploye(),
-      byService: this.demandeService.getCountByService(),
-    }).subscribe({
-      next: (results: any) => {
-        this.kpis = [
-          {
-            title: 'Demandes par Catégorie',
-            value: Array.isArray(results.byCategorie) ? 
-                   results.byCategorie.reduce((acc: number, item: any) => acc + (item[1] || 0), 0) : 0,
-          },
-          {
-            title: 'Demandes par Employé',
-            value: Array.isArray(results.byEmploye) ? 
-                   results.byEmploye.reduce((acc: number, item: any) => acc + (item[1] || 0), 0) : 0,
-          },
-          {
-            title: 'Demandes par Service',
-            value: Array.isArray(results.byService) ? 
-                   results.byService.reduce((acc: number, item: any) => acc + (item[1] || 0), 0) : 0,
-          },
-        ];
-
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        console.error('Erreur lors du chargement des KPI', err);
-        this.errorMessage = 'Impossible de charger les indicateurs.';
-        this.isLoading = false;
-      }
-    });
-  }
-
-  private loadAllCharts(): void {
-    const start = '2025-01-01T00:00:00';
-    const end = '2025-12-31T23:59:59';
-
-    // Load monthly chart
-    this.demandeService.countDemandesPerMonth(start, end).subscribe({
-      next: (result: any) => {
-        if (Array.isArray(result)) {
-          this.monthlyChartCategories = result.map((r: any) => r[0] || '');
-          this.monthlyChartData = result.map((r: any) => r[1] || 0);
+    this.dashboardChefService.getDashboardChef(this.startDate, this.endDate)
+      .subscribe({
+        next: (data: DashboardChefDTO) => {
+          this.dashboardData = data;
+          this.isLoading = false;
+        },
+        error: (err: any) => {
+          console.error('Erreur lors du chargement du dashboard chef', err);
+          this.errorMessage = 'Impossible de charger les données du dashboard.';
+          this.isLoading = false;
         }
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement du chart mensuel', err);
-        this.setDefaultChartData('monthly');
-      }
-    });
-
-    // Load category monthly chart
-    this.demandeService.countDemandesByCategoriePerMonth(start, end).subscribe({
-      next: (result: any) => {
-        if (Array.isArray(result)) {
-          this.categoryMonthlyChartCategories = result.map((r: any) => r[0] || '');
-          this.categoryMonthlyChartData = result.map((r: any) => r[1] || 0);
-        }
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement du chart par catégorie', err);
-        this.setDefaultChartData('category');
-      }
-    });
-
-    // Load type chart
-    this.demandeService.countDemandesByType().subscribe({
-      next: (result: any) => {
-        if (Array.isArray(result)) {
-          this.typeChartCategories = result.map((r: any) => r[0] || '');
-          this.typeChartData = result.map((r: any) => r[1] || 0);
-        }
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement du chart par type', err);
-        this.setDefaultChartData('type');
-      }
-    });
-
-    // Load month-year chart
-    this.demandeService.countDemandesPerMonthAndYear().subscribe({
-      next: (result: any) => {
-        if (Array.isArray(result)) {
-          this.monthYearChartCategories = result.map((r: any) => r[0] || '');
-          this.monthYearChartData = result.map((r: any) => r[1] || 0);
-        }
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement du chart mois-année', err);
-        this.setDefaultChartData('monthYear');
-      }
-    });
+      });
   }
 
-  private setDefaultChartData(chartType: string): void {
-    const defaultCategories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    const defaultData = [5, 8, 12, 7, 9, 15];
+  // Apply date filters
+  applyFilters(): void {
+    this.loadDashboardData();
+  }
 
-    switch(chartType) {
-      case 'monthly':
-        this.monthlyChartCategories = defaultCategories;
-        this.monthlyChartData = defaultData;
-        break;
-      case 'category':
-        this.categoryMonthlyChartCategories = defaultCategories;
-        this.categoryMonthlyChartData = defaultData;
-        break;
-      case 'type':
-        this.typeChartCategories = ['Type A', 'Type B', 'Type C'];
-        this.typeChartData = [20, 35, 45];
-        break;
-      case 'monthYear':
-        this.monthYearChartCategories = defaultCategories;
-        this.monthYearChartData = defaultData;
-        break;
+  // Reset to overview
+  resetView(): void {
+    this.showEmployeeDetails = false;
+    this.selectedService = '';
+  }
+
+  // Format percentage
+  formatPercentage(value: number): string {
+    return value.toFixed(2) + '%';
+  }
+
+  // Get status distribution for chart
+  getStatusDistributionChartData(): any {
+    if (!this.dashboardData?.repartitionStatuts) {
+      return {
+        categories: ['No Data'],
+        data: [0],
+        percentages: [0]
+      };
     }
+
+    const statuts = this.dashboardData.repartitionStatuts;
+    return {
+      categories: ['En cours', 'Validées', 'Refusées'],
+      data: [statuts.enCours, statuts.validees, statuts.refusees],
+      percentages: [statuts.pourcentageEnCours, statuts.pourcentageValidees, statuts.pourcentageRefusees]
+    };
   }
 
-  // Chart switching methods
-  showChart(chartType: string): void {
-    this.activeChart = chartType;
-    this.showMonthlyChart = chartType === 'monthly';
-    this.showCategoryChart = chartType === 'category';
-    this.showTypeChart = chartType === 'type';
-    this.showMonthYearChart = chartType === 'monthYear';
-  }
-
-  // Get current chart data based on active chart
-  getCurrentChartData(): number[] {
-    switch(this.activeChart) {
-      case 'monthly': return this.monthlyChartData;
-      case 'category': return this.categoryMonthlyChartData;
-      case 'type': return this.typeChartData;
-      case 'monthYear': return this.monthYearChartData;
-      default: return this.monthlyChartData;
+  // Get demand types for chart
+  getDemandTypesChartData(): any {
+    if (!this.dashboardData?.vueEnsembleDemandes) {
+      return {
+        categories: ['No Data'],
+        data: [0],
+        percentages: [0]
+      };
     }
+
+    const vueEnsemble = this.dashboardData.vueEnsembleDemandes;
+    return {
+      categories: ['Congés', 'Autorisations', 'Ordres Mission'],
+      data: [vueEnsemble.totalConges, vueEnsemble.totalAutorisations, vueEnsemble.totalOrdresMission],
+      percentages: [vueEnsemble.pourcentageConges, vueEnsemble.pourcentageAutorisations, vueEnsemble.pourcentageOrdresMission]
+    };
   }
 
-  getCurrentChartCategories(): string[] {
-    switch(this.activeChart) {
-      case 'monthly': return this.monthlyChartCategories;
-      case 'category': return this.categoryMonthlyChartCategories;
-      case 'type': return this.typeChartCategories;
-      case 'monthYear': return this.monthYearChartCategories;
-      default: return this.monthlyChartCategories;
+  // Get accepted requests for chart
+  getAcceptedRequestsChartData(): any {
+    if (!this.dashboardData?.demandesAccepteesServices) {
+      return {
+        categories: ['No Data'],
+        data: [0]
+      };
     }
+
+    return {
+      categories: this.dashboardData.demandesAccepteesServices.map(item => item.service),
+      data: this.dashboardData.demandesAccepteesServices.map(item => item.demandesAcceptees)
+    };
   }
 
-  getCurrentChartTitle(): string {
-    switch(this.activeChart) {
-      case 'monthly': return 'Demandes par Mois';
-      case 'category': return 'Demandes par Catégorie (Mensuel)';
-      case 'type': return 'Répartition par Type de Demande';
-      case 'monthYear': return 'Demandes par Mois et Année';
-      default: return 'Demandes par Mois';
+  // Get leave evolution for chart
+  getLeaveEvolutionChartData(): any {
+    if (!this.dashboardData?.joursCongesPris?.evolutionParMois) {
+      return {
+        categories: ['No Data'],
+        data: [0]
+      };
     }
-  }
 
-  getCurrentChartType(): 'line' | 'bar' | 'area' | 'pie' {
-    switch(this.activeChart) {
-      case 'type': return 'pie';
-      default: return 'line';
-    }
+    const evolution = this.dashboardData.joursCongesPris.evolutionParMois;
+    return {
+      categories: evolution.map(item => item.mois),
+      data: evolution.map(item => item.joursPris)
+    };
   }
-
-  getCurrentSeriesName(): string {
-    switch(this.activeChart) {
-      case 'monthly': return 'Nombre de Demandes';
-      case 'category': return 'Demandes par Catégorie';
-      case 'type': return 'Répartition';
-      case 'monthYear': return 'Demandes par Période';
-      default: return 'Nombre de Demandes';
-    }
-  }
-
-  getCurrentColor(): string {
-    switch(this.activeChart) {
-      case 'monthly': return '#4a6cf7';
-      case 'category': return '#10b981';
-      case 'type': return '#f59e0b';
-      case 'monthYear': return '#ef4444';
-      default: return '#4a6cf7';
-    }
-  }
-
 }

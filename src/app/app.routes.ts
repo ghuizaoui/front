@@ -26,6 +26,8 @@ import { Calendar } from '@fullcalendar/core/index.js';
 import { CalendarComponent } from './calendar/calendar.component';
 import { AutorisationComponent } from './autorisation/autorisation.component';
 import { DemandesEtSoldeComponent } from './demandes-et-solde/demandes-et-solde.component';
+import { GererEmployesComponent } from './gerer-employes/gerer-employes.component';
+import { HistoriqueDemandesChefComponent } from './historique-demandes-chef/historique-demandes-chef.component';
 
 export const routes: Routes = [
   // --- pages SANS shell (ex : login) ------------------------------
@@ -50,10 +52,11 @@ export const routes: Routes = [
       { path: 'demande-form',                component: DemandeFormComponent },
       { path: 'employees', component: EmployeesComponent },
       { path: 'historique', component: HistoriqueDemandesComponent},
-      { path: 'historique-chef', component: DashboardChefComponent },
+      { path: 'historique-chef', component: HistoriqueDemandesChefComponent },
       {path:'calendar',component: CalendarComponent},
       {path:'autorisation',component: AutorisationComponent},
-      {path:'demandes-et-solde',component: DemandesEtSoldeComponent}
+      {path:'demandes-et-solde',component: DemandesEtSoldeComponent},
+      {path:'gerer-employes',component:GererEmployesComponent}
 
 
     ]

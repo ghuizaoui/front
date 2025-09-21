@@ -1,0 +1,207 @@
+<div class="container" style="margin-top: 10em;">
+    <h1 class="page-title" style="background-color: black; color: aliceblue;">Gestion des Employés</h1>
+    
+    <!-- Filters and Search -->
+    <div class="filters-section">
+      <div class="search-container">
+        <div class="search-box">
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm" 
+            (input)="onSearchChange()" 
+            placeholder="Rechercher un employé..."
+            class="search-input"
+          >
+          <span class="search-icon">🔍</span>
+        </div>
+        
+        <button class="reset-filters-btn" (click)="resetFilters()">
+          <span class="reset-icon">↺</span>
+          Réinitialiser
+        </button>
+      </div>
+      
+      <div class="filter-group">
+        <div class="filter-item">
+          <label for="directionFilter">Direction:</label>
+          <select 
+            id="directionFilter" 
+            [(ngModel)]="selectedDirection" 
+            (change)="onFilterChange()"
+            class="filter-select"
+          >
+            <option value="all">Toutes les directions</option>
+            <option *ngFor="let direction of directions" [value]="direction">{{direction}}</option>
+          </select>
+        </div>
+        
+        <div class="filter-item">
+          <label for="serviceFilter">Service:</label>
+          <select 
+            id="serviceFilter" 
+            [(ngModel)]="selectedService" 
+            (change)="onFilterChange()"
+            class="filter-select"
+          >
+            <option value="all">Tous les services</option>
+            <option *ngFor="let service of services" [value]="service">{{service}}</option>
+          </select>
+        </div>
+        
+        <div class="filter-item">
+          <label for="statusFilter">Statut:</label>
+          <select 
+            id="statusFilter" 
+            [(ngModel)]="selectedStatus" 
+            (change)="onFilterChange()"
+            class="filter-select"
+          >
+            <option value="all">Tous les statuts</option>
+            <option value="active">Actifs</option>
+            <option value="banned">Bloqués</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Chargement des employés...</p>
+    </div>
+    
+    <!-- Employees Grid -->
+    <div *ngIf="!isLoading" class="employees-grid">
+      <div *ngFor="let employe of filteredEmployes" class="employee-card">
+        <div class="employee-header">
+          <h3 class="employee-name">{{employe.prenom}} {{employe.nom}}</h3>
+          <span class="employee-matricule">{{employe.matricule}}</span>
+        </div>
+        
+        <div class="employee-details">
+          <div class="detail-item">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{{employe.email}}</span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Direction:</span>
+            <span class="detail-value">{{employe.direction}}</span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Service:</span>
+            <span class="detail-value">{{employe.service}}</span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Grade:</span>
+            <span class="detail-value">{{employe.grade}}</span>
+          </div>
+          
+       
+        
+        <div class="employee-actions">
+          <button class="btn btn-view" (click)="viewEmployeeDetails(employe)">
+            Voir détails
+          </button>
+          
+          <button 
+            *ngIf="!employe.estBanni" 
+            (click)="banne(employe.matricule)" 
+            class="btn btn-danger"
+          >
+            Bloquer
+          </button>
+          
+          <button 
+            *ngIf="employe.estBanni" 
+            (click)="unbanne(employe.matricule)" 
+            class="btn btn-success"
+          >
+            Débloquer
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="!isLoading && filteredEmployes.length === 0" class="no-results">
+      <p>Aucun employé ne correspond à vos critères de recherche.</p>
+    </div>
+    
+    <!-- Employee Details Modal -->
+    <div *ngIf="showEmployeeDetails && selectedEmployee" class="modal-overlay" (click)="closeEmployeeDetails()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Détails de l'employé</h2>
+          <button class="close-modal" (click)="closeEmployeeDetails()">×</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="employee-profile">
+            <div class="profile-header">
+              <div class="avatar">{{selectedEmployee.prenom.charAt(0)}}{{selectedEmployee.nom.charAt(0)}}</div>
+              <div class="profile-info">
+                <h3>{{selectedEmployee.prenom}} {{selectedEmployee.nom}}</h3>
+                <p class="matricule">{{selectedEmployee.matricule}}</p>
+              </div>
+            </div>
+            
+            <div class="profile-details">
+              <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">{{selectedEmployee.email}}</span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">Direction:</span>
+                <span class="detail-value">{{selectedEmployee.direction}}</span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">Service:</span>
+                <span class="detail-value">{{selectedEmployee.service}}</span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">Grade:</span>
+                <span class="detail-value">{{selectedEmployee.grade}}</span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">Date d'embauche:</span>
+                <span class="detail-value">{{selectedEmployee.dateEmbauche | date:'dd/MM/yyyy'}}</span>
+              </div>
+              
+             
+              <div class="detail-row">
+                <span class="detail-label">Première connexion:</span>
+                <span class="detail-value">{{selectedEmployee.premiereConnexion ? 'Oui' : 'Non'}}</span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">Chef hiérarchique 1:</span>
+                <span class="detail-value">{{selectedEmployee.chef1}}</span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">Chef hiérarchique 2:</span>
+                <span class="detail-value">{{selectedEmployee.chef2}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Popup Component -->
+    <app-popup 
+      *ngIf="showPopup"
+      [title]="popupTitle"
+      [message]="popupMessage"
+      [isSuccess]="popupIsSuccess"
+      [redirectPath]="popupRedirectPath"
+      [showCancelButton]="showCancelButton"
+      (closed)="closePopup()">
+    </app-popup>
+  </div>

@@ -44,4 +44,22 @@ export class EmployeService {
     // L'URL devrait correspondre à votre endpoint back-end, par ex. /api/employes/{matricule}
     return this.http.get<Employe>(`${this.apiUrl}/${matricule}`);
 }
+
+banne(matricule: string): Observable<boolean> {
+  return this.http.put<boolean>(`${this.apiUrl}/banne/${matricule}`, null);
+}
+
+unbanne(matricule: string): Observable<boolean> {
+  return this.http.put<boolean>(`${this.apiUrl}/unbanne/${matricule}`, null);
+}
+
+estSuper(): Observable<boolean> {
+  return this.http.get<boolean>(`${this.apiUrl}/estsuper`);
+}
+
+
+me():Observable<Employe>{
+  return this.http.get<Employe>(`${this.apiUrl}/me`)
+}
+
 }
