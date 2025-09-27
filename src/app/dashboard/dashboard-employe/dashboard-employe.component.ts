@@ -6,12 +6,13 @@ import { AuthService } from '../../services/auth/auth.service';
 import { KpiCardsComponent } from "../../dashboard-components/kpi-cards/kpi-cards.component";
 import { GenericChartComponent } from "../../dashboard-components/growth-chart/generic-chart.component";
 import { Kpi } from '../../models/kpi';
-import { WelcomeCardEmployeComponent } from "../welcome-card-employe/welcome-card-employe.component";
+import { WelcomeCardEmployeComponent } from './welcome-card-employe/welcome-card-employe.component';
+
 
 @Component({
   selector: 'app-dashboard-employe',
   standalone: true,
-  imports: [CommonModule, WelcomeCardComponent, KpiCardsComponent, GenericChartComponent, WelcomeCardEmployeComponent],
+  imports: [CommonModule, KpiCardsComponent, GenericChartComponent, WelcomeCardEmployeComponent],
   templateUrl: './dashboard-employe.component.html',
   styleUrls: ['./dashboard-employe.component.css']
 })

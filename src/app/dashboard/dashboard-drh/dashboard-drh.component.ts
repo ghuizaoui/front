@@ -8,7 +8,8 @@ import { Kpi } from '../../models/kpi';
 import { KpiCardsComponent } from "../../dashboard-components/kpi-cards/kpi-cards.component";
 import { WelcomeCardComponent } from "../../dashboard-components/welcome-card/welcome-card.component";
 import { GenericChartComponent } from "../../dashboard-components/growth-chart/generic-chart.component";
-import { WelcomeCardEmployeComponent } from "../welcome-card-employe/welcome-card-employe.component";
+import { WelcomeCardEmployeComponent } from '../dashboard-employe/welcome-card-employe/welcome-card-employe.component';
+
 
 @Component({
   selector: 'app-dashboard-drh',

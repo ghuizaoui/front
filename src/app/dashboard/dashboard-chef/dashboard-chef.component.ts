@@ -6,7 +6,8 @@ import { KpiCardsComponent } from "../../dashboard-components/kpi-cards/kpi-card
 import { WelcomeCardComponent } from "../../dashboard-components/welcome-card/welcome-card.component";
 import { GenericChartComponent } from "../../dashboard-components/growth-chart/generic-chart.component";
 import { DashboardChefService, DashboardChefDTO, VueEnsembleDemandes, RepartitionStatuts, JoursCongesPris, DemandesAccepteesService, SoldeEmploye } from '../../services/dashboard-chef/dashboard-chef.service';
-import { WelcomeCardEmployeComponent } from "../welcome-card-employe/welcome-card-employe.component";
+import { WelcomeCardEmployeComponent } from '../dashboard-employe/welcome-card-employe/welcome-card-employe.component';
+
 
 @Component({
   selector: 'app-dashboard-chef',

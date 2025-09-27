@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EmployeService } from '../../services/employe/employe.service';
-import { Employe } from '../../models/Employe.model';
+
 import { DatePipe } from '@angular/common';
+import { EmployeService } from '../../../services/employe/employe.service';
+import { Employe } from '../../../models/Employe.model';
 
 @Component({
   selector: 'app-welcome-card-employe',
