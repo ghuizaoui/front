@@ -1,88 +1,165 @@
-<div class="main-content" >
-    <div class="page-content">
-      <div class="container-fluid">
-        <!-- Page Title -->
-        <div class="row" >
-          <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-              <h4 class="mb-sm-0" style="color: black; ">Liste des Autorisations</h4>
-              <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                  <li class="breadcrumb-item"><a href="javascript:void(0);">Gestion RH</a></li>
-                  <li class="breadcrumb-item active">Autorisations</li>
-                </ol>
-              </div>
+<div class="main-content">
+  <div class="page-content">
+    <div class="container-fluid">
+      <!-- Page Title -->
+      <div class="row">
+        <div class="col-12">
+          <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 page-title">Gestion des Demandes</h4>
+            <div class="page-title-right">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item"><a href="javascript:void(0);">Gestion RH</a></li>
+                <li class="breadcrumb-item active">Demandes</li>
+              </ol>
             </div>
           </div>
         </div>
-  
-        <!-- Main Content -->
-        <div class="row justify-content-center">
-          <div class="col-lg-10">
-            <div class="card">
-              <div class="card-header" style="background: linear-gradient(135deg, #030307, #34126e);">
-                <h4 class="card-title mb-0">Autorisations des Employés</h4>
-              </div>
-              <div class="card-body">
-                <!-- Loading Spinner -->
-                <div class="text-center" *ngIf="isLoading">
-                  <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Chargement...</span>
+      </div>
+
+      <!-- Filtres -->
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="filters-card card">
+            <div class="card-body">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                  <label class="form-label">Recherche</label>
+                  <div class="search-box">
+                    <input type="text" class="form-control search-input" 
+                           placeholder="Nom, prénom, matricule..."
+                           [value]="searchTerm"
+                           (input)="onSearchChange($any($event.target).value)">
+                    <i class="search-icon">🔍</i>
                   </div>
                 </div>
-  
-                <!-- Error Message -->
-                <div class="alert alert-danger" *ngIf="errorMessage && !isLoading">
-                  {{ errorMessage }}
+                
+                <div class="col-md-3">
+                  <label class="form-label">Catégorie</label>
+                  <select class="form-select filter-select" 
+                          [value]="selectedCategory"
+                          (change)="onCategoryChange($any($event.target).value)">
+                    <option *ngFor="let cat of categories" [value]="cat.value">
+                      {{ cat.label }}
+                    </option>
+                  </select>
                 </div>
-  
-                <!-- Authorizations Table -->
-                <div class="table-responsive" *ngIf="!isLoading && autorisations.length > 0">
-                  <table class="table table-hover table-striped align-middle">
-                    <thead>
-                      <tr>
-                        <th scope="col">Employé</th>
-                        <th scope="col">Matricule</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Statut</th>
-                        <th scope="col">Date Demandée</th>
-                        <th scope="col">Heure Début/Fin</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let autorisation of autorisations">
-                        <td>{{ autorisation.employe?.nom | uppercase }} {{ autorisation.employe?.prenom }}</td>
-                        <td>{{ autorisation.employe?.matricule }}</td>
-                        <td>{{ autorisation.employe?.email }}</td>
-                        <td>{{ autorisation.typeDemande | titlecase }}</td>
-                        <td>
-                          <span class="badge"
-                                [ngClass]="{
-                                  'bg-success': autorisation.statut === 'EN_COURS',
-                                  'bg-danger': autorisation.statut === 'REFUSE',
-                                  'bg-primary': autorisation.statut === 'VALIDE'
-                                }">
-                            {{ autorisation.statut | titlecase }}
-                          </span>
-                        </td>
-                        <td>{{ autorisation.autoHeureDebut | slice:0:5 }} - {{ autorisation.autoHeureFin | slice:0:5 }}</td>
-                        <td>{{ autorisation.dateCreation | date: 'dd/MM/yyyy HH:mm' }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                
+                <div class="col-md-3">
+                  <label class="form-label">Statut</label>
+                  <select class="form-select filter-select" 
+                          [value]="selectedStatus"
+                          (change)="onStatusChange($any($event.target).value)">
+                    <option *ngFor="let status of statuses" [value]="status.value">
+                      {{ status.label }}
+                    </option>
+                  </select>
                 </div>
-  
-                <!-- No Data Message -->
-                <div class="alert alert-info text-center" *ngIf="!isLoading && autorisations.length === 0">
-                  Aucune autorisation trouvée.
+                
+                <div class="col-md-3">
+                  <button class="btn btn-clear-filters" (click)="clearFilters()">
+                    <i class="clear-icon">🔄</i>
+                    Réinitialiser
+                  </button>
+                </div>
+              </div>
+              
+              <div class="row mt-2">
+                <div class="col-12">
+                  <div class="results-info">
+                    <span class="results-count">{{ filteredDemandes.length }}</span>
+                    demande(s) trouvée(s)
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-  
-     
+      </div>
+
+      <!-- Main Content -->
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Liste des Demandes</h4>
+            </div>
+            <div class="card-body">
+              <!-- Loading Spinner -->
+              <div class="text-center" *ngIf="isLoading">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Chargement...</span>
+                </div>
+                <p class="mt-2">Chargement des demandes...</p>
+              </div>
+
+              <!-- Error Message -->
+              <div class="alert alert-danger" *ngIf="errorMessage && !isLoading">
+                <i class="alert-icon">⚠️</i>
+                {{ errorMessage }}
+              </div>
+
+              <!-- Demandes Table -->
+              <div class="table-responsive" *ngIf="!isLoading && filteredDemandes.length > 0">
+                <table class="table table-hover table-striped align-middle">
+                  <thead>
+                    <tr>
+                      <th scope="col">Employé</th>
+                      <th scope="col">Matricule</th>
+                      <th scope="col">Catégorie</th>
+                      <th scope="col">Statut</th>
+                      <th scope="col">Date</th>
+                      <th scope="col">Heure Début/Fin</th>
+                      <th scope="col" *ngIf="selectedCategory === 'ALL' || selectedCategory === 'ORDRE_MISSION'">Objet Mission</th>
+                      <th scope="col">Date Demande</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let demande of filteredDemandes" class="demande-row">
+                      <td>
+                        <div class="employee-info">
+                          <div class="employee-name">{{ demande.employe?.nom | uppercase }} {{ demande.employe?.prenom }}</div>
+                          <div class="employee-email">{{ demande.employe?.email }}</div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="matricule-badge">{{ demande.employe?.matricule }}</span>
+                      </td>
+                      <td>
+                        <span class="category-badge" [class]="'category-' + demande.categorie.toLowerCase()">
+                          {{ getCategoryLabel(demande.categorie) }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="status-badge" [ngClass]="getStatusBadgeClass(demande.statut)">
+                          {{ getStatusLabel(demande.statut) }}
+                        </span>
+                      </td>
+                      <td>{{ getDisplayDate(demande) }}</td>
+                      <td>{{ getDisplayTime(demande) }}</td>
+                      <td *ngIf="selectedCategory === 'ALL' || selectedCategory === 'ORDRE_MISSION'">
+                        <span class="mission-objet" [title]="getMissionObjet(demande)">
+                          {{ getMissionObjet(demande) }}
+                        </span>
+                      </td>
+                      <td>{{ demande.dateCreation | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- No Data Message -->
+              <div class="no-data-message" *ngIf="!isLoading && filteredDemandes.length === 0">
+                <div class="no-data-icon">📊</div>
+                <h4>Aucune demande trouvée</h4>
+                <p>Aucune demande ne correspond à vos critères de recherche.</p>
+                <button class="btn btn-primary" (click)="clearFilters()" *ngIf="searchTerm || selectedCategory !== 'ALL' || selectedStatus !== 'ALL'">
+                  Réinitialiser les filtres
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</div>

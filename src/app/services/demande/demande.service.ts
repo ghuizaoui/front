@@ -10,6 +10,7 @@ import { OrdreMissionRequest } from '../../models/OrdreMissionRequest.model';
 import {DemandeListDTO} from '../../models/DemandeListDTO';
 import {DemandeDetailDTO} from '../../models/DemandeDetailDTO';
 import { EmployeSoldeDto } from '../../models/EmployeSoldeDto';
+import { CongeExceptionnelRequest } from '../../models/CongeExceptionnelRequest';
 
 @Injectable({ providedIn: 'root' })
 export class DemandeService {
@@ -32,8 +33,18 @@ export class DemandeService {
     return this.http.get<Demande[]>(`${this.apiUrl}/get-all-v-r`)
   }
 
-  createCongeExceptionnel(body: CongeRequest): Observable<Demande> {
-    return this.http.post<Demande>(`${this.apiUrl}/conge-exceptionnel`, body);
+  createCongeExceptionnel(request: CongeExceptionnelRequest, file: File |null): Observable<Demande> {
+    const formData = new FormData();
+    
+    // Append the JSON request data as a string
+    formData.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+    
+    // Append the file if provided
+    if (file) {
+      formData.append('file', file, file.name);
+    }
+
+    return this.http.post<Demande>(`${this.apiUrl}/conge-exceptionnel`, formData);
   }
 
   createAutorisation(body: AutorisationRequest): Observable<Demande> {
@@ -186,7 +197,7 @@ countByEmployeAndDateRange(matricule: string, start: string, end: string): Obser
 
 //
 getAllAutorisation():Observable<Demande[]>{
-  return this.http.get<Demande[]>(`${this.apiUrl}/get-all-autorisation`)
+  return this.http.get<Demande[]>(`${this.apiUrl}/get-all-autorisation-order-mission`)
 }
 
 
@@ -204,6 +215,35 @@ getEmployeSolde():Observable<EmployeSoldeDto>{
 
 cancelDemande(demandeId: number): Observable<any> {
   return this.http.delete<any>(`${this.apiUrl}/cancel-demande/${demandeId}`);
+}
+
+
+
+downloadDemandeFile(demandeId: number, fileName?: string): Observable<Blob> {
+  // Si aucun nom de fichier n'est fourni, on utilise un nom par défaut
+  const defaultFileName = `demande_${demandeId}.pdf`;
+  
+  return this.http.get(`${this.apiUrl}/${demandeId}/download`, {
+    responseType: 'blob' // Important pour récupérer un fichier binaire
+  });
+}
+
+/**
+ * Méthode utilitaire pour déclencher le téléchargement dans le navigateur
+ */
+downloadFile(demandeId: number, fileName?: string): void {
+  this.downloadDemandeFile(demandeId, fileName).subscribe(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName || `demande_${demandeId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url); // Libère la mémoire
+  }, error => {
+    console.error('Erreur lors du téléchargement du fichier', error);
+  });
 }
 
 }

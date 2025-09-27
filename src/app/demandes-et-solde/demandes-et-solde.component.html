@@ -1,140 +1,237 @@
-<div class="container-fluid py-4">
+<div class="main-content">
+  <div class="container-fluid py-4">
+    
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="page-title">
+        <i class="fas fa-file-alt me-2"></i>Mes Demandes et Solde
+      </h1>
+    </div>
+
     <!-- Employee Information Card -->
-    <div class="card employee-card mb-4 shadow-sm" *ngIf="empSol">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0" style="color: aliceblue;"><i class="fas fa-user me-2"></i >Informations Employé</h5>
+    <div class="card employee-card mb-4" *ngIf="empSol">
+      <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-user me-2"></i>Informations Employé</h5>
       </div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3">
-            <div class="info-item">
-              <label>Nom & Prénom:</label>
-              <p class="value">{{empSol.prenom}} {{empSol.nom}}</p>
+            <div class="employee-info">
+              <span class="form-label">Nom & Prénom</span>
+              <p class="employee-name">{{empSol.prenom}} {{empSol.nom}}</p>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="info-item">
-              <label>Grade:</label>
+          <div class="col-md-2">
+            <div class="employee-info">
+              <span class="form-label">Grade</span>
               <p class="value">{{empSol.grade}}</p>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="info-item">
-              <label>Service:</label>
+          <div class="col-md-2">
+            <div class="employee-info">
+              <span class="form-label">Service</span>
               <p class="value">{{empSol.service}}</p>
             </div>
           </div>
-        
-
-          <div class="row mt-3">
-            <div class="col-md-6">
-              <div class="info-item">
-                <label>Chef hiérarchique 1 (Matricule):</label>
-                <p class="value">{{empSol.chefHierarchique1Matricule || 'N/A'}}</p>
-              </div>
+          <div class="col-md-2">
+            <div class="employee-info">
+              <span class="form-label">Chef 1</span>
+              <span class="matricule-badge" *ngIf="empSol.chefHierarchique1Matricule">
+                {{empSol.chefHierarchique1Matricule}}
+              </span>
+              <span *ngIf="!empSol.chefHierarchique1Matricule" class="text-muted">N/A</span>
             </div>
-            <div class="col-md-6">
-              <div class="info-item">
-                <label>Chef hiérarchique 2 (Matricule):</label>
-                <p class="value">{{empSol.chefHierarchique2Matricule || 'N/A'}}</p>
-              </div>
+          </div>
+          <div class="col-md-2">
+            <div class="employee-info">
+              <span class="form-label">Chef 2</span>
+              <span class="matricule-badge" *ngIf="empSol.chefHierarchique2Matricule">
+                {{empSol.chefHierarchique2Matricule}}
+              </span>
+              <span *ngIf="!empSol.chefHierarchique2Matricule" class="text-muted">N/A</span>
             </div>
+          </div>
         </div>
       </div>
     </div>
-  
+
     <!-- Solde Information Card -->
-    <div class="card solde-card mb-4 shadow-sm" *ngIf="empSol">
-      <div class="card-header bg-info text-white">
-        <h5 class="mb-0" style="color: aliceblue;"><i class="fas fa-coins me-2"></i>Solde de Congés</h5>
+    <div class="card solde-card mb-4" *ngIf="empSol">
+      <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-coins me-2"></i>Solde de Congés</h5>
       </div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-2 col-6">
             <div class="solde-item">
-              <label>Solde au 2012:</label>
+              <span class="form-label">Solde au 2012</span>
               <p class="value">{{empSol.soldeAu2012}} j</p>
             </div>
           </div>
           <div class="col-md-2 col-6">
             <div class="solde-item">
-              <label>Droit annuel:</label>
+              <span class="form-label">Droit annuel</span>
               <p class="value">{{empSol.droitAnnuel}} j</p>
             </div>
           </div>
           <div class="col-md-2 col-6">
             <div class="solde-item">
-              <label>Droit N:</label>
+              <span class="form-label">Droit N</span>
               <p class="value">{{empSol.droitN}} j</p>
             </div>
           </div>
           <div class="col-md-2 col-6">
             <div class="solde-item">
-              <label>Congés acquis N:</label>
+              <span class="form-label">Congés acquis N</span>
               <p class="value">{{empSol.congesAcquisN}} j</p>
             </div>
           </div>
           <div class="col-md-2 col-6">
             <div class="solde-item">
-              <label>Retards N:</label>
+              <span class="form-label">Retards N</span>
               <p class="value">{{empSol.retardsN}} j</p>
             </div>
           </div>
           <div class="col-md-2 col-6">
             <div class="solde-item">
-              <label>Autorisations N:</label>
+              <span class="form-label">Autorisations N</span>
               <p class="value">{{empSol.autorisationsN}} j</p>
             </div>
           </div>
         </div>
-        <div class="total-solde mt-3">
-          <h4 class="text-center">Solde actuel: <span class="badge bg-success">{{empSol.soldeActuel}} jours</span></h4>
+        <div class="total-solde mt-4 text-center">
+          <h4 class="mb-0">Solde actuel: 
+            <span class="badge bg-success ms-2" style="font-size: 1.2rem; padding: 0.5rem 1rem;">
+              {{empSol.soldeActuel}} jours
+            </span>
+          </h4>
         </div>
       </div>
     </div>
-  
+
+    <!-- Filters Card -->
+    <div class="card filters-card mb-4">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <!-- Search Box -->
+          <div class="col-md-3">
+            <label class="form-label">Recherche</label>
+            <div class="search-box">
+              <i class="fas fa-search search-icon"></i>
+              <input type="text" 
+                     class="form-control search-input" 
+                     placeholder="ID, commentaire, type..."
+                     [(ngModel)]="searchTerm"
+                     (input)="applyFilters()">
+            </div>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="col-md-2">
+            <label class="form-label">Catégorie</label>
+            <select class="form-select filter-select" 
+                    [(ngModel)]="selectedCategory"
+                    (change)="applyFilters()">
+              <option value="all">Toutes les catégories</option>
+              <option *ngFor="let cat of categories" [value]="cat" [disabled]="cat === 'all'">
+                {{cat}}
+              </option>
+            </select>
+          </div>
+
+          <!-- Type Filter -->
+          <div class="col-md-2">
+            <label class="form-label">Type</label>
+            <select class="form-select filter-select" 
+                    [(ngModel)]="selectedType"
+                    (change)="applyFilters()">
+              <option value="all">Tous les types</option>
+              <option *ngFor="let type of types" [value]="type" [disabled]="type === 'all'">
+                {{type}}
+              </option>
+            </select>
+          </div>
+
+          <!-- Date Range Filters -->
+          <div class="col-md-2">
+            <label class="form-label">Date début</label>
+            <input type="date" 
+                   class="form-control filter-select"
+                   [(ngModel)]="dateRange.start"
+                   (change)="applyFilters()">
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">Date fin</label>
+            <input type="date" 
+                   class="form-control filter-select"
+                   [(ngModel)]="dateRange.end"
+                   (change)="applyFilters()">
+          </div>
+
+          <!-- Clear Filters -->
+          <div class="col-md-1">
+            <button class="btn btn-clear-filters" (click)="clearFilters()">
+              <i class="fas fa-times clear-icon"></i>
+              Réinitialiser
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Info -->
+    <div class="results-info mb-3">
+      <span class="results-count">{{filteredDemandes.length}}</span>
+      demande(s) trouvée(s)
+      <span *ngIf="searchTerm || selectedCategory !== 'all' || selectedType !== 'all' || dateRange.start || dateRange.end"
+            class="text-muted ms-2">
+        (filtres appliqués)
+      </span>
+    </div>
+
     <!-- Demandes Section -->
-    <div class="card demandes-card shadow-sm">
-      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0" style="color: aliceblue;"><i class="fas fa-list me-2"></i>Mes Demandes</h5>
-        <div class="btn-group btn-group-sm" role="group">
+    <div class="card demandes-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0"><i class="fas fa-list me-2"></i>Mes Demandes</h5>
+        <div class="btn-group" role="group">
           <button type="button" 
                   class="btn" 
                   [class.btn-primary]="activeTab === 'all'"
                   [class.btn-outline-primary]="activeTab !== 'all'"
-                  (click)="activeTab = 'all'">
+                  (click)="onTabChange('all')">
             Toutes
           </button>
           <button type="button" 
                   class="btn" 
                   [class.btn-warning]="activeTab === 'en_cours'"
                   [class.btn-outline-warning]="activeTab !== 'en_cours'"
-                  (click)="activeTab = 'en_cours'">
+                  (click)="onTabChange('en_cours')">
             En Cours
           </button>
           <button type="button" 
                   class="btn" 
                   [class.btn-success]="activeTab === 'validee'"
                   [class.btn-outline-success]="activeTab !== 'validee'"
-                  (click)="activeTab = 'validee'">
+                  (click)="onTabChange('validee')">
             Validées
           </button>
           <button type="button" 
                   class="btn" 
                   [class.btn-danger]="activeTab === 'refusee'"
                   [class.btn-outline-danger]="activeTab !== 'refusee'"
-                  (click)="activeTab = 'refusee'">
+                  (click)="onTabChange('refusee')">
             Refusées
           </button>
         </div>
       </div>
-      <div class="card-body">
+      <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover table-striped">
-            <thead class="table-light">
+          <table class="table table-hover mb-0">
+            <thead>
               <tr>
                 <th>ID</th>
-                <th>Type</th>
+                <th>Type & Catégorie</th>
                 <th>Statut</th>
                 <th>Date Début</th>
                 <th>Date Fin</th>
@@ -148,25 +245,41 @@
             </thead>
             <tbody>
               <tr *ngIf="isLoading">
-                <td colspan="11" class="text-center py-4">
+                <td colspan="11" class="text-center py-5">
                   <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Chargement...</span>
                   </div>
+                  <p class="mt-2 text-muted">Chargement des demandes...</p>
                 </td>
               </tr>
-              <tr *ngIf="!isLoading && getFilteredDemandes().length === 0">
-                <td colspan="11" class="text-center py-4">
-                  <p class="text-muted">Aucune demande trouvée</p>
+              
+              <tr *ngIf="!isLoading && filteredDemandes.length === 0">
+                <td colspan="11" class="text-center py-5">
+                  <div class="no-data-message">
+                    <i class="fas fa-inbox no-data-icon"></i>
+                    <h4>Aucune demande trouvée</h4>
+                    <p *ngIf="searchTerm || selectedCategory !== 'all' || selectedType !== 'all'">
+                      Aucune demande ne correspond à vos critères de recherche.
+                    </p>
+                    <p *ngIf="!searchTerm && selectedCategory === 'all' && selectedType === 'all'">
+                      Vous n'avez aucune demande pour le moment.
+                    </p>
+                  </div>
                 </td>
               </tr>
-              <tr *ngFor="let demande of getFilteredDemandes()" class="demande-row">
-                <td>{{demande.id}}</td>
+
+              <tr *ngFor="let demande of filteredDemandes" class="demande-row">
+                <td><strong>#{{demande.id}}</strong></td>
                 <td>
-                  <span class="badge bg-secondary">{{demande.categorie}}</span>
-                  <span *ngIf="demande.typeDemande" class="badge bg-light text-dark ms-1">{{demande.typeDemande}}</span>
+                  <span class="category-badge" [ngClass]="getCategoryClass(demande.categorie)">
+                    {{demande.categorie}}
+                  </span>
+                  <span *ngIf="demande.typeDemande" class="badge bg-light text-dark ms-1">
+                    {{demande.typeDemande}}
+                  </span>
                 </td>
                 <td>
-                  <span class="badge" [ngClass]="getStatusClass(demande.statut)">
+                  <span class="status-badge" [ngClass]="getStatusClass(demande.statut)">
                     {{getStatusLabel(demande.statut)}}
                   </span>
                 </td>
@@ -174,39 +287,43 @@
                   <span *ngIf="demande.congeDateDebut">{{formatDate(demande.congeDateDebut)}}</span>
                   <span *ngIf="demande.autoDateDebut">{{formatDate(demande.autoDateDebut)}}</span>
                   <span *ngIf="demande.missionDateDebut">{{formatDate(demande.missionDateDebut)}}</span>
-                  <span *ngIf="!demande.congeDateDebut && !demande.autoDateDebut && !demande.missionDateDebut">N/A</span>
+                  <span *ngIf="!demande.congeDateDebut && !demande.autoDateDebut && !demande.missionDateDebut" class="text-muted">-</span>
                 </td>
                 <td>
                   <span *ngIf="demande.congeDateFin">{{formatDate(demande.congeDateFin)}}</span>
                   <span *ngIf="demande.autoDateFin">{{formatDate(demande.autoDateFin)}}</span>
                   <span *ngIf="demande.missionDateFin">{{formatDate(demande.missionDateFin)}}</span>
-                  <span *ngIf="!demande.congeDateFin && !demande.autoDateFin && !demande.missionDateFin">N/A</span>
+                  <span *ngIf="!demande.congeDateFin && !demande.autoDateFin && !demande.missionDateFin" class="text-muted">-</span>
                 </td>
                 <td>
-                  <span *ngIf="demande.congeHeureDebut">{{demande.congeHeureDebut}}</span>
-                  <span *ngIf="demande.autoHeureDebut">{{demande.autoHeureDebut}}</span>
-                  <span *ngIf="demande.missionHeureDebut">{{demande.missionHeureDebut}}</span>
-                  <span *ngIf="!demande.congeHeureDebut && !demande.autoHeureDebut && !demande.missionHeureDebut">N/A</span>
+                  <span *ngIf="demande.congeHeureDebut">{{demande.congeHeureDebut.substring(0,5)}}</span>
+                  <span *ngIf="demande.autoHeureDebut">{{demande.autoHeureDebut.substring(0,5)}}</span>
+                  <span *ngIf="demande.missionHeureDebut">{{demande.missionHeureDebut.substring(0,5)}}</span>
+                  <span *ngIf="!demande.congeHeureDebut && !demande.autoHeureDebut && !demande.missionHeureDebut" class="text-muted">-</span>
                 </td>
                 <td>
-                  <span *ngIf="demande.congeHeureFin">{{demande.congeHeureFin}}</span>
-                  <span *ngIf="demande.autoHeureFin">{{demande.autoHeureFin}}</span>
-                  <span *ngIf="demande.missionHeureFin">{{demande.missionHeureFin}}</span>
-                  <span *ngIf="!demande.congeHeureFin && !demande.autoHeureFin && !demande.missionHeureFin">N/A</span>
+                  <span *ngIf="demande.congeHeureFin">{{demande.congeHeureFin.substring(0,5)}}</span>
+                  <span *ngIf="demande.autoHeureFin">{{demande.autoHeureFin.substring(0,5)}}</span>
+                  <span *ngIf="demande.missionHeureFin">{{demande.missionHeureFin.substring(0,5)}}</span>
+                  <span *ngIf="!demande.congeHeureFin && !demande.autoHeureFin && !demande.missionHeureFin" class="text-muted">-</span>
                 </td>
                 <td>{{formatDate(demande.dateCreation)}}</td>
-                <td>{{formatDate(demande.dateValidation)}}</td>
                 <td>
-                  <span *ngIf="demande.commentaireRefus" class="commentaire-refus">
-                    {{demande.commentaireRefus}}
+                  <span *ngIf="demande.dateValidation">{{formatDate(demande.dateValidation)}}</span>
+                  <span *ngIf="!demande.dateValidation" class="text-muted">-</span>
+                </td>
+                <td>
+                  <span *ngIf="demande.commentaireRefus" class="commentaire-refus" [title]="demande.commentaireRefus">
+                    {{demande.commentaireRefus.length > 50 ? demande.commentaireRefus.substring(0,50) + '...' : demande.commentaireRefus}}
                   </span>
-                  <span *ngIf="!demande.commentaireRefus">N/A</span>
+                  <span *ngIf="!demande.commentaireRefus" class="text-muted">-</span>
                 </td>
                 <td>
                   <button *ngIf="demande.statut === 'EN_COURS'" 
                           class="btn btn-sm btn-outline-danger"
-                          (click)="cancelDemande(demande.id)">
-                    Annuler
+                          (click)="cancelDemande(demande.id)"
+                          title="Annuler cette demande">
+                    <i class="fas fa-times me-1"></i>Annuler
                   </button>
                   <span *ngIf="demande.statut !== 'EN_COURS'" class="text-muted">-</span>
                 </td>
@@ -217,12 +334,13 @@
       </div>
     </div>
   </div>
-  
-  <app-popup *ngIf="showPopup" 
-             [title]="popupTitle" 
-             [message]="popupMessage" 
-             [isSuccess]="popupIsSuccess" 
-             [redirectPath]="popupRedirectPath"
-             [showCancelButton]="showCancelButton"
-             (close)="closePopup()">
-  </app-popup>
+</div>
+
+<app-popup *ngIf="showPopup" 
+           [title]="popupTitle" 
+           [message]="popupMessage" 
+           [isSuccess]="popupIsSuccess" 
+           [redirectPath]="popupRedirectPath"
+           [showCancelButton]="showCancelButton"
+           (close)="closePopup()">
+</app-popup>

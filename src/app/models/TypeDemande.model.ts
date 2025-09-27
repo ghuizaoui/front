@@ -3,7 +3,7 @@ export type TypeDemande =
   | 'CONGE_REPOS_COMPENSATEUR'
   | 'CONGE_SANS_SOLDE'
   | 'CONGE_MATERNITE'
-  | 'CONGE_PATERNITE'
+  | 'CONGE_MALADIE' //  remplacé ici
   | 'CONGE_MARIAGE'
   | 'CONGE_NAISSANCE'
   | 'CONGE_DECES'
@@ -16,13 +16,13 @@ export type TypeDemande =
 // Listes pratiques (optionnelles)
 export const TYPE_CONGE_STANDARD: TypeDemande[] = [
   'CONGE_ANNUEL',
-  'CONGE_REPOS_COMPENSATEUR',
-  'CONGE_SANS_SOLDE',
 ];
 
 export const TYPE_CONGE_EXCEPTIONNEL: TypeDemande[] = [
   'CONGE_MATERNITE',
-  'CONGE_PATERNITE',
+  'CONGE_SANS_SOLDE',
+  'CONGE_MALADIE', 
+  'CONGE_REPOS_COMPENSATEUR',
   'CONGE_MARIAGE',
   'CONGE_NAISSANCE',
   'CONGE_DECES',
@@ -36,13 +36,13 @@ export const TYPE_AUTORISATION: TypeDemande[] = [
   'AUTORISATION_RETARD',
 ];
 
-// Libellés (optionnel)
+// Libellés (optionnels)
 export const TYPE_DEMANDE_LABELS: Record<TypeDemande, string> = {
   CONGE_ANNUEL: 'Congé annuel',
   CONGE_REPOS_COMPENSATEUR: 'Congé repos compensateur',
   CONGE_SANS_SOLDE: 'Congé sans solde',
   CONGE_MATERNITE: 'Congé maternité',
-  CONGE_PATERNITE: 'Congé paternité',
+  CONGE_MALADIE: 'Congé maladie', // ✅ remplacé ici
   CONGE_MARIAGE: 'Congé mariage',
   CONGE_NAISSANCE: 'Congé naissance',
   CONGE_DECES: 'Congé décès',

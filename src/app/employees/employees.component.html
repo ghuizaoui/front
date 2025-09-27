@@ -2,11 +2,10 @@
   <div class="page-content">
     <div class="container-fluid">
       <!-- ======= TITLE ======= -->
-
       <div class="row">
         <div class="col-12">
           <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Employees List</h4>
+            <h4 class="page-title mb-sm-0">Employees List</h4>
             <div class="page-title-right">
               <ol class="breadcrumb m-0">
                 <li class="breadcrumb-item"><a href="javascript:void(0);">Employees</a></li>
@@ -26,19 +25,19 @@
               <div class="row align-items-center g-2">
                 <div class="col-lg-3 me-auto">
                   <h6 class="card-title mb-0">
-                    Employees <span class="badge bg-primary ms-1 align-baseline">{{employees.length || 0 }}</span>
+                    Employees <span class="results-count">{{ employees.length || 0 }}</span>
                   </h6>
                 </div>
                 <div class="col-lg-2">
                   <div class="search-box">
-                    <input type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" class="form-control search"
+                    <input type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" class="form-control search-input"
                       placeholder="Search name, role…">
                     <i class="ri-search-line search-icon"></i>
                   </div>
                 </div>
                 <div class="col-lg-auto">
                   <div class="hstack flex-wrap gap-2">
-                    <a (click)="openAddModal()" class="btn btn-secondary">
+                    <a (click)="openAddModal()" class="btn btn-primary">
                       <i class="bi bi-plus-circle me-1"></i> Add Employee
                     </a>
                     <button class="btn btn-info" data-bs-toggle="offcanvas" data-bs-target="#employeeFilters">
@@ -63,6 +62,7 @@
                       <th class="sort" data-sort="direction">Direction</th>
                       <th class="sort" data-sort="service">Service</th>
                       <th class="sort" data-sort="role">Role</th>
+                      <th class="sort" data-sort="chefLevel">Chef Level</th>
                       <th class="sort" data-sort="grade">Grade</th>
                       <th class="sort" data-sort="hire">Date d’embauche</th>
                       <th class="sort" data-sort="contract">Contrat</th>
@@ -70,22 +70,28 @@
                       <th>Action</th>
                     </tr>
                   </thead>
-
                   <tbody class="list form-check-all">
-                    <tr *ngFor="let emp of filterEmploye ">
+                    <tr *ngFor="let emp of filterEmploye" class="demande-row">
                       <td><input class="form-check-input" type="checkbox"></td>
-                      <td class="matricule">{{ emp.matricule }}</td>
-                      <td class="name">{{ emp.nom }} {{ emp.prenom }}</td>
+                      <td class="matricule"><span class="matricule-badge">{{ emp.matricule }}</span></td>
+                      <td class="name employee-info">
+                        <span class="employee-name">{{ emp.nom }} {{ emp.prenom }}</span>
+                        <span class="employee-email">{{ emp.email }}</span>
+                      </td>
                       <td class="email">{{ emp.email }}</td>
                       <td class="direction">{{ emp.direction }}</td>
                       <td class="service">{{ emp.service }}</td>
-                      <td class="role">{{ emp.role }}</td>
+                      <td class="role category-badge">{{ emp.role }}</td>
+                      <td class="chefLevel">{{ emp.chefLevel || '-' }}</td>
                       <td class="grade">{{ emp.grade }}</td>
                       <td class="hire">{{ emp.dateEmbauche | date:'dd-MM-yyyy' }}</td>
-                      <td class="contract">{{ emp.typeContrat }}</td>
+                      <td class="contract category-badge">{{ emp.typeContrat }}</td>
                       <td class="status">
-                        <span class="badge"
-                          [ngClass]="emp.premiereConnexion ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'">
+                        <span class="status-badge"
+                          [ngClass]="{
+                            'status-valid': !emp.premiereConnexion,
+                            'status-pending': emp.premiereConnexion
+                          }">
                           {{ emp.premiereConnexion ? 'Première connexion' : 'Active' }}
                         </span>
                       </td>
@@ -96,28 +102,19 @@
                               <i class="ph-pencil"></i>
                             </button>
                           </li>
-                          <!-- Suppression si tu veux -->
-                          <!--<li>
-                          <button class="btn btn-subtle-danger btn-icon btn-sm" (click)="deleteEmployee(emp.matricule)">
-                            <i class="ph-trash"></i>
-                          </button>
-                        </li>-->
                         </ul>
                       </td>
                     </tr>
                   </tbody>
                 </table>
-
-                <div class="noresult" *ngIf="employees?.length === 0">
+                <div class="no-data-message" *ngIf="filterEmploye?.length === 0">
                   <div class="text-center py-4">
-                    <i class="ph-magnifying-glass fs-1 text-primary"></i>
+                    <i class="ph-magnifying-glass no-data-icon"></i>
                     <h5 class="mt-2">No result found</h5>
                     <p class="text-muted mb-0">Try changing your search criteria.</p>
                   </div>
                 </div>
               </div>
-
-              <!-- PAGINATION - à gérer en option -->
             </div>
             <!-- /TABLE -->
           </div>
@@ -127,7 +124,7 @@
   </div>
 </div>
 
-<!-- MODAL : ADD / EDIT EMPLOYEE -->
+<!-- MODAL: ADD / EDIT EMPLOYEE -->
 <div class="modal fade" id="addEmployee" tabindex="-1" aria-labelledby="addEmployeeLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <form class="modal-content border-0" [formGroup]="employeeForm" (ngSubmit)="saveEmployee()">
@@ -137,10 +134,8 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body">
         <div class="row g-3">
-
           <!-- NOM -->
           <div class="col-md-6">
             <label class="form-label">Nom <span class="text-danger">*</span></label>
@@ -155,7 +150,6 @@
               </small>
             </ng-container>
           </div>
-
           <!-- PRENOM -->
           <div class="col-md-6">
             <label class="form-label">Prénom <span class="text-danger">*</span></label>
@@ -170,7 +164,6 @@
               </small>
             </ng-container>
           </div>
-
           <!-- EMAIL -->
           <div class="col-md-6">
             <label class="form-label">Email <span class="text-danger">*</span></label>
@@ -185,62 +178,70 @@
               </small>
             </ng-container>
           </div>
-
           <!-- ROLE -->
           <div class="col-md-6">
             <label class="form-label">Role <span class="text-danger">*</span></label>
-            <select class="form-select" formControlName="role"
+            <select class="form-select filter-select" formControlName="role"
               [ngClass]="{'is-invalid': employeeForm.get('role')?.invalid && employeeForm.get('role')?.touched}">
               <option value="">-- Sélectionnez un rôle --</option>
-              <option value="EMPLOYE">EMPLOYE</option>
-              <option value="CHEF">CHEF</option>
+              <option value="EMPLOYE">Employé</option>
+              <option value="CHEF">Chef</option>
               <option value="DRH">DRH</option>
-              <option value="CONCIERGE">CONCIERGE</option>
+              <option value="CONCIERGE">Concierge</option>
             </select>
             <ng-container *ngIf="employeeForm.get('role')?.touched && employeeForm.get('role')?.invalid">
               <small class="text-danger">Le rôle est requis.</small>
             </ng-container>
           </div>
-
+          <!-- CHEF LEVEL -->
+          <div class="col-md-6" *ngIf="employeeForm.get('role')?.value === 'CHEF'">
+            <label class="form-label">Niveau de Chef <span class="text-danger">*</span></label>
+            <select class="form-select filter-select" formControlName="chefLevel"
+              [ngClass]="{'is-invalid': employeeForm.get('chefLevel')?.invalid && employeeForm.get('chefLevel')?.touched}">
+              <option value="">-- Sélectionnez un niveau --</option>
+              <option value="1">Chef Niveau 1</option>
+              <option value="2">Chef Niveau 2</option>
+            </select>
+            <ng-container *ngIf="employeeForm.get('chefLevel')?.touched && employeeForm.get('chefLevel')?.invalid">
+              <small class="text-danger" *ngIf="employeeForm.get('chefLevel')?.errors?.['invalidChefLevel']">
+                Le niveau de chef doit être 1 ou 2.
+              </small>
+            </ng-container>
+          </div>
           <!-- DIRECTION -->
           <div class="col-md-6">
             <label class="form-label">Direction</label>
             <input type="text" class="form-control" formControlName="direction">
           </div>
-
           <!-- SERVICE -->
           <div class="col-md-6">
             <label class="form-label">Service</label>
             <input type="text" class="form-control" formControlName="service">
           </div>
-
           <!-- GRADE -->
           <div class="col-md-6">
             <label class="form-label">Grade</label>
             <input type="number" class="form-control" formControlName="grade">
           </div>
-
           <!-- DATE EMBAUCHE -->
           <div class="col-md-6">
             <label class="form-label">Date d’embauche</label>
             <input type="date" class="form-control" formControlName="dateEmbauche">
           </div>
-
           <!-- TYPE CONTRAT -->
           <div class="col-md-6">
             <label class="form-label">Type de Contrat</label>
-            <select class="form-select" formControlName="typeContrat">
+            <select class="form-select filter-select" formControlName="typeContrat">
               <option value="">-- Sélectionnez un type --</option>
               <option value="CDI">CDI</option>
               <option value="CIVP">CIVP</option>
-              <option value="LETTRE_ENGAGEMENT">LETTRE_ENGAGEMENT</option>
+              <option value="LETTRE_ENGAGEMENT">Lettre d'Engagement</option>
             </select>
           </div>
         </div>
       </div>
-
       <div class="modal-footer">
-        <button class="btn btn-ghost-danger" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-ghost-danger" data-bs-dismiss="modal">
           <i class="bi bi-x-lg me-1"></i>Close
         </button>
         <button type="submit" class="btn btn-primary" id="save-employee" [disabled]="employeeForm.invalid">
@@ -251,8 +252,7 @@
   </div>
 </div>
 
-
-<!-- OFFCANVAS : FILTERS (optionnel, à brancher si besoin) -->
+<!-- OFFCANVAS: FILTERS -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="employeeFilters" aria-labelledby="employeeFiltersLabel">
   <div class="offcanvas-header border-bottom">
     <h5 class="offcanvas-title" id="employeeFiltersLabel">Employee Filters</h5>
@@ -261,8 +261,8 @@
   <div class="offcanvas-body">
     <form>
       <div class="mb-3">
-        <label class="fw-semibold">Role</label>
-        <select class="form-select" id="filter-role" multiple>
+        <label class="form-label fw-semibold">Role</label>
+        <select class="form-select filter-select" id="filter-role" multiple>
           <option>EMPLOYE</option>
           <option>CHEF</option>
           <option>DRH</option>
@@ -270,19 +270,19 @@
         </select>
       </div>
       <div class="mb-3">
-        <label class="fw-semibold">Direction</label>
+        <label class="form-label fw-semibold">Direction</label>
         <input type="text" class="form-control" id="filter-direction">
       </div>
       <div class="mb-3">
-        <label class="fw-semibold">Type de Contrat</label>
-        <select class="form-select" id="filter-contrat" multiple>
+        <label class="form-label fw-semibold">Type de Contrat</label>
+        <select class="form-select filter-select" id="filter-contrat" multiple>
           <option>CDI</option>
           <option>CIVP</option>
           <option>LETTRE_ENGAGEMENT</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="fw-semibold">Statut</label><br>
+        <label class="form-label fw-semibold">Statut</label><br>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" value="ACTIVE" id="status-active">
           <label class="form-check-label" for="status-active">Active</label>
@@ -295,12 +295,10 @@
     </form>
   </div>
   <div class="offcanvas-footer border-top p-3 d-flex gap-2">
-    <button class="btn btn-subtle-danger w-100">Reset</button>
+    <button class="btn btn-clear-filters">Reset</button>
     <button class="btn btn-secondary w-100">Apply</button>
   </div>
 </div>
-
-
 
 <app-popup *ngIf="showPopup" [title]="popupTitle" [message]="popupMessage" [isSuccess]="popupIsSuccess"
   [redirectPath]="popupRedirectPath" [showCancelButton]="showCancelButton" (closed)="closePopup()">

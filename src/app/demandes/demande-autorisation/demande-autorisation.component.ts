@@ -6,7 +6,6 @@ import { TYPE_AUTORISATION, TYPE_DEMANDE_LABELS, TypeDemande } from '../../model
 import { AutorisationRequest } from '../../models/AutorisationRequest.model';
 import { PopupComponent } from '../../shared/popup/popup.component';
 
-
 @Component({
   selector: 'app-demande-autorisation',
   standalone: true,
@@ -57,12 +56,11 @@ export class DemandeAutorisationComponent implements OnInit {
     });
   }
 
-
-// to can   parse the time in minutes to check the  end and the bingen
   private parseTimeToMinutes(time: string): number {
     const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
   }
+
   onSubmit(): void {
     this.errorMessage = null;
     this.successMessage = null;
@@ -70,6 +68,7 @@ export class DemandeAutorisationComponent implements OnInit {
     if (this.congeForm.invalid) {
       this.errorMessage = 'Veuillez renseigner tous les champs obligatoires correctement.';
       this.congeForm.markAllAsTouched();
+      this.showErrorPopup('Erreur', this.errorMessage, null, true);
       return;
     }
 
@@ -80,6 +79,38 @@ export class DemandeAutorisationComponent implements OnInit {
       this.congeForm.markAllAsTouched();
       this.showErrorPopup('Erreur', this.errorMessage, null, true);
       return;
+    }
+
+    // Validate duration (max 2 hours = 120 minutes)
+    const debutMinutes = this.parseTimeToMinutes(formValue.heureDebut);
+    const finMinutes = this.parseTimeToMinutes(formValue.heureFin);
+    if (debutMinutes >= finMinutes) {
+      this.errorMessage = 'L’heure de début doit être inférieure à l’heure de fin.';
+      this.showErrorPopup('Erreur', this.errorMessage, null, true);
+      return;
+    }
+    const durationMinutes = finMinutes - debutMinutes;
+    if (durationMinutes > 120) {
+      this.errorMessage = 'La durée de l’autorisation ne doit pas dépasser 2 heures (120 minutes).';
+      this.showErrorPopup('Erreur', this.errorMessage, null, true);
+      return;
+    }
+
+    // Validate real times if provided
+    if (anyReal && formValue.heureSortieReelle && formValue.heureRetourReel) {
+      const realDebutMinutes = this.parseTimeToMinutes(formValue.heureSortieReelle);
+      const realFinMinutes = this.parseTimeToMinutes(formValue.heureRetourReel);
+      if (realDebutMinutes >= realFinMinutes) {
+        this.errorMessage = 'L’heure de sortie réelle doit être inférieure à l’heure de retour réelle.';
+        this.showErrorPopup('Erreur', this.errorMessage, null, true);
+        return;
+      }
+      const realDurationMinutes = realFinMinutes - realDebutMinutes;
+      if (realDurationMinutes > 120) {
+        this.errorMessage = 'La durée réelle de l’autorisation ne doit pas dépasser 2 heures (120 minutes).';
+        this.showErrorPopup('Erreur', this.errorMessage, null, true);
+        return;
+      }
     }
 
     const body: AutorisationRequest = {
@@ -93,13 +124,6 @@ export class DemandeAutorisationComponent implements OnInit {
         heureRetourReel: formValue.heureRetourReel
       } : {})
     };
-    const debutMinutes = this.parseTimeToMinutes(body.heureDebut);
-    const finMinutes = this.parseTimeToMinutes(body.heureFin);
-    
-    if (debutMinutes >= finMinutes) {
-      this.showErrorPopup('Erreur', 'L’heure de début doit être inférieure à l’heure de fin.', null, true);
-      return; 
-    }else{
 
     this.demandeService.createAutorisation(body).subscribe({
       next: () => {
@@ -108,16 +132,16 @@ export class DemandeAutorisationComponent implements OnInit {
         this.resetForm();
       },
       error: (err: any) => {
+        let errorMessage = 'Erreur lors de l’envoi de la demande d’autorisation.';
         if (err.status === 400) {
-          // Message personnalisé pour le code 400
-          this.showErrorPopup('Erreur', 'Solde insuffisant.', null, true);
-      
-        }else{
-        this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
-        this.showErrorPopup('Erreur','Erreur lors de l’envoi.' , null, true);
+          errorMessage = err.error || 'La durée de l’autorisation ne doit pas dépasser 2 heures (120 minutes) ou solde insuffisant.';
+        } else if (err.status === 401) {
+          errorMessage = 'Utilisateur non authentifié. Veuillez vous reconnecter.';
         }
+        this.errorMessage = errorMessage;
+        this.showErrorPopup('Erreur', errorMessage, null, true);
       }
-    });}
+    });
   }
 
   private toDDMMYYYY(yyyyMMdd: string): string {

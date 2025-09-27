@@ -26,8 +26,6 @@ export class DemandeCongeComponent implements OnInit {
 
   typesConge = [
     { value: 'CONGE_ANNUEL', label: 'Congé annuel' },
-    { value: 'CONGE_REPOS_COMPENSATEUR', label: 'Congé repos compensateur' },
-    { value: 'CONGE_SANS_SOLDE', label: 'Congé sans solde' }
   ];
 
   constructor(private demandeService: DemandeService, private fb: FormBuilder) {

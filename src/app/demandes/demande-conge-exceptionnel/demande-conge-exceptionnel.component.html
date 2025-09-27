@@ -72,6 +72,12 @@
                     <input type="time" class="form-control" id="heureFin" formControlName="heureFin">
                   </div>
 
+                  <!-- File upload -->
+                  <div class="col-12">
+                    <label for="fileUpload" class="form-label">Fichier (PDF, JPEG, PNG - optionnel, max 10 Mo)</label>
+                    <input type="file" class="form-control" id="fileUpload" (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png">
+                  </div>
+
                   <!-- Matricule intérimaire -->
                   <div class="col-12">
                     <label for="interimaireMatricule" class="form-label">Matricule de l'intérimaire (optionnel)</label>
@@ -117,19 +123,15 @@
         </div>
       </div>
       <!-- Fin formulaire -->
-
- 
-      
     </div>
   </div>
+
+  <app-popup *ngIf="showPopup"
+    [title]="popupTitle"
+    [message]="popupMessage"
+    [isSuccess]="popupIsSuccess"
+    [redirectPath]="popupRedirectPath"
+    [showCancelButton]="showCancelButton"
+    (closed)="closePopup()">
+  </app-popup>
 </div>
-
-
-<app-popup *ngIf="showPopup"
-[title]="popupTitle"
-[message]="popupMessage"
-[isSuccess]="popupIsSuccess"
-[redirectPath]="popupRedirectPath"
-[showCancelButton]="showCancelButton"
-(closed)="closePopup()">
-</app-popup>
