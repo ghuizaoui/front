@@ -4,5 +4,6 @@ export interface CongeExceptionnelRequest {
     dateDebut: string;   // ISO date string, e.g., '2025-09-24'
     heureDebut: string;  // Time string, e.g., '09:00'
     dateFin: string;     // ISO date string, e.g., '2025-09-26'
-    heureFin: string;    // Time string, e.g., '17:00'
+    heureFin: string;  
+    interimaireMatricule:string  // Time string, e.g., '17:00'
   }

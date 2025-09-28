@@ -64,6 +64,9 @@
                   <div class="col-12">
                     <label for="heureDebut" class="form-label">Heure début (optionnel)</label>
                     <input type="time" class="form-control" id="heureDebut" formControlName="heureDebut">
+                    <ng-container *ngIf="congeForm.get('heureDebut')?.touched && congeForm.get('heureDebut')?.invalid">
+                      <span class="text-danger">Le type de congé est obligatoire.</span>
+                    </ng-container>
                   </div>
 
                   <!-- Heure fin -->
@@ -112,7 +115,7 @@
                 <!-- Bouton -->
                 <div class="row mt-4">
                   <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-primary" [disabled]="congeForm.invalid">
+                    <button type="submit" class="btn btn-primary" [disabled]="congeForm.invalid || loading">
                       Envoyer la demande
                     </button>
                   </div>

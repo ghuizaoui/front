@@ -23,6 +23,7 @@ export class DemandeAutorisationComponent implements OnInit {
   showCancelButton = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
+  loading:boolean=false;
 
   typesAutorisation = TYPE_AUTORISATION.map(t => ({
     value: t,
@@ -64,6 +65,7 @@ export class DemandeAutorisationComponent implements OnInit {
   onSubmit(): void {
     this.errorMessage = null;
     this.successMessage = null;
+    this.loading=true;
 
     if (this.congeForm.invalid) {
       this.errorMessage = 'Veuillez renseigner tous les champs obligatoires correctement.';
@@ -140,6 +142,8 @@ export class DemandeAutorisationComponent implements OnInit {
         }
         this.errorMessage = errorMessage;
         this.showErrorPopup('Erreur', errorMessage, null, true);
+      },complete: () => {
+        this.loading = false; // réactiver le bouton après réponse
       }
     });
   }

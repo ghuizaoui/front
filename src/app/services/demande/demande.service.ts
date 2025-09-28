@@ -246,5 +246,11 @@ downloadFile(demandeId: number, fileName?: string): void {
   });
 }
 
+
+
+getDemandesDG():Observable<Demande[]>{
+  return this.http.get<Demande[]>(`${this.apiUrl}/get-dg-demandes`)
+}
+
 }
 

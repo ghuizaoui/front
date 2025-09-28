@@ -94,18 +94,7 @@
   <full-calendar *ngIf="calendarOptions && filteredDemandes.length > 0" [options]="calendarOptions"></full-calendar>
 
   <div class="calendar-stats" *ngIf="filteredDemandes.length > 0">
-    <div class="calendar-stat-item calendar-stat-pending">
-      <div class="calendar-stat-value">{{ getDemandesByStatus('pending').length }}</div>
-      <div class="calendar-stat-label">Pending</div>
-    </div>
-    <div class="calendar-stat-item calendar-stat-inprogress">
-      <div class="calendar-stat-value">{{ getDemandesByStatus('in_progress').length }}</div>
-      <div class="calendar-stat-label">In Progress</div>
-    </div>
-    <div class="calendar-stat-item calendar-stat-completed">
-      <div class="calendar-stat-value">{{ getDemandesByStatus('completed').length }}</div>
-      <div class="calendar-stat-label">Completed</div>
-    </div>
+  
     <div class="calendar-stat-item">
       <div class="calendar-stat-value">{{ filteredDemandes.length }}</div>
       <div class="calendar-stat-label">Total</div>
@@ -145,7 +134,7 @@
       </div>
       <div class="calendar-event-modal-footer">
         <button class="calendar-event-modal-button calendar-event-modal-button-secondary" (click)="closeEventModal()">Close</button>
-        <button class="calendar-event-modal-button calendar-event-modal-button-primary">Edit</button>
+
       </div>
     </div>
   </div>

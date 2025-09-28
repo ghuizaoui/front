@@ -22,6 +22,7 @@ export class OrdreMissionComponent implements OnInit {
   showCancelButton = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
+  loading = false; // Store the selected file
 
   constructor(private demandeService: DemandeService, private fb: FormBuilder) {
     this.ordreMissionForm = this.fb.group({
@@ -57,6 +58,7 @@ export class OrdreMissionComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.loading=true
     this.errorMessage = null;
     this.successMessage = null;
 
@@ -87,6 +89,9 @@ export class OrdreMissionComponent implements OnInit {
       error: (err: any) => {
         this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
         this.showErrorPopup('Erreur', 'Erreur lors de l’envoi.', null, true);
+      },
+      complete: () => {
+        this.loading = false; // réactiver le bouton après réponse
       }
     });
   }

@@ -29,6 +29,7 @@ export class LoginComponent {
   error = '';
   isSubmitting = false;
 
+ loading:boolean=false;
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -36,6 +37,8 @@ export class LoginComponent {
   ) {}
 
   onSubmit(): void {
+
+     this.loading=true
     if (this.isSubmitting) return;
 
     // Validation des champs
@@ -80,6 +83,9 @@ export class LoginComponent {
 
         // Autres erreurs
       
+      },complete:()=>{
+        this.loading=false
+
       }
     });
   }

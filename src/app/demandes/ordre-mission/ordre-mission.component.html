@@ -84,7 +84,7 @@
                 <!-- Bouton valider -->
                 <div class="row mt-4">
                   <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-primary" [disabled]="ordreMissionForm.invalid">
+                    <button type="submit" class="btn btn-primary" [disabled]="ordreMissionForm.invalid || loading">
                       Envoyer la demande
                     </button>
                   </div>

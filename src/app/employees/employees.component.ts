@@ -23,8 +23,10 @@ import { PopupComponent } from '../shared/popup/popup.component';
 export class EmployeesComponent implements OnInit {
   employees: Employe[] = [];
   filterEmploye: Employe[] = [];
+  chefs: Employe[] = [];
   query: string = '';
   loading = false;
+  saving = false;
   editing: boolean = false;
   selected: Partial<Employe> = {};
   employeeForm!: FormGroup;
@@ -44,6 +46,7 @@ export class EmployeesComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchAll();
+    this.fetchChefs();
 
     this.employeeForm = this.fb.group({
       nom: ['', [Validators.required, Validators.minLength(3)]],
@@ -55,7 +58,9 @@ export class EmployeesComponent implements OnInit {
       grade: [''],
       dateEmbauche: [''],
       typeContrat: [''],
-      chefLevel: [null]
+      chefLevel: [null],
+      chefHierarchique1Matricule: [''],
+      chefHierarchique2Matricule: ['']
     });
 
     // Listen to role changes to update chefLevel validation
@@ -88,6 +93,17 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
+  fetchChefs() {
+    this.employeService.getChefs().subscribe({
+      next: (chefs) => {
+        this.chefs = chefs;
+      },
+      error: (err) => {
+        console.error('Failed to fetch chefs:', err);
+      }
+    });
+  }
+
   applyFilter(): void {
     const q = this.query.toLowerCase().trim();
     if (!q) {
@@ -113,7 +129,9 @@ export class EmployeesComponent implements OnInit {
     this.selected = emp;
     this.employeeForm.patchValue({
       ...emp,
-      chefLevel: emp.chefLevel || null
+      chefLevel: emp.chefLevel || null,
+      chefHierarchique1Matricule: emp.chefHierarchique1Matricule || '',
+      chefHierarchique2Matricule: emp.chefHierarchique2Matricule || ''
     });
     (window as any).bootstrap.Modal.getOrCreateInstance(document.getElementById('addEmployee')).show();
   }
@@ -124,30 +142,39 @@ export class EmployeesComponent implements OnInit {
       return;
     }
 
+    this.saving = true;
     const empData = {
       ...this.employeeForm.value,
       matricule: this.editing ? this.selected.matricule : undefined
     };
 
+    // Clean up empty chef selections
+    if (!empData.chefHierarchique1Matricule) delete empData.chefHierarchique1Matricule;
+    if (!empData.chefHierarchique2Matricule) delete empData.chefHierarchique2Matricule;
+
     if (this.editing && empData.matricule) {
       this.employeService.update(empData.matricule, empData).subscribe({
         next: () => {
+          this.saving = false;
           this.fetchAll();
           (window as any).bootstrap.Modal.getOrCreateInstance(document.getElementById('addEmployee')).hide();
           this.showPopupMessage('Success', 'Employee updated successfully', true);
         },
-        error: () => {
-          this.showErrorPopup('Error', 'Failed to update employee', null, true);
+        error: (err) => {
+          this.saving = false;
+          this.showErrorPopup('Error', err.error?.message || 'Failed to update employee', null, true);
         }
       });
     } else {
       this.employeService.add(empData).subscribe({
         next: () => {
+          this.saving = false;
           this.fetchAll();
           (window as any).bootstrap.Modal.getOrCreateInstance(document.getElementById('addEmployee')).hide();
           this.showPopupMessage('Success', 'Employee added successfully', true);
         },
         error: (err) => {
+          this.saving = false;
           this.showErrorPopup('Error', err.error?.message || 'Failed to add employee', null, true);
         }
       });
@@ -174,5 +201,11 @@ export class EmployeesComponent implements OnInit {
 
   closePopup() {
     this.showPopup = false;
+  }
+
+  // Helper method to get chef display name
+  getChefDisplayName(matricule: string): string {
+    const chef = this.chefs.find(c => c.matricule === matricule);
+    return chef ? `${chef.nom} ${chef.prenom} (${chef.matricule})` : matricule;
   }
 }

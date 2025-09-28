@@ -1,4 +1,4 @@
-<div class="main-content">
+<div class="main-content" style="">
   <div class="page-content">
     <div class="container-fluid">
       <!-- ======= TITLE ======= -->
@@ -51,8 +51,8 @@
 
             <!-- ======= TABLE ======= -->
             <div class="card-body">
-              <div class="table-responsive table-card">
-                <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
+              <div class="table-responsive table-card" style="overflow-x: auto; max-width: 100%;">
+                <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0" style="min-width: 1200px;">
                   <thead class="text-muted">
                     <tr>
                       <th><input class="form-check-input" type="checkbox" id="checkAll"></th>
@@ -64,8 +64,10 @@
                       <th class="sort" data-sort="role">Role</th>
                       <th class="sort" data-sort="chefLevel">Chef Level</th>
                       <th class="sort" data-sort="grade">Grade</th>
-                      <th class="sort" data-sort="hire">Date d’embauche</th>
+                      <th class="sort" data-sort="hire">Date d'embauche</th>
                       <th class="sort" data-sort="contract">Contrat</th>
+                      <th class="sort" data-sort="chef1">Chef 1</th>
+                      <th class="sort" data-sort="chef2">Chef 2</th>
                       <th class="sort" data-sort="status">Statut</th>
                       <th>Action</th>
                     </tr>
@@ -86,6 +88,8 @@
                       <td class="grade">{{ emp.grade }}</td>
                       <td class="hire">{{ emp.dateEmbauche | date:'dd-MM-yyyy' }}</td>
                       <td class="contract category-badge">{{ emp.typeContrat }}</td>
+                      <td class="chef1">{{ emp.chefHierarchique1Matricule ? getChefDisplayName(emp.chefHierarchique1Matricule) : '-' }}</td>
+                      <td class="chef2">{{ emp.chefHierarchique2Matricule ? getChefDisplayName(emp.chefHierarchique2Matricule) : '-' }}</td>
                       <td class="status">
                         <span class="status-badge"
                           [ngClass]="{
@@ -208,6 +212,26 @@
               </small>
             </ng-container>
           </div>
+          <!-- CHEF HIERARCHIQUE 1 -->
+          <div class="col-md-6" *ngIf="employeeForm.get('role')?.value !== 'CHEF'">
+            <label class="form-label">Chef Hiérarchique 1</label>
+            <select class="form-select filter-select" formControlName="chefHierarchique1Matricule">
+              <option value="">-- Sélectionnez un chef --</option>
+              <option *ngFor="let chef of chefs" [value]="chef.matricule">
+                {{ chef.nom }} {{ chef.prenom }} ({{ chef.matricule }})
+              </option>
+            </select>
+          </div>
+          <!-- CHEF HIERARCHIQUE 2 -->
+          <div class="col-md-6" *ngIf="employeeForm.get('role')?.value !== 'CHEF'">
+            <label class="form-label">Chef Hiérarchique 2</label>
+            <select class="form-select filter-select" formControlName="chefHierarchique2Matricule">
+              <option value="">-- Sélectionnez un chef --</option>
+              <option *ngFor="let chef of chefs" [value]="chef.matricule">
+                {{ chef.nom }} {{ chef.prenom }} ({{ chef.matricule }})
+              </option>
+            </select>
+          </div>
           <!-- DIRECTION -->
           <div class="col-md-6">
             <label class="form-label">Direction</label>
@@ -225,7 +249,7 @@
           </div>
           <!-- DATE EMBAUCHE -->
           <div class="col-md-6">
-            <label class="form-label">Date d’embauche</label>
+            <label class="form-label">Date d'embauche</label>
             <input type="date" class="form-control" formControlName="dateEmbauche">
           </div>
           <!-- TYPE CONTRAT -->
@@ -241,11 +265,13 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-ghost-danger" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-ghost-danger" data-bs-dismiss="modal" [disabled]="saving">
           <i class="bi bi-x-lg me-1"></i>Close
         </button>
-        <button type="submit" class="btn btn-primary" id="save-employee" [disabled]="employeeForm.invalid">
-          Save
+        <button type="submit" class="btn btn-primary" id="save-employee" 
+                [disabled]="employeeForm.invalid || saving">
+          <span *ngIf="saving" class="spinner-border spinner-border-sm me-2"></span>
+          {{ saving ? 'Saving...' : 'Save' }}
         </button>
       </div>
     </form>

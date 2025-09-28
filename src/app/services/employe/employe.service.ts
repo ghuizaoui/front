@@ -62,4 +62,9 @@ me():Observable<Employe>{
   return this.http.get<Employe>(`${this.apiUrl}/me`)
 }
 
+
+getChefs():Observable<Employe[]>{
+  return this.http.get<Employe[]>(`${this.apiUrl}/get-chefs`)
+}
+
 }

@@ -28,39 +28,139 @@ import { AutorisationComponent } from './autorisation/autorisation.component';
 import { DemandesEtSoldeComponent } from './demandes-et-solde/demandes-et-solde.component';
 import { GererEmployesComponent } from './gerer-employes/gerer-employes.component';
 import { HistoriqueDemandesChefComponent } from './historique-demandes-chef/historique-demandes-chef.component';
-
+import { RoleGuard } from './auth/role.guard';
+import { Role } from './models/Role.model';
 export const routes: Routes = [
-  // --- pages SANS shell (ex : login) ------------------------------
-  { path: '', component: LoginComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },   // ← public
-
-  // --- toutes les pages protégées RENDUES DANS le shell -----------
+  // --- pages SANS shell (ex : login, reset-password) -----------------
   {
-    path: '',                                 // même segment racine
-    component: LayoutComponent,               // <app-layout> contient <app-header> + <router-outlet>
-    canActivateChild: [AuthGuard],            // protège tout le bloc
-    children: [
-      { path: 'dashboard-employe', component: DashboardEmployeComponent },
-      { path: 'dashboard-drh',      component: DashboardDrhComponent },
-      { path: 'dashboard-chef',     component: DashboardChefComponent },
-      { path: 'chef/demandes', component: ChefDemandesComponent },
-      { path: 'drh/demandes',  component: DrhDemandesComponent  },
-      { path: 'demande-conge',               component: DemandeCongeComponent },
-      { path: 'demande-conge-exceptionnel',  component: DemandeCongeExceptionnelComponent },
-      { path: 'demande-autorisation',        component: DemandeAutorisationComponent },
-      { path: 'ordre-mission',               component: OrdreMissionComponent },
-      { path: 'demande-form',                component: DemandeFormComponent },
-      { path: 'employees', component: EmployeesComponent },
-      { path: 'historique', component: HistoriqueDemandesComponent},
-      { path: 'historique-chef', component: HistoriqueDemandesChefComponent },
-      {path:'calendar',component: CalendarComponent},
-      {path:'autorisation',component: AutorisationComponent},
-      {path:'demandes-et-solde',component: DemandesEtSoldeComponent},
-      {path:'gerer-employes',component:GererEmployesComponent}
-
-
-    ]
+    path: '',
+    loadComponent: () =>
+      import('./login/login.component').then(m => m.LoginComponent),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
   },
 
-  { path: '**', redirectTo: '' }
+  // --- toutes les pages protégées RENDUES DANS le shell ---------------
+  {
+    path: '',
+    loadComponent: () =>
+      import('./shared/layout/layout.component').then(m => m.LayoutComponent),
+    canActivateChild: [AuthGuard],
+    children: [
+      {
+        path: 'dashboard-employe',
+        loadComponent: () =>
+          import('./dashboard/dashboard-employe/dashboard-employe.component').then(m => m.DashboardEmployeComponent),
+           canActivateChild: [RoleGuard],
+           data: { roles: [Role.EMPLOYE] }
+      },
+      {
+        path: 'dashboard-drh',
+        loadComponent: () =>
+          import('./dashboard/dashboard-drh/dashboard-drh.component').then(m => m.DashboardDrhComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.DRH] }
+      },
+      {
+        path: 'dashboard-chef',
+        loadComponent: () =>
+          import('./dashboard/dashboard-chef/dashboard-chef.component').then(m => m.DashboardChefComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.CHEF] }
+      },
+      {
+        path: 'chef/demandes',
+        loadComponent: () =>
+          import('./chef-demandes/chef-demandes.component').then(m => m.ChefDemandesComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.CHEF] }
+      },
+      {
+        path: 'drh/demandes',
+        loadComponent: () =>
+          import('./drh-demandes/drh-demandes.component').then(m => m.DrhDemandesComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.DRH] }
+      },
+      {
+        path: 'demande-conge',
+        loadComponent: () =>
+          import('./demandes/demande-conge/demande-conge.component').then(m => m.DemandeCongeComponent),
+        
+      },
+      {
+        path: 'demande-conge-exceptionnel',
+        loadComponent: () =>
+          import('./demandes/demande-conge-exceptionnel/demande-conge-exceptionnel.component').then(m => m.DemandeCongeExceptionnelComponent),
+      },
+      {
+        path: 'demande-autorisation',
+        loadComponent: () =>
+          import('./demandes/demande-autorisation/demande-autorisation.component').then(m => m.DemandeAutorisationComponent),
+      },
+      {
+        path: 'ordre-mission',
+        loadComponent: () =>
+          import('./demandes/ordre-mission/ordre-mission.component').then(m => m.OrdreMissionComponent),
+      },
+      {
+        path: 'demande-form',
+        loadComponent: () =>
+          import('./demande-form/demande-form.component').then(m => m.DemandeFormComponent),
+      },
+      {
+        path: 'employees',
+        loadComponent: () =>
+          import('./employees/employees.component').then(m => m.EmployeesComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.DRH] }
+      },
+      {
+        path: 'historique',
+        loadComponent: () =>
+          import('./historique-demandes/historique-demandes.component').then(m => m.HistoriqueDemandesComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.DRH] }
+      },
+      {
+        path: 'historique-chef',
+        loadComponent: () =>
+          import('./historique-demandes-chef/historique-demandes-chef.component').then(m => m.HistoriqueDemandesChefComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.CHEF] }
+      },
+      {
+        path: 'calendar',
+        loadComponent: () =>
+          import('./calendar/calendar.component').then(m => m.CalendarComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.CHEF,Role.DRH] }
+      },
+      {
+        path: 'autorisation',
+        loadComponent: () =>
+          import('./autorisation/autorisation.component').then(m => m.AutorisationComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.CONCIERGE] }
+      },
+      {
+        path: 'demandes-et-solde',
+        loadComponent: () =>
+          import('./demandes-et-solde/demandes-et-solde.component').then(m => m.DemandesEtSoldeComponent),
+
+      },
+      {
+        path: 'gerer-employes',
+        loadComponent: () =>
+          import('./gerer-employes/gerer-employes.component').then(m => m.GererEmployesComponent),
+        canActivateChild: [RoleGuard],
+        data: { roles: [Role.DRH] }
+      },
+    ],
+  },
+
+  { path: '**', redirectTo: '' },
 ];

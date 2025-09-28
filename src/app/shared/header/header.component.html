@@ -63,11 +63,49 @@
                 <i class="bi bi-clock-history"></i> <span>History</span>
               </a>
             </li>
-            <li class="nav-item" *ngIf="issuper">
+            <li class="nav-item" *ngIf="!issuper">
               <a routerLink="/gerer-employes" class="nav-link">
                 <i class="bi bi-people"></i> <span>Gérer les employés</span>
               </a>
             </li>
+
+
+            <li class="nav-item"   *ngIf="issuper">
+              <a href="#sidebarRequests"
+                 (click)="isRequestsOpen = !isRequestsOpen; $event.preventDefault()"
+                 class="nav-link menu-link d-flex justify-content-between align-items-center"
+                 data-bs-toggle="collapse"
+                 [attr.aria-expanded]="isRequestsOpen"
+                 aria-controls="sidebarRequests">
+                <span>
+                  <i class="bi bi-journal-plus"></i> <span>Demandes</span>
+                </span>
+              </a>
+              <div class="menu-dropdown collapse" [ngClass]="{'show': isRequestsOpen}" id="sidebarRequests">
+                <ul class="nav nav-sm flex-column">
+                  <li class="nav-item">
+                    <a routerLink="/demande-conge" class="nav-link">Congé annuel</a>
+                  </li>
+                  <li class="nav-item">
+                    <a routerLink="/demande-conge-exceptionnel" class="nav-link">Congé exceptionnel</a>
+                  </li>
+                  <li class="nav-item">
+                    <a routerLink="/demande-autorisation" class="nav-link">Autorisation</a>
+                  </li>
+                  <li class="nav-item">
+                    <a routerLink="/ordre-mission" class="nav-link">Ordre de mission</a>
+                  </li>
+                </ul>
+              </div>
+
+              
+            </li >
+            <li class="nav-item"  *ngIf="issuper">
+              <a routerLink="/demandes-et-solde" class="nav-link">
+                <i class="bi bi-calendar2-week"></i> <span>Mes Demandes</span>
+              </a>
+            </li>
+
             
           </ng-container>
 

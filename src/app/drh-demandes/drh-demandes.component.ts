@@ -12,9 +12,10 @@ import { CATEGORIE_LABELS, CategorieDemande } from '../models/Categoriedemande.m
 import { TYPE_DEMANDE_LABELS, TypeDemande } from '../models/TypeDemande.model';
 import { STATUT_LABELS, StatutDemande } from '../models/StatutDemande.model';
 
-import { interval, of, Subscription } from 'rxjs';
+import { interval, of, Subscription, forkJoin } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
-import {ActivatedRoute} from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { EmployeService } from '../services/employe/employe.service';
 
 declare const bootstrap: any;
 
@@ -26,10 +27,13 @@ declare const bootstrap: any;
 })
 export class DrhDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
   rows: DemandeListDTO[] = [];
+  dgRows: DemandeListDTO[] = []; // Demandes du DG
   loading = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
   private pendingOpenId: number | null = null;
+  isSuper: boolean = true;
+  
   @ViewChild('detailModal') detailModal!: ElementRef<HTMLDivElement>;
   private bsModal!: any;
 
@@ -39,7 +43,7 @@ export class DrhDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
   // Recherche globale (live)
   searchTerm = '';
 
-  // Filtres d’en-tête
+  // Filtres d'en-tête
   hfMatricule = '';
   hfNom = '';
   hfPrenom = '';
@@ -65,20 +69,40 @@ export class DrhDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
   uiSortBy: 'recent' | 'ancien' | 'nomAZ' | 'nomZA' = 'recent';
 
   // ---- Auto refresh (polling) ----
-  refreshIntervalMs = 10_000; // ← ajuste l’intervalle (ms)
+  refreshIntervalMs = 10_000; // ← ajuste l'intervalle (ms)
   private pollSub?: Subscription;
 
   constructor(
     private demandeService: DemandeService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private employeService: EmployeService
   ) {}
 
+  loadisSuperDrh() {
+    this.employeService.estSuper().subscribe({
+      next: (req) => {
+        this.isSuper = req;
+        console.log('isSuper:', this.isSuper);
+        // Recharger les données après avoir déterminé le statut
+        this.fetchRows();
+      },
+      error: (err) => {
+        console.log("Error when load isSuperDrh:", err);
+        this.isSuper = false;
+      }
+    });
+  }
+
   ngOnInit(): void {
-    this.fetchRows();          // 1er chargement (avec spinner)
-    this.startAutoRefresh();   // puis rafraîchissement périodique (sans spinner)
-    // ouvre si ?open=ID présent
+    // D'abord charger le statut super, puis les demandes
+    this.loadisSuperDrh();
+    
+    // Démarrer le rafraîchissement périodique
+    this.startAutoRefresh();
+    
+    // Ouvrir si ?open=ID présent
     this.route.queryParamMap.subscribe(pm => {
       const raw = pm.get('open');
       const id = raw ? Number(raw) : NaN;
@@ -94,7 +118,8 @@ export class DrhDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
       this.bsModal = bootstrap.Modal.getOrCreateInstance(this.detailModal.nativeElement);
     }
     if (this.pendingOpenId) {
-      const id = this.pendingOpenId; this.pendingOpenId = null;
+      const id = this.pendingOpenId; 
+      this.pendingOpenId = null;
       this.openDetail(id);
     }
   }
@@ -115,43 +140,130 @@ export class DrhDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const previousPage = this.page;
 
-    this.demandeService.getDemandesForDrh().subscribe({
-      next: (data) => {
-        this.ngZone.run(() => {
-          this.rows = data ?? [];
-          this.page = keepPage ? previousPage : 1;
-          if (!silent) this.loading = false;
-          this.cdr.detectChanges();
-        });
-      },
-      error: (err) => {
-        this.ngZone.run(() => {
-          this.errorMessage = err?.error?.message || err?.message || 'Erreur de chargement.';
-          if (!silent) this.loading = false;
-          this.cdr.detectChanges();
-        });
-      }
-    });
+    // Si c'est un super DRH, charger aussi les demandes du DG
+    if (!this.isSuper) {
+      forkJoin({
+        drhDemandes: this.demandeService.getDemandesForDrh(),
+        dgDemandes: this.demandeService.getDemandesDG()
+      }).subscribe({
+        next: (data) => {
+          this.ngZone.run(() => {
+            // Convertir les demandes DG en DemandeListDTO si nécessaire
+            const dgDemandesListDTO = this.convertDemandesToDTO(data.dgDemandes || []);
+            console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",dgDemandesListDTO);
+            
+            
+            // Fusionner les deux listes
+            this.rows = [...(data.drhDemandes || []), ...dgDemandesListDTO];
+            this.page = keepPage ? previousPage : 1;
+            if (!silent) this.loading = false;
+            this.cdr.detectChanges();
+          });
+        },
+        error: (err) => {
+          this.ngZone.run(() => {
+            this.errorMessage = err?.error?.message || err?.message || 'Erreur de chargement.';
+            if (!silent) this.loading = false;
+            this.cdr.detectChanges();
+          });
+        }
+      });
+    } else {
+      // DRH normal - seulement les demandes DRH
+      this.demandeService.getDemandesForDrh().subscribe({
+        next: (data) => {
+          this.ngZone.run(() => {
+            this.rows = data ?? [];
+            this.page = keepPage ? previousPage : 1;
+            if (!silent) this.loading = false;
+            this.cdr.detectChanges();
+          });
+        },
+        error: (err) => {
+          this.ngZone.run(() => {
+            this.errorMessage = err?.error?.message || err?.message || 'Erreur de chargement.';
+            if (!silent) this.loading = false;
+            this.cdr.detectChanges();
+          });
+        }
+      });
+    }
   }
 
-  /** Démarre le rafraîchissement périodique (temps réel “like”). */
+  /** Convertit les Demandes en DemandeListDTO */
+  private convertDemandesToDTO(demandes: any[]): DemandeListDTO[] {
+    return demandes.map(demande => ({
+      id: demande.id,
+      employeMatricule: demande.employe?.matricule || null,
+      employeNom: demande.employe?.nom || null,
+      employePrenom: demande.employe?.prenom || null,
+      categorie: demande.categorie,
+      typeDemande: demande.typeDemande || null,
+      dateDebut: this.getDateDebut(demande),
+      dateFin: this.getDateFin(demande),
+      statut: demande.statut,
+      dateCreation: demande.dateCreation || null
+    }));
+  }
+
+  /** Récupère la date de début selon la catégorie */
+  private getDateDebut(demande: any): string | null {
+    switch (demande.categorie) {
+      case 'CONGE_STANDARD':
+      case 'CONGE_EXCEPTIONNEL':
+        return demande.congeDateDebut || null;
+      case 'AUTORISATION':
+        return demande.autoDate || null;
+      case 'ORDRE_MISSION':
+        return demande.missionDateDebut || null;
+      default:
+        return null;
+    }
+  }
+
+  /** Récupère la date de fin selon la catégorie */
+  private getDateFin(demande: any): string | null {
+    switch (demande.categorie) {
+      case 'CONGE_STANDARD':
+      case 'CONGE_EXCEPTIONNEL':
+        return demande.congeDateFin || null;
+      case 'AUTORISATION':
+        return demande.autoDate || null; // Même date pour autorisation
+      case 'ORDRE_MISSION':
+        return demande.missionDateFin || null;
+      default:
+        return null;
+    }
+  }
+
+  /** Démarre le rafraîchissement périodique (temps réel "like"). */
   private startAutoRefresh(): void {
-    // On évite de déclencher le change detection à chaque tick en sortant de la zone,
-    // puis on y revient uniquement quand on met à jour l’état.
     this.ngZone.runOutsideAngular(() => {
       this.pollSub = interval(this.refreshIntervalMs)
         .pipe(
-          switchMap(() =>
-            this.demandeService.getDemandesForDrh().pipe(
-              catchError(() => of(null)) // on ignore l’erreur réseau ponctuelle
-            )
-          )
+          switchMap(() => {
+            if (this.isSuper) {
+              return forkJoin({
+                drhDemandes: this.demandeService.getDemandesForDrh().pipe(catchError(() => of([]))),
+                dgDemandes: this.demandeService.getDemandesDG().pipe(catchError(() => of([])))
+              });
+            } else {
+              return this.demandeService.getDemandesForDrh().pipe(
+                catchError(() => of([])),
+                switchMap(drhDemandes => of({ drhDemandes, dgDemandes: [] }))
+              );
+            }
+          })
         )
-        .subscribe((data) => {
+        .subscribe((data: any) => {
           if (!data) return;
           this.ngZone.run(() => {
-            this.rows = data ?? [];
-            // on ne touche pas à page (keepPage=true)
+            if (this.isSuper) {
+              const dgDemandesListDTO = this.convertDemandesToDTO(data.dgDemandes || []);
+              this.rows = [...(data.drhDemandes || []), ...dgDemandesListDTO];
+            } else {
+              this.rows = data.drhDemandes || [];
+            }
             this.cdr.detectChanges();
           });
         });
@@ -178,7 +290,10 @@ export class DrhDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-  closeDetail(): void { if (this.bsModal) this.bsModal.hide(); }
+
+  closeDetail(): void { 
+    if (this.bsModal) this.bsModal.hide(); 
+  }
 
   approve(): void {
     if (!this.selected) return;
@@ -235,14 +350,17 @@ export class DrhDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!td) return '-';
     return (TYPE_DEMANDE_LABELS as any)[td] ?? td;
   }
+
   labelCategorie(cat: CategorieDemande | null | undefined): string {
     if (!cat) return '-';
     return (CATEGORIE_LABELS as any)[cat] ?? cat;
   }
+
   labelStatut(s: StatutDemande | null | undefined): string {
     if (!s) return '-';
     return (STATUT_LABELS as any)[s] ?? s;
   }
+
   fmtDate(d: string | null | undefined): string {
     if (!d) return '-';
     if (d.includes('T')) return d;
@@ -256,6 +374,7 @@ export class DrhDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .toLowerCase().trim();
   }
+
   private fmtFrDateForSearch(d: string | null | undefined): string {
     if (!d) return '';
     if (d.includes('T')) {
@@ -280,6 +399,7 @@ export class DrhDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.page = 1;
   }
+
   sortIcon(col: string): string {
     if (this.sortCol !== col) return 'bi bi-arrow-down-up text-muted';
     return this.sortDir === 'asc' ? 'bi bi-sort-down text-primary' : 'bi bi-sort-up text-primary';

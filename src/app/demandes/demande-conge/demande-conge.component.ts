@@ -23,6 +23,7 @@ export class DemandeCongeComponent implements OnInit {
   showCancelButton = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
+  loading:boolean=false
 
   typesConge = [
     { value: 'CONGE_ANNUEL', label: 'Congé annuel' },
@@ -59,6 +60,7 @@ private parseTimeToMinutes(time: string): number {
 onSubmit(): void {
   this.errorMessage = null;
   this.successMessage = null;
+  this.loading=true
 
   if (this.congeForm.invalid) {
     this.errorMessage = 'Veuillez remplir tous les champs obligatoires correctement.';
@@ -97,6 +99,7 @@ onSubmit(): void {
 
   // Envoi API si tout est bon
   this.demandeService.createCongeStandard(body).subscribe({
+
     next: () => {
       this.successMessage = 'Demande de congé soumise avec succès !';
       this.showSuccessPopup('Succès', this.successMessage, null, false);
@@ -109,6 +112,9 @@ onSubmit(): void {
         this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
         this.showErrorPopup('Erreur', 'Erreur lors de l’envoi.', null, true);
       }
+      
+    },complete: () => {
+      this.loading = false; // réactiver le bouton après réponse
     }
   });
 }

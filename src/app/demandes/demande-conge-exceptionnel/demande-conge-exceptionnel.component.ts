@@ -23,7 +23,8 @@ export class DemandeCongeExceptionnelComponent implements OnInit {
   showCancelButton = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
-  selectedFile: File | null = null; // Store the selected file
+  selectedFile: File | null = null;
+  loading = false; // Store the selected file
 
   typesConge = TYPE_CONGE_EXCEPTIONNEL.map(type => ({
     value: type,
@@ -35,7 +36,7 @@ export class DemandeCongeExceptionnelComponent implements OnInit {
       typeDemande: ['', Validators.required],
       dateDebut: ['', Validators.required],
       dateFin: ['', Validators.required],
-      heureDebut: [''],
+      heureDebut: ['',Validators.required],
       heureFin: [''],
       interimaireMatricule: [''],
       pasDInterim: [false],
@@ -73,6 +74,7 @@ export class DemandeCongeExceptionnelComponent implements OnInit {
   onSubmit(): void {
     this.errorMessage = null;
     this.successMessage = null;
+    this.loading=true
 
     if (this.congeForm.invalid) {
       this.errorMessage = 'Veuillez renseigner tous les champs obligatoires correctement.';
@@ -86,7 +88,8 @@ export class DemandeCongeExceptionnelComponent implements OnInit {
       dateDebut: this.toYYYYMMDD(formValue.dateDebut), // Adjusted to match backend format
       dateFin: this.toYYYYMMDD(formValue.dateFin),
       heureDebut: formValue.heureDebut || undefined,
-      heureFin: formValue.heureFin || undefined
+      heureFin: formValue.heureFin || undefined,
+      interimaireMatricule:formValue.interimaireMatricule || undefined
     };
 
     this.demandeService.createCongeExceptionnel(body, this.selectedFile).subscribe({
@@ -98,6 +101,8 @@ export class DemandeCongeExceptionnelComponent implements OnInit {
       error: (err: any) => {
         this.errorMessage = err?.error?.message || err?.message || 'Erreur lors de l’envoi.';
         this.showErrorPopup('Erreur', 'Erreur lors de l’envoi.', null, true);
+      },complete: () => {
+        this.loading = false; // réactiver le bouton après réponse
       }
     });
   }
