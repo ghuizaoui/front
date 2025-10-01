@@ -159,6 +159,11 @@ export const routes: Routes = [
         canActivateChild: [RoleGuard],
         data: { roles: [Role.DRH] }
       },
+      {
+        path: 'demandes-today',
+        loadComponent: () =>
+          import('./demandes-today/demandes-today.component').then(m => m.DemandesTodayComponent),
+      },
     ],
   },
 

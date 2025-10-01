@@ -1,0 +1,218 @@
+<div class="main-content">
+    <!-- En-tête de page -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title">📋 Demandes du Jour</h1>
+        <button class="btn btn-primary" (click)="loadDemandes()" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            {{ loading ? 'Chargement...' : '🔄 Actualiser' }}
+        </button>
+    </div>
+
+    <!-- Carte des filtres -->
+    <div class="card filters-card">
+        <div class="card-body">
+            <div class="row g-3">
+                <!-- Recherche -->
+                <div class="col-md-4">
+                    <label class="form-label">🔍 Rechercher</label>
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            class="form-control search-input" 
+                            placeholder="Nom, prénom, matricule..."
+                            [(ngModel)]="searchTerm"
+                            (input)="applyFilters()">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                </div>
+
+                <!-- Filtre Catégorie -->
+                <div class="col-md-3">
+                    <label class="form-label">📂 Catégorie</label>
+                    <select 
+                        class="form-select filter-select" 
+                        [(ngModel)]="selectedCategorie"
+                        (change)="applyFilters()">
+                        <option *ngFor="let cat of categories" [value]="cat.value">
+                            {{ cat.label }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Filtre Statut -->
+                <div class="col-md-3">
+                    <label class="form-label">📊 Statut</label>
+                    <select 
+                        class="form-select filter-select" 
+                        [(ngModel)]="selectedStatut"
+                        (change)="applyFilters()">
+                        <option *ngFor="let statut of statuts" [value]="statut.value">
+                            {{ statut.label }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Bouton Effacer les filtres -->
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button 
+                        class="btn-clear-filters" 
+                        (click)="clearFilters()"
+                        [disabled]="searchTerm === '' && selectedCategorie === 'all' && selectedStatut === 'all'">
+                        <span class="clear-icon">🗑️</span>
+                        Effacer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Information des résultats -->
+    <div class="results-info mb-3">
+        <span class="results-count">{{ filteredDemandes.length }}</span>
+        demande(s) trouvée(s)
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="error" class="alert alert-danger mb-4">
+        <span class="alert-icon">⚠️</span>
+        {{ error }}
+    </div>
+
+    <!-- Carte principale des demandes -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📋 Liste des Demandes</h2>
+        </div>
+
+        <div class="card-body p-0">
+            <!-- État de chargement -->
+            <div *ngIf="loading" class="text-center py-5">
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-3 text-muted">Chargement des demandes...</p>
+            </div>
+
+            <!-- Aucune donnée -->
+            <div *ngIf="!loading && filteredDemandes.length === 0" class="no-data-message">
+                <div class="no-data-icon">📭</div>
+                <h4>Aucune demande trouvée</h4>
+                <p *ngIf="demandes.length === 0">Aucune demande n'a été créée aujourd'hui.</p>
+                <p *ngIf="demandes.length > 0 && filteredDemandes.length === 0">
+                    Aucune demande ne correspond aux critères de recherche.
+                </p>
+                <button *ngIf="demandes.length > 0" class="btn btn-primary" (click)="clearFilters()">
+                    Afficher toutes les demandes
+                </button>
+            </div>
+
+            <!-- Tableau des demandes -->
+            <div *ngIf="!loading && filteredDemandes.length > 0" class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employé</th>
+                            <th>Matricule</th>
+                            <th>Catégorie</th>
+                            <th>Type</th>
+                            <th>Date Début</th>
+                            <th>Date Fin</th>
+                            <th>Heure Début</th>
+                            <th>Heure Fin</th>
+                            <th>Objet Mission</th>
+                            <th>Statut</th>
+                            <th>Date Création</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let demande of filteredDemandes" class="demande-row">
+                            <!-- Informations employé -->
+                            <td>
+                                <div class="employee-info">
+                                    <span class="employee-name">
+                                        {{ demande.employe?.prenom }} {{ demande.employe?.nom }}
+                                    </span>
+                                    <span class="employee-email">{{ demande.employe?.email }}</span>
+                                </div>
+                            </td>
+
+                            <!-- Matricule -->
+                            <td>
+                                <span class="matricule-badge">
+                                    {{ demande.employe?.matricule || '-' }}
+                                </span>
+                            </td>
+
+                            <!-- Catégorie -->
+                            <td>
+                                <span class="category-badge {{ getCategoryClass(demande.categorie) }}">
+                                    {{ getCategoryLabel(demande.categorie) }}
+                                </span>
+                            </td>
+
+                            <!-- Type -->
+                            <td>
+                                <span class="text-muted">
+                                    {{ demande.typeDemande || '-' }}
+                                </span>
+                            </td>
+
+                            <!-- Dates et heures selon la catégorie -->
+                            <td>
+                                {{ 
+                                    demande.congeDateDebut ? formatDate(demande.congeDateDebut) :
+                                    demande.autoDateDebut ? formatDate(demande.autoDateDebut) :
+                                    demande.missionDateDebut ? formatDate(demande.missionDateDebut) : '-'
+                                }}
+                            </td>
+
+                            <td>
+                                {{ 
+                                    demande.congeDateFin ? formatDate(demande.congeDateFin) :
+                                    demande.autoDateFin ? formatDate(demande.autoDateFin) :
+                                    demande.missionDateFin ? formatDate(demande.missionDateFin) : '-'
+                                }}
+                            </td>
+
+                            <td>
+                                {{ 
+                                    demande.congeHeureDebut ? formatTime(demande.congeHeureDebut) :
+                                    demande.autoHeureDebut ? formatTime(demande.autoHeureDebut) :
+                                    demande.missionHeureDebut ? formatTime(demande.missionHeureDebut) : '-'
+                                }}
+                            </td>
+
+                            <td>
+                                {{ 
+                                    demande.congeHeureFin ? formatTime(demande.congeHeureFin) :
+                                    demande.autoHeureFin ? formatTime(demande.autoHeureFin) :
+                                    demande.missionHeureFin ? formatTime(demande.missionHeureFin) : '-'
+                                }}
+                            </td>
+
+                            <!-- Objet mission -->
+                            <td>
+                                <span class="mission-objet" [title]="demande.missionObjet || ''">
+                                    {{ demande.missionObjet || '-' }}
+                                </span>
+                            </td>
+
+                            <!-- Statut -->
+                            <td>
+                                <span class="status-badge {{ getStatusClass(demande.statut) }}">
+                                    {{ getStatusLabel(demande.statut) }}
+                                </span>
+                            </td>
+
+                            <!-- Date création -->
+                            <td>
+                                <span class="text-muted">
+                                    {{ formatDate(demande.dateCreation || '') }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

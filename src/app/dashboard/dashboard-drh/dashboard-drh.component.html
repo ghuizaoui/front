@@ -43,6 +43,9 @@
             <button [class.active]="activeTab === 'status'" (click)="activeTab = 'status'">
                 📋 Répartition statuts
             </button>
+            <button [class.active]="activeTab === 'categories'" (click)="activeTab = 'categories'">
+                📈 Catégories & Types
+            </button>
             <button [class.active]="activeTab === 'leave'" (click)="activeTab = 'leave'">
                 🏖️ Congés & Soldes
             </button>
@@ -91,6 +94,83 @@
                     <span class="status-name">{{ status.status }}</span>
                     <span class="status-count">{{ status.count }} demandes</span>
                     <span class="status-percentage">{{ formatPercentage(status.percentage) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories & Types Tab -->
+        <div *ngIf="activeTab === 'categories'" class="tab-content">
+            <div class="category-header">
+                <h3>Répartition des demandes par catégorie et type</h3>
+                
+                <div class="view-toggle">
+                    <button 
+                        [class.active]="categoryViewMode === 'aggregated'" 
+                        (click)="switchCategoryView('aggregated')"
+                        class="toggle-btn">
+                        📊 Vue agrégée
+                    </button>
+                    <button 
+                        [class.active]="categoryViewMode === 'detailed'" 
+                        (click)="switchCategoryView('detailed')"
+                        class="toggle-btn">
+                        📋 Vue détaillée
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <app-generic-chart
+                    [chartData]="getCurrentCategoryChartData().data"
+                    [chartCategories]="getCurrentCategoryChartData().categories"
+                    [chartType]="getCategoryChartType()"
+                    [chartTitle]="getCategoryChartTitle()"
+                    [seriesName]="getCategorySeriesName()"
+                ></app-generic-chart>
+            </div>
+            
+            <!-- Detailed View Table -->
+            <div *ngIf="categoryViewMode === 'detailed'" class="category-details">
+                <h4>Détails par catégorie et type</h4>
+                <div class="category-table-container">
+                    <table class="category-table">
+                        <thead>
+                            <tr>
+                                <th>Catégorie</th>
+                                <th>Type de demande</th>
+                                <th>Nombre</th>
+                                <th>Pourcentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of categoryTypeDistribution" class="category-item">
+                                <td class="category-name">
+                                    <span class="category-badge" [class]="'category-' + item.categorie.toLowerCase()"></span>
+                                    {{ item.categorie }}
+                                </td>
+                                <td class="type-name">{{ item.typeDemande }}</td>
+                                <td class="type-count">{{ item.count }}</td>
+                                <td class="type-percentage">{{ formatPercentage(item.percentage) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Aggregated View Table -->
+            <div *ngIf="categoryViewMode === 'aggregated'" class="category-summary">
+                <h4>Résumé par catégorie</h4>
+                <div class="category-list">
+                    <div *ngFor="let category of categoryDistribution" class="category-summary-item">
+                        <div class="category-info">
+                            <span class="category-badge" [class]="'category-' + category.categorie.toLowerCase()"></span>
+                            <span class="category-label">{{ category.categorie }}</span>
+                        </div>
+                        <div class="category-stats">
+                            <span class="category-total">{{ category.count }} demandes</span>
+                            <span class="category-percentage">{{ formatPercentage(category.percentage) }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

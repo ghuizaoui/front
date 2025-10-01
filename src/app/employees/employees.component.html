@@ -236,16 +236,26 @@
           <div class="col-md-6">
             <label class="form-label">Direction</label>
             <input type="text" class="form-control" formControlName="direction">
+
+            <ng-container *ngIf="employeeForm.get('direction')?.touched && employeeForm.get('direction')?.invalid">
+              <small class="text-danger">Le direction est requis.</small>
+            </ng-container>
           </div>
           <!-- SERVICE -->
           <div class="col-md-6">
             <label class="form-label">Service</label>
             <input type="text" class="form-control" formControlName="service">
+            <ng-container *ngIf="employeeForm.get('service')?.touched && employeeForm.get('service')?.invalid">
+              <small class="text-danger">Le service est requis.</small>
+            </ng-container>
           </div>
           <!-- GRADE -->
           <div class="col-md-6">
             <label class="form-label">Grade</label>
             <input type="number" class="form-control" formControlName="grade">
+            <ng-container *ngIf="employeeForm.get('grade')?.touched && employeeForm.get('grade')?.invalid">
+              <small class="text-danger">Le grade est requis.</small>
+            </ng-container>
           </div>
           <!-- DATE EMBAUCHE -->
           <div class="col-md-6">
@@ -260,6 +270,10 @@
               <option value="CDI">CDI</option>
               <option value="CIVP">CIVP</option>
               <option value="LETTRE_ENGAGEMENT">Lettre d'Engagement</option>
+
+              <ng-container *ngIf="employeeForm.get('typeContrat')?.touched && employeeForm.get('typeContrat')?.invalid">
+                <small class="text-danger">Le type Contrat est requis.</small>
+              </ng-container>
             </select>
           </div>
         </div>

@@ -378,3 +378,184 @@ th {
         padding: 8px;
     }
 }
+
+/* Category & Types Section Styles */
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.toggle-btn {
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn.active {
+    background: #4a6cf7;
+    color: white;
+}
+
+.toggle-btn:hover:not(.active) {
+    background: #e9ecef;
+}
+
+/* Category Details Table */
+.category-details {
+    margin-top: 30px;
+}
+
+.category-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e1e5e9;
+}
+
+.category-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.category-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #5a6270;
+    padding: 15px;
+    text-align: left;
+    border-bottom: 2px solid #e1e5e9;
+}
+
+.category-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.category-item:hover {
+    background: #f8f9ff;
+}
+
+.category-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.type-name {
+    color: #5a6270;
+}
+
+.type-count {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.type-percentage {
+    color: #6c757d;
+    font-weight: 600;
+}
+
+/* Category Badges */
+.category-badge {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.category-conge_standard { background: #4a6cf7; }
+.category-conge_exceptionnel { background: #f59e0b; }
+.category-autorisation { background: #10b981; }
+.category-ordre_mission { background: #8b5cf6; }
+.category-conge_stardard { background: #4a6cf7; }
+.category-conge_exceptionnel { background: #f59e0b; }
+.category-autorisation { background: #10b981; }
+.category-ordre_mission { background: #8b5cf6; }
+
+/* Category Summary */
+.category-summary {
+    margin-top: 30px;
+}
+
+.category-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.category-summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #4a6cf7;
+}
+
+.category-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.category-label {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.category-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.category-total {
+    font-weight: 600;
+    color: #4a6cf7;
+}
+
+.category-percentage {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Responsive Design for Category Section */
+@media (max-width: 768px) {
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .view-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .category-table {
+        font-size: 14px;
+    }
+    
+    .category-table th,
+    .category-table td {
+        padding: 8px 10px;
+    }
+    
+}

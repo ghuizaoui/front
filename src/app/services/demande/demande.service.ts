@@ -252,5 +252,10 @@ getDemandesDG():Observable<Demande[]>{
   return this.http.get<Demande[]>(`${this.apiUrl}/get-dg-demandes`)
 }
 
+
+getDemandesToday():Observable<Demande[]>{
+  return this.http.get<Demande[]>(`${this.apiUrl}/get-demandes-today`)
+}
+
 }
 

@@ -58,4 +58,17 @@ export class DashboardService {
       .set('endDate', endDate);
     return this.http.get<any>(`${this.apiUrl}/employee-leave-balance`, { params });
   }
+
+
+  getCategoryTypeDistribution(startDate: string, endDate: string): Observable<any> {
+    let params = new HttpParams();
+    
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
+    return this.http.get<any>(`${this.apiUrl}/category-type-distribution`, { params });
+  }
 }
