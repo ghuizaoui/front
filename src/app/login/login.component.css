@@ -61,7 +61,7 @@
 
 /* Left panel styling */
 .auth-left-panel {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #2323ed 100%);
   color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -77,8 +77,8 @@
 
 /* Left panel logo */
 .auth-left-panel img {
-  max-width: 300px;
-  width: 80%;
+  max-width: 900px;
+  width: 120%;
   height: auto;
   object-fit: contain;
   filter: brightness(1.2);

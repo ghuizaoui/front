@@ -642,6 +642,8 @@
     
     .card-header {
       padding: 1.5rem 1rem;
+      background: linear-gradient(135deg, #626266 0%, rgb(6, 6, 79) 100%);
+
       border-radius: 16px 16px 0 0;
     }
     

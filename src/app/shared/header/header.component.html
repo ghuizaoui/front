@@ -1,20 +1,20 @@
-<div id="layout-wrapper">
-  <div class="app-menu navbar-menu" [ngClass]="{'menu-open': isSidebarOpen}">
-    <div class="navbar-brand-box">
+<div id="layout-wrapper"  >
+  <div class="app-menu navbar-menu" [ngClass]="{'menu-open': isSidebarOpen}" style="background-color: rgb(6, 6, 79);">
+    <div class="navbar-brand-box" >
       <a routerLink="/" class="logo logo-dark">
         <span class="logo-sm">
-          <img src="assets/images/mercedes.png" alt="Mercedes Logo" height="22">
+          <img src="assets/images/moteur.png" alt="Mercedes Logo" height="22">
         </span>
         <span class="logo-lg">
-          <img src="assets/images/mercedes.png" alt="Mercedes Logo" height="22">
+          <img src="assets/images/moteur.png" alt="Mercedes Logo" height="22">
         </span>
       </a>
       <a routerLink="/" class="logo logo-light">
         <span class="logo-sm">
-          <img src="assets/images/mercedes.png" alt="Mercedes Logo" height="22">
+          <img src="assets/images/moteur.png" alt="Mercedes Logo" height="40">
         </span>
         <span class="logo-lg">
-          <img src="assets/images/mercedes.png" alt="Mercedes Logo" height="50">
+          <img src="assets/images/moteur.png" alt="Mercedes Logo" height="50">
         </span>
       </a>
       <button type="button" class="btn btn-sm p-0 fs-3xl header-item float-end btn-vertical-sm-hover" id="vertical-hover">
@@ -22,7 +22,7 @@
       </button>
     </div>
     <div #scrollbar id="scrollbar" class="h-100">
-      <div class="container-fluid">
+      <div class="container-fluid" >
         <ul class="navbar-nav" id="navbar-nav">
 
           <!-- DRH & CHEF -->
@@ -273,9 +273,9 @@
   <div class="vertical-overlay" [ngClass]="{'active': isSidebarOpen}" (click)="toggleMenu()"></div>
   <header id="page-topbar">
     <div class="layout-width">
-      <div class="navbar-header">
+      <div class="navbar-header" style="background-color: rgb(6, 6, 79);">
         <div class="d-flex">
-          <div class="navbar-brand-box horizontal-logo">
+          <div class="navbar-brand-box horizontal-logo" >
             <a routerLink="/" class="logo logo-dark">
               <span class="logo-sm">
                 <img src="assets/template_images/logo-sm.png" alt="Logo" height="22">
@@ -300,7 +300,7 @@
               <span></span>
             </span>
           </button>
-          <form class="app-search d-none d-md-inline-flex">
+          <form class="app-search d-none d-md-inline-flex" >
             <div class="position-relative dropdown-anchor">
               <input type="text" class="form-control" placeholder="Search..." autocomplete="off" id="search-options" [(ngModel)]="searchQuery" [ngModelOptions]="{standalone: true}">
               <span class="mdi mdi-magnify search-widget-icon"></span>
