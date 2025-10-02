@@ -13,6 +13,7 @@ import { STATUT_LABELS, StatutDemande } from '../models/StatutDemande.model';
 import { interval, of, Subscription } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
+import { AuthService } from '../services/auth/auth.service';
 
 declare const bootstrap: any;
 
@@ -57,7 +58,7 @@ export class ChefDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
   page = 1;
   pageSize = 10;
   pageSizes = [5, 10, 20, 50];
-
+  isChef:boolean = false;
   // Filtres UI
   uiFilterStatus: '' | StatutDemande = '';
   uiFilterType: '' | TypeDemande = '';
@@ -72,10 +73,13 @@ export class ChefDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
     private demandeService: DemandeService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+
+    this.isChef = this.authService.getMatricule()?.startsWith('CHEF') || false;
     this.fetchRows();
     this.startAutoRefresh();
     this.route.queryParamMap.subscribe(pm => {
@@ -179,11 +183,12 @@ export class ChefDemandesComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log("this is approve methods ///////////////////////////////////////////////////")
 
     // Check if the employee's matricule begins with "CHEF" to determine validation method
-    const isChef = this.selected.employeMatricule?.startsWith('CHEF') || false;
+    const isChef = this.selected.employeMatricule?.startsWith('CHEF') ;
     console.log("is this employee a chef **************************"+isChef)
-    const validationMethod = isChef ? this.demandeService.validerDemande : this.demandeService.valider;
+    const validationMethod =  this.demandeService.validerDemande ;
+    console.log("validationMethod **************************"+validationMethod)
 
-    validationMethod(this.selected.id).subscribe({
+    this.demandeService.validerDemande(this.selected.id).subscribe({
       next: () => {
         console.log("here here in the apii subscibeing ")
         this.ngZone.run(() => {

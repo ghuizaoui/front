@@ -110,7 +110,7 @@ export class DemandeService {
   }
 
   valider(demandeId: number): Observable<Demande> {
-    return this.http.post<Demande>(`${this.apiUrl}/${demandeId}/valider`, {});
+    return this.http.post<Demande>(`${this.apiUrl}/${demandeId}/  `, {});
   }
 
   /** Refuser (avec motif) */
