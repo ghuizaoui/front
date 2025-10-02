@@ -35,4 +35,6 @@ export interface Demande {
 
   commentaireRefus?: string | null;
   workflowId?: string;
+
+  estLiberer?: boolean;
 }

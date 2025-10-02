@@ -107,10 +107,12 @@
                       <th scope="col">Matricule</th>
                       <th scope="col">Catégorie</th>
                       <th scope="col">Statut</th>
+                      <th scope="col">Libération</th>
                       <th scope="col">Date</th>
                       <th scope="col">Heure Début/Fin</th>
                       <th scope="col" *ngIf="selectedCategory === 'ALL' || selectedCategory === 'ORDRE_MISSION'">Objet Mission</th>
                       <th scope="col">Date Demande</th>
+                      <th scope="col">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -134,6 +136,11 @@
                           {{ getStatusLabel(demande.statut) }}
                         </span>
                       </td>
+                      <td>
+                        <span class="liberation-badge" [ngClass]="getLiberationBadgeClass(demande)">
+                          {{ getLiberationLabel(demande) }}
+                        </span>
+                      </td>
                       <td>{{ getDisplayDate(demande) }}</td>
                       <td>{{ getDisplayTime(demande) }}</td>
                       <td *ngIf="selectedCategory === 'ALL' || selectedCategory === 'ORDRE_MISSION'">
@@ -142,6 +149,18 @@
                         </span>
                       </td>
                       <td>{{ demande.dateCreation | date: 'dd/MM/yyyy HH:mm' }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-success liberation-btn" 
+                                *ngIf="canLiberateDemande(demande)"
+                                (click)="openLiberationModal(demande)"
+                                title="Libérer cette demande">
+                          <i class="liberation-icon">✓</i>
+                          Libérer
+                        </button>
+                        <span class="text-muted" *ngIf="!canLiberateDemande(demande)">
+                          -
+                        </span>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -158,6 +177,49 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liberation Modal -->
+  <div class="modal-backdrop fade show" *ngIf="showLiberationModal"></div>
+  <div class="modal fade show d-block" *ngIf="showLiberationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmer la libération</h5>
+          <button type="button" class="btn-close" (click)="closeLiberationModal()" [disabled]="isLiberating"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <strong>Demande sélectionnée:</strong><br>
+            {{ selectedDemandeForLiberation?.employe?.prenom }} {{ selectedDemandeForLiberation?.employe?.nom }}<br>
+            {{ getCategoryLabel(selectedDemandeForLiberation?.categorie || '') }} - 
+            {{ getDisplayDate(selectedDemandeForLiberation!) }}
+          </div>
+          
+          <div class="mb-3">
+            <label for="liberationComment" class="form-label">Commentaire (optionnel)</label>
+            <textarea class="form-control" id="liberationComment" 
+                      [(ngModel)]="liberationComment"
+                      placeholder="Ajouter un commentaire..."
+                      rows="3"
+                      [disabled]="isLiberating"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" 
+                  (click)="closeLiberationModal()" 
+                  [disabled]="isLiberating">
+            Annuler
+          </button>
+          <button type="button" class="btn btn-success" 
+                  (click)="libererDemande()"
+                  [disabled]="isLiberating">
+            <span class="spinner-border spinner-border-sm" *ngIf="isLiberating"></span>
+            {{ isLiberating ? 'Libération...' : 'Confirmer la libération' }}
+          </button>
         </div>
       </div>
     </div>

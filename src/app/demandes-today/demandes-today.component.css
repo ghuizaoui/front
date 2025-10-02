@@ -441,3 +441,90 @@
     cursor: not-allowed;
     transform: none;
 }
+
+
+  /* Liberation badges */
+  .liberation-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .liberation-badge.liberated {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+  
+  .liberation-badge.ready-for-liberation {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+  }
+  
+  .liberation-badge.not-ready {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+  }
+  
+  /* Liberation button */
+  .liberation-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+  
+  .liberation-icon {
+    margin-right: 4px;
+  }
+  
+  /* Modal styles */
+  .modal-backdrop {
+    z-index: 1040;
+  }
+  
+  .modal {
+    z-index: 1050;
+  }
+  
+  /* Status badges */
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .status-valid {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+  
+  .status-refused {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+  
+  .status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+  
+  /* Category badges */
+  .category-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .category-autorisation {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+  
+  .category-ordre_mission {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+  }

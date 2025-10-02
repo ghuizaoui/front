@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Demande } from '../models/Demande.model';
 import { DemandeService } from '../services/demande/demande.service';
@@ -26,6 +26,12 @@ export class DemandesTodayComponent implements OnInit {
   searchTerm: string = '';
   selectedCategorie: string = 'all';
   selectedStatut: string = 'all';
+
+  // NEW: Liberation functionality
+  showLiberationModal: boolean = false;
+  selectedDemandeForLiberation: Demande | null = null;
+  liberationComment: string = '';
+  isLiberating: boolean = false;
 
   // Options de filtres
   categories = [
@@ -86,6 +92,63 @@ export class DemandesTodayComponent implements OnInit {
     });
   }
 
+  // NEW: Check if demande can be liberated
+  canLiberateDemande(demande: Demande): boolean {
+    return demande.statut === 'VALIDEE' && !demande.estLiberer;
+  }
+
+  // NEW: Open liberation modal
+  openLiberationModal(demande: Demande): void {
+    if (this.canLiberateDemande(demande)) {
+      this.selectedDemandeForLiberation = demande;
+      this.liberationComment = '';
+      this.showLiberationModal = true;
+    }
+  }
+
+  // NEW: Close liberation modal
+  closeLiberationModal(): void {
+    this.showLiberationModal = false;
+    this.selectedDemandeForLiberation = null;
+    this.liberationComment = '';
+    this.isLiberating = false;
+  }
+
+  // FIXED: Use the correct liberer method from DemandeService
+  libererDemande(): void {
+    if (!this.selectedDemandeForLiberation) return;
+
+    this.isLiberating = true;
+    
+    // Use the correct liberer method from DemandeService
+    this.demandeService.liberer(
+      this.selectedDemandeForLiberation.id!, 
+      this.liberationComment
+    ).subscribe({
+      next: (response) => {
+        console.log('Demande libérée avec succès:', response);
+        
+        // Update the local demande with liberation status
+        const index = this.demandes.findIndex(d => d.id === this.selectedDemandeForLiberation!.id);
+        if (index !== -1) {
+          this.demandes[index] = { ...this.demandes[index], estLiberer: true };
+        }
+        
+        this.applyFilters();
+        this.closeLiberationModal();
+        this.isLiberating = false;
+        
+        // Show success message
+        alert('Demande libérée avec succès!');
+      },
+      error: (err) => {
+        console.error('Erreur lors de la libération:', err);
+        this.error = 'Erreur lors de la libération de la demande.';
+        this.isLiberating = false;
+      }
+    });
+  }
+
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedCategorie = 'all';
@@ -134,6 +197,28 @@ export class DemandesTodayComponent implements OnInit {
     }
   }
 
+  // NEW: Get liberation status class
+  getLiberationClass(demande: Demande): string {
+    if (demande.estLiberer) {
+      return 'liberation-liberated';
+    } else if (this.canLiberateDemande(demande)) {
+      return 'liberation-ready';
+    } else {
+      return 'liberation-not-ready';
+    }
+  }
+
+  // NEW: Get liberation status label
+  getLiberationLabel(demande: Demande): string {
+    if (demande.estLiberer) {
+      return 'Libérée';
+    } else if (this.canLiberateDemande(demande)) {
+      return 'À libérer';
+    } else {
+      return 'Non libérable';
+    }
+  }
+
   getCategoryLabel(categorie: string): string {
     switch (categorie) {
       case 'AUTORISATION':
@@ -162,5 +247,9 @@ export class DemandesTodayComponent implements OnInit {
   formatTime(timeString: string): string {
     if (!timeString) return '-';
     return timeString.substring(0, 5);
+  }
+
+  safeFormatDate(date?: string | Date | null): string {
+    return date ? formatDate(date, 'dd/MM/yyyy', 'fr-FR') : '-';
   }
 }

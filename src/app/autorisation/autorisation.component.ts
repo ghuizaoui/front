@@ -20,8 +20,14 @@ export class AutorisationComponent implements OnInit {
   
   // Filtres
   selectedCategory: string = 'ALL';
-  selectedStatus: string = 'ALL';
+  selectedStatus: string = 'VALIDEE'; // Default to only show validated
   searchTerm: string = '';
+
+  // NEW: Liberation functionality
+  showLiberationModal: boolean = false;
+  selectedDemandeForLiberation: Demande | null = null;
+  liberationComment: string = '';
+  isLiberating: boolean = false;
 
   // Catégories disponibles
   categories = [
@@ -30,12 +36,9 @@ export class AutorisationComponent implements OnInit {
     { value: 'ORDRE_MISSION', label: 'Ordres de mission' }
   ];
 
-  // Statuts disponibles
+  // Statuts disponibles - Only show VALIDEE since we only want validated demands
   statuses = [
-    { value: 'ALL', label: 'Tous les statuts' },
-    { value: 'EN_COURS', label: 'En cours' },
-    { value: 'VALIDE', label: 'Validé' },
-    { value: 'REFUSE', label: 'Refusé' }
+    { value: 'VALIDEE', label: 'Validé' }
   ];
 
   constructor(private demandeService: DemandeService) {}
@@ -49,7 +52,11 @@ export class AutorisationComponent implements OnInit {
     this.demandeService.getAllAutorisation().subscribe({
       next: (demandes) => {
         console.log("Chargement réussi", demandes);
-        this.demandes = demandes;
+        // Filter to show only VALIDEE demands (autorisations and missions)
+        this.demandes = demandes.filter(demande => 
+          demande.statut === 'VALIDEE' && 
+          (demande.categorie === 'AUTORISATION' || demande.categorie === 'ORDRE_MISSION')
+        );
         this.applyFilters();
         this.isLoading = false;
       },
@@ -67,7 +74,7 @@ export class AutorisationComponent implements OnInit {
       const categoryMatch = this.selectedCategory === 'ALL' || 
                            demande.categorie === this.selectedCategory;
       
-      // Filtre par statut
+      // Filtre par statut - always VALIDEE since we only load validated demands
       const statusMatch = this.selectedStatus === 'ALL' || 
                          demande.statut === this.selectedStatus;
       
@@ -79,6 +86,63 @@ export class AutorisationComponent implements OnInit {
                          demande.employe?.email?.toLowerCase().includes(this.searchTerm.toLowerCase());
 
       return categoryMatch && statusMatch && searchMatch;
+    });
+  }
+
+  // NEW: Check if demande can be liberated
+  canLiberateDemande(demande: Demande): boolean {
+    return demande.statut === 'VALIDEE' && !demande.estLiberer;
+  }
+
+  // NEW: Open liberation modal
+  openLiberationModal(demande: Demande): void {
+    if (this.canLiberateDemande(demande)) {
+      this.selectedDemandeForLiberation = demande;
+      this.liberationComment = '';
+      this.showLiberationModal = true;
+    }
+  }
+
+  // NEW: Close liberation modal
+  closeLiberationModal(): void {
+    this.showLiberationModal = false;
+    this.selectedDemandeForLiberation = null;
+    this.liberationComment = '';
+    this.isLiberating = false;
+  }
+
+  // FIXED: Use the correct liberer method from DemandeService
+  libererDemande(): void {
+    if (!this.selectedDemandeForLiberation) return;
+
+    this.isLiberating = true;
+    
+    // Use the correct liberer method from DemandeService
+    this.demandeService.liberer(
+      this.selectedDemandeForLiberation.id!, 
+      this.liberationComment
+    ).subscribe({
+      next: (response) => {
+        console.log('Demande libérée avec succès:', response);
+        
+        // Update the local demande with liberation status
+        const index = this.demandes.findIndex(d => d.id === this.selectedDemandeForLiberation!.id);
+        if (index !== -1) {
+          this.demandes[index] = { ...this.demandes[index], estLiberer: true };
+        }
+        
+        this.applyFilters();
+        this.closeLiberationModal();
+        this.isLiberating = false;
+        
+        // Show success message (you can use a toast service here)
+        alert('Demande libérée avec succès!');
+      },
+      error: (err) => {
+        console.error('Erreur lors de la libération:', err);
+        this.errorMessage = 'Erreur lors de la libération de la demande.';
+        this.isLiberating = false;
+      }
     });
   }
 
@@ -99,7 +163,7 @@ export class AutorisationComponent implements OnInit {
 
   clearFilters(): void {
     this.selectedCategory = 'ALL';
-    this.selectedStatus = 'ALL';
+    this.selectedStatus = 'VALIDEE'; // Reset to only validated
     this.searchTerm = '';
     this.applyFilters();
   }
@@ -114,8 +178,8 @@ export class AutorisationComponent implements OnInit {
 
   getStatusBadgeClass(statut: string): string {
     switch (statut) {
-      case 'VALIDE': return 'status-badge status-valid';
-      case 'REFUSE': return 'status-badge status-refused';
+      case 'VALIDEE': return 'status-badge status-valid';
+      case 'REFUSEE': return 'status-badge status-refused';
       case 'EN_COURS': return 'status-badge status-pending';
       default: return 'status-badge';
     }
@@ -124,10 +188,32 @@ export class AutorisationComponent implements OnInit {
   getStatusLabel(statut: string): string {
     const labels: Record<string, string> = {
       'EN_COURS': 'En cours',
-      'VALIDE': 'Validé',
-      'REFUSE': 'Refusé'
+      'VALIDEE': 'Validé',
+      'REFUSEE': 'Refusé'
     };
     return labels[statut] || statut;
+  }
+
+  // NEW: Get liberation status badge
+  getLiberationBadgeClass(demande: Demande): string {
+    if (demande.estLiberer) {
+      return 'liberation-badge liberated';
+    } else if (this.canLiberateDemande(demande)) {
+      return 'liberation-badge ready-for-liberation';
+    } else {
+      return 'liberation-badge not-ready';
+    }
+  }
+
+  // NEW: Get liberation status label
+  getLiberationLabel(demande: Demande): string {
+    if (demande.estLiberer) {
+      return 'Libérée';
+    } else if (this.canLiberateDemande(demande)) {
+      return 'À libérer';
+    } else {
+      return 'Non libérable';
+    }
   }
 
   getDisplayDate(demande: Demande): string {

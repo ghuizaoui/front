@@ -110,7 +110,7 @@ export class DemandeService {
   }
 
   valider(demandeId: number): Observable<Demande> {
-    return this.http.post<Demande>(`${this.apiUrl}/${demandeId}/  `, {});
+    return this.http.post<Demande>(`${this.apiUrl}/${demandeId}/valider`, {});
   }
 
   /** Refuser (avec motif) */
@@ -255,6 +255,13 @@ getDemandesDG():Observable<Demande[]>{
 
 getDemandesToday():Observable<Demande[]>{
   return this.http.get<Demande[]>(`${this.apiUrl}/get-demandes-today`)
+}
+
+
+
+liberer(demandeId: number, commentaire: string): Observable<any> {
+  const body = { demandeId, commentaire };
+  return this.http.post<any>(`${this.apiUrl}/liberer`, body);
 }
 
 }
