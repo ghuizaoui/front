@@ -1,142 +1,149 @@
 <div class="container-calendar" style="margin-top: 5em;">
-<div class="calendar-wrapper">
-  <div class="calendar-header">
-    <h1>Demandes Calendar</h1>
-    <div class="calendar-header-actions">
-      <button class="calendar-header-button" (click)="createNewDemande()">
-        <i class="icon-add"></i>
-        New Demande
-      </button>
-      <button class="calendar-header-button calendar-header-button-primary" (click)="filterEvents()">
-        <i class="icon-filter"></i>
-        Apply Filters
-      </button>
-    </div>
-  </div>
-
-  <div class="calendar-view-controls">
-    <button class="calendar-view-button" [class.active]="currentView === 'dayGridMonth'" (click)="changeView('dayGridMonth')">Month</button>
-    <button class="calendar-view-button" [class.active]="currentView === 'dayGridWeek'" (click)="changeView('dayGridWeek')">Week</button>
-    <button class="calendar-view-button" [class.active]="currentView === 'dayGridDay'" (click)="changeView('dayGridDay')">Day</button>
-    <button class="calendar-view-button" [class.active]="currentView === 'listWeek'" (click)="changeView('listWeek')">List</button>
-  </div>
-
-  <div class="calendar-filters">
-    <div class="calendar-filter-group">
-      <label class="calendar-filter-label">Status</label>
-      <select class="calendar-filter-select" [(ngModel)]="selectedStatus" (ngModelChange)="filterByEmployeAndStatut()">
-        <option value="all">All Statuses</option>
-        <option value="pending">Pending</option>
-        <option value="in_progress">In Progress</option>
-        <option value="completed">Completed</option>
-        <option value="rejected">Rejected</option>
-      </select>
-    </div>
-    
-    <div class="calendar-filter-group">
-      <label class="calendar-filter-label">Type</label>
-      <select class="calendar-filter-select" [(ngModel)]="selectedType" (ngModelChange)="filterByTypeDemande()">
-        <option value="all">All Types</option>
-        <option value="congé">Congé</option>
-        <option value="formation">Formation</option>
-        <option value="équipement">Équipement</option>
-        <option value="autre">Autre</option>
-      </select>
-    </div>
-    
-    <div class="calendar-filter-group">
-      <label class="calendar-filter-label">Date Range</label>
-      <select class="calendar-filter-select" [(ngModel)]="selectedDateRange" (ngModelChange)="filterByDateRange()">
-        <option *ngFor="let range of dateRanges" [value]="range.value">{{ range.label }}</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="calendar-legend">
-    <div class="calendar-legend-item">
-      <div class="calendar-legend-color legend-color-pending"></div>
-      <span>Pending</span>
-    </div>
-    <div class="calendar-legend-item">
-      <div class="calendar-legend-color legend-color-inprogress"></div>
-      <span>In Progress</span>
-    </div>
-    <div class="calendar-legend-item">
-      <div class="calendar-legend-color legend-color-completed"></div>
-      <span>Completed</span>
-    </div>
-    <div class="calendar-legend-item">
-      <div class="calendar-legend-color legend-color-rejected"></div>
-      <span>Rejected</span>
-    </div>
-  </div>
-
-  <div class="calendar-search">
-    <i class="calendar-search-icon icon-search"></i>
-    <input type="text" class="calendar-search-input" placeholder="Search demandes by matricule..." 
-           [(ngModel)]="searchQuery" (ngModelChange)="handleSearch()">
-  </div>
-
-  <div *ngIf="loading" class="calendar-loading">
-    <div class="calendar-loading-spinner"></div>
-  </div>
-
-  <div *ngIf="!loading && filteredDemandes.length === 0" class="calendar-empty">
-    <div class="calendar-empty-icon">📅</div>
-    <h3 class="calendar-empty-title">No demandes found</h3>
-    <p class="calendar-empty-description">You don't have any demandes. Create a new demande or check your filters.</p>
-    <button class="calendar-header-button calendar-header-button-primary" (click)="createNewDemande()">
-      <i class="icon-add"></i>
-      Create Demande
-    </button>
-  </div>
-
-  <full-calendar *ngIf="calendarOptions && filteredDemandes.length > 0" [options]="calendarOptions"></full-calendar>
-
-  <div class="calendar-stats" *ngIf="filteredDemandes.length > 0">
-  
-    <div class="calendar-stat-item">
-      <div class="calendar-stat-value">{{ filteredDemandes.length }}</div>
-      <div class="calendar-stat-label">Total</div>
-    </div>
-  </div>
-
-  <div class="calendar-event-modal" [class.active]="showEventModal">
-    <div class="calendar-event-modal-content">
-      <div class="calendar-event-modal-header">
-        <h2 class="calendar-event-modal-title">Demande Details</h2>
-        <button class="calendar-event-modal-close" (click)="closeEventModal()">×</button>
-      </div>
-      <div class="calendar-event-modal-body" *ngIf="selectedEvent">
-        <div class="calendar-event-detail">
-          <div class="calendar-event-detail-label">Title</div>
-          <div class="calendar-event-detail-value">{{ selectedEvent.title }}</div>
-        </div>
-        <div class="calendar-event-detail">
-          <div class="calendar-event-detail-label">Status</div>
-          <div class="calendar-event-detail-value">
-            <span class="status-indicator" [class]="'status-' + getStatusClass(selectedEvent.status)"></span>
-            {{ selectedEvent.status }}
+  <div class="calendar-wrapper">
+      <div class="calendar-header">
+          <h1>Calendrier des Demandes</h1>
+          <div class="calendar-header-actions">
+              <button class="calendar-header-button" (click)="createNewDemande()">
+                  <i class="icon-add"></i>
+                  Nouvelle Demande
+              </button>
+              <button class="calendar-header-button calendar-header-button-primary" (click)="filterEvents()">
+                  <i class="icon-filter"></i>
+                  Appliquer les Filtres
+              </button>
           </div>
-        </div>
-        <div class="calendar-event-detail">
-          <div class="calendar-event-detail-label">Type</div>
-          <div class="calendar-event-detail-value">{{ selectedEvent.type || 'No Type' }}</div>
-        </div>
-        <div class="calendar-event-detail" *ngIf="selectedEvent.employe">
-          <div class="calendar-event-detail-label">Employee Matricule</div>
-          <div class="calendar-event-detail-value">{{ selectedEvent.employe?.matricule || 'Unknown' }}</div>
-        </div>
-        <div class="calendar-event-detail">
-          <div class="calendar-event-detail-label">Creation Date</div>
-          <div class="calendar-event-detail-value">{{ selectedEvent.dateCreation | date:'mediumDate' }}</div>
-        </div>
       </div>
-      <div class="calendar-event-modal-footer">
-        <button class="calendar-event-modal-button calendar-event-modal-button-secondary" (click)="closeEventModal()">Close</button>
 
+      <div class="calendar-view-controls">
+          <button class="calendar-view-button" [class.active]="currentView === 'dayGridMonth'" (click)="changeView('dayGridMonth')">Mois</button>
+          <button class="calendar-view-button" [class.active]="currentView === 'dayGridWeek'" (click)="changeView('dayGridWeek')">Semaine</button>
+          <button class="calendar-view-button" [class.active]="currentView === 'dayGridDay'" (click)="changeView('dayGridDay')">Jour</button>
+          <button class="calendar-view-button" [class.active]="currentView === 'listWeek'" (click)="changeView('listWeek')">Liste</button>
       </div>
-    </div>
+
+      <div class="calendar-filters">
+          <div class="calendar-filter-group">
+              <label class="calendar-filter-label">Statut</label>
+              <select class="calendar-filter-select" [(ngModel)]="selectedStatus">
+                  <option value="all">Tous les statuts</option>
+                  <option value="en_attente_drh">En attente DRH</option>
+                  <option value="en_cours">En cours</option>
+                  <option value="validee">Validée</option>
+                  <option value="refusee">Refusée</option>
+              </select>
+          </div>
+
+          <div class="calendar-filter-group">
+              <label class="calendar-filter-label">Type</label>
+              <select class="calendar-filter-select" [(ngModel)]="selectedType">
+                  <option value="all">Tous les types</option>
+                  <option value="conge_annuel">Congé Annuel</option>
+                  <option value="conge_maternite">Congé Maternité</option>
+                  <option value="conge_maladie">Congé Maladie</option>
+                  <option value="conge_mariage">Congé Mariage</option>
+                  <option value="conge_naissance">Congé Naissance</option>
+                  <option value="conge_deces">Congé Décès</option>
+                  <option value="conge_circoncision">Congé Circoncision</option>
+                  <option value="conge_pelerinage">Congé Pèlerinage</option>
+                  <option value="conge_repos_compensateur">Repos Compensateur</option>
+                  <option value="conge_sans_solde">Congé Sans Solde</option>
+                  <option value="autorisation_sortie_ponctuelle">Autorisation Sortie Ponctuelle</option>
+                  <option value="autorisation_absence_exceptionnelle">Autorisation Absence</option>
+                  <option value="autorisation_retard">Autorisation Retard</option>
+              </select>
+          </div>
+
+          <div class="calendar-filter-group">
+              <label class="calendar-filter-label">Plage de dates</label>
+              <select class="calendar-filter-select" [(ngModel)]="selectedDateRange">
+                  <option *ngFor="let range of dateRanges" [value]="range.value">{{ range.label }}</option>
+              </select>
+          </div>
+      </div>
+
+      <div class="calendar-legend">
+          <div class="calendar-legend-item">
+              <div class="calendar-legend-color legend-color-enattentedrh"></div>
+              <span>En attente DRH</span>
+          </div>
+          <div class="calendar-legend-item">
+              <div class="calendar-legend-color legend-color-encours"></div>
+              <span>En cours</span>
+          </div>
+          <div class="calendar-legend-item">
+              <div class="calendar-legend-color legend-color-validee"></div>
+              <span>Validée</span>
+          </div>
+          <div class="calendar-legend-item">
+              <div class="calendar-legend-color legend-color-refusee"></div>
+              <span>Refusée</span>
+          </div>
+      </div>
+
+      <div class="calendar-search">
+          <i class="calendar-search-icon icon-search"></i>
+          <input type="text" class="calendar-search-input" placeholder="Rechercher une demande par matricule..." 
+                 [(ngModel)]="searchQuery" (ngModelChange)="handleSearch()">
+      </div>
+
+      <div *ngIf="loading" class="calendar-loading">
+          <div class="calendar-loading-spinner"></div>
+      </div>
+
+      <div *ngIf="!loading && filteredDemandes.length === 0" class="calendar-empty">
+          <div class="calendar-empty-icon">📅</div>
+          <h3 class="calendar-empty-title">Aucune demande trouvée</h3>
+          <p class="calendar-empty-description">Vous n’avez aucune demande. Créez une nouvelle demande ou vérifiez vos filtres.</p>
+          <button class="calendar-header-button calendar-header-button-primary" (click)="createNewDemande()">
+              <i class="icon-add"></i>
+              Créer une Demande
+          </button>
+      </div>
+
+      <full-calendar *ngIf="calendarOptions && filteredDemandes.length > 0" [options]="calendarOptions"></full-calendar>
+
+      <div class="calendar-stats" *ngIf="filteredDemandes.length > 0">
+          <div class="calendar-stat-item">
+              <div class="calendar-stat-value">{{ filteredDemandes.length }}</div>
+              <div class="calendar-stat-label">Total</div>
+          </div>
+      </div>
+
+      <div class="calendar-event-modal" [class.active]="showEventModal">
+          <div class="calendar-event-modal-content">
+              <div class="calendar-event-modal-header">
+                  <h2 class="calendar-event-modal-title">Détails de la Demande</h2>
+                  <button class="calendar-event-modal-close" (click)="closeEventModal()">×</button>
+              </div>
+              <div class="calendar-event-modal-body" *ngIf="selectedEvent">
+                  <div class="calendar-event-detail">
+                      <div class="calendar-event-detail-label">Titre</div>
+                      <div class="calendar-event-detail-value">{{ selectedEvent.title }}</div>
+                  </div>
+                  <div class="calendar-event-detail">
+                      <div class="calendar-event-detail-label">Statut</div>
+                      <div class="calendar-event-detail-value">
+                          <span class="status-indicator" [class]="'status-' + getStatusClass(selectedEvent.status)"></span>
+                          {{ selectedEvent.status }}
+                      </div>
+                  </div>
+                  <div class="calendar-event-detail">
+                      <div class="calendar-event-detail-label">Type</div>
+                      <div class="calendar-event-detail-value">{{ selectedEvent.type || 'Aucun type' }}</div>
+                  </div>
+                  <div class="calendar-event-detail" *ngIf="selectedEvent.employe">
+                      <div class="calendar-event-detail-label">Matricule Employé</div>
+                      <div class="calendar-event-detail-value">{{ selectedEvent.employe?.matricule || 'Inconnu' }}</div>
+                  </div>
+                  <div class="calendar-event-detail">
+                      <div class="calendar-event-detail-label">Date de Création</div>
+                      <div class="calendar-event-detail-value">{{ selectedEvent.dateCreation | date:'mediumDate' }}</div>
+                  </div>
+              </div>
+              <div class="calendar-event-modal-footer">
+                  <button class="calendar-event-modal-button calendar-event-modal-button-secondary" (click)="closeEventModal()">Fermer</button>
+              </div>
+          </div>
+      </div>
   </div>
-</div>
 </div>

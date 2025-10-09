@@ -1,15 +1,21 @@
-// calendar.component.ts
-import { Component, OnInit, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, ViewEncapsulation, Input } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common'; // Ajout de DatePipe
 import { FormsModule } from '@angular/forms';
 import { FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions, EventClickArg, EventInput } from '@fullcalendar/core';
+import { CalendarOptions, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import { Demande } from '../models/Demande.model';
 import { DemandeService } from '../services/demande/demande.service';
 import { AuthService } from '../services/auth/auth.service';
+import { Observable } from 'rxjs'; 
+
+// Interfaces simplifiées
+interface User {
+  service: string | null;
+  matricule?: string;
+}
 
 @Component({
   selector: 'app-calendar',
@@ -17,7 +23,8 @@ import { AuthService } from '../services/auth/auth.service';
   imports: [
     CommonModule,
     FormsModule,
-    FullCalendarModule
+    FullCalendarModule,
+    DatePipe 
   ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css'],
@@ -31,20 +38,23 @@ export class CalendarComponent implements OnInit {
   showEventModal: boolean = false;
   loading: boolean = true;
   
-  // Filter options
-  selectedStatus: string = 'all';
+  // Les valeurs doivent correspondre aux filtres du HTML (en minuscules pour la comparaison)
+  selectedStatus: string = 'all'; 
   selectedType: string = 'all';
   selectedDateRange: string = 'all';
   searchQuery: string = '';
   currentView: string = 'dayGridMonth';
   
-  // Date ranges
   dateRanges = [
-    { value: 'all', label: 'All Time' },
-    { value: 'today', label: 'Today' },
-    { value: 'week', label: 'This Week' },
-    { value: 'month', label: 'This Month' }
+    { value: 'all', label: 'Toutes les périodes' },
+    { value: 'today', label: "Aujourd'hui" },
+    { value: 'week', label: 'Cette semaine' },
+    { value: 'month', label: 'Ce mois-ci' }
   ];
+
+  @Input() serviceName: string | null = null; 
+  
+  private currentUserServiceName: string | null = null; 
 
   constructor(
     private demandeService: DemandeService,
@@ -53,12 +63,68 @@ export class CalendarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadDemandes();
+    if (!this.serviceName) {
+      this.authService.getCurrentUser().subscribe((user: User | null) => {
+        if (user && user.service) {
+          this.currentUserServiceName = user.service;
+        }
+        this.loadDemandes();
+      });
+    } else {
+      this.loadDemandes();
+    }
+  }
+
+  /**
+   * Détermine la date/heure de début réelle en fonction du type de demande (Enum Java).
+   */
+  private getEventStartDate(d: Demande): string | Date {
+    const type = d.typeDemande; 
+    
+    if (type && type.startsWith('CONGE_')) {
+      return d.congeDateDebut || d.dateCreation || new Date();
+    }
+    if (type && type.startsWith('AUTORISATION_')) {
+      return d.autoDateDebut || d.dateCreation || new Date();
+    }
+    return d.dateCreation || new Date();
+  }
+
+  /**
+   * Détermine la date/heure de fin réelle en fonction du type de demande (Enum Java).
+   */
+  private getEventEndDate(d: Demande): string | Date | undefined {
+    const type = d.typeDemande;
+    let endDate: string | undefined;
+
+    if (type && type.startsWith('CONGE_')) {
+      endDate = d.congeDateFin;
+    }
+    
+    if (type && type.startsWith('AUTORISATION_')) {
+      endDate = d.autoDateFin;
+    }
+
+    if (endDate) {
+      const date = new Date(endDate);
+      return new Date(date.getTime() + (24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+    }
+    return undefined;
   }
 
   loadDemandes(): void {
     this.loading = true;
-    this.demandeService.getAllDemandes().subscribe({
+
+    const serviceToFilter = this.serviceName || this.currentUserServiceName;
+    let observable: Observable<Demande[]>;
+
+    if (serviceToFilter && serviceToFilter !== 'all') {
+      observable = this.demandeService.getDemandesByService(serviceToFilter); 
+    } else {
+      observable = this.demandeService.getAllDemandes();
+    }
+
+    observable.subscribe({
       next: (demandes: Demande[]) => {
         this.demandes = demandes;
         this.filteredDemandes = [...demandes];
@@ -66,27 +132,34 @@ export class CalendarComponent implements OnInit {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (error) => {
-        console.error('Error loading demandes:', error);
+      error: (error: any) => { 
+        console.error('Erreur lors du chargement des demandes :', error);
         this.loading = false;
         this.cdr.detectChanges();
       }
     });
   }
-
+  
   initializeCalendar(demandes: Demande[]): void {
-    const events = demandes.map(d => ({
-      id: d.id?.toString(),
-      title: `${d.typeDemande || 'No Type'}`,
-      start: d.dateCreation || new Date(),
-      extendedProps: {
-        status: d.statut,
-        type: d.typeDemande,
-        employe: d.employe,
-        dateCreation: d.dateCreation,
-      },
-      className: `fc-event-status-${d.statut?.toLowerCase().replace(/\s+/g, '') || 'pending'}`
-    }));
+    const events = demandes.map(d => {
+      const startDate = this.getEventStartDate(d);
+      const endDate = this.getEventEndDate(d);
+
+      return {
+        id: d.id?.toString(),
+        title: `${d.typeDemande || 'Sans type'} - ${d.employe?.matricule || 'Employé Inconnu'}`,
+        start: startDate,
+        end: endDate,
+        allDay: !!endDate, 
+        extendedProps: {
+          status: d.statut,
+          type: d.typeDemande, 
+          employe: d.employe,
+          dateCreation: d.dateCreation,
+        },
+        className: `fc-event-status-${this.getStatusClass(d.statut || 'EN_COURS')}`
+      }
+    });
 
     this.calendarOptions = {
       initialView: this.currentView,
@@ -130,34 +203,39 @@ export class CalendarComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  /**
+   * Nettoie le statut de l'enum Java (ex: EN_COURS) en format CSS (ex: encours).
+   */
   getStatusClass(status: string): string {
-    return status?.toLowerCase().replace(/\s+/g, '') || 'pending';
+    if (!status) return 'pending';
+    return status.toLowerCase().replace(/\s+/g, '').replace(/_/g, '');
   }
 
-  getDemandesByStatus(status: string): Demande[] {
-    return this.filteredDemandes.filter(demande => 
-      status === 'all' ? true : demande.statut?.toLowerCase() === status.toLowerCase()
-    );
-  }
-
+  /**
+   * Applique tous les filtres actifs (Statut, Type, Plage de dates, Recherche).
+   */
   filterEvents(): void {
     let filtered = [...this.demandes];
+    const selectedStatusClean = this.selectedStatus.toLowerCase();
+    const selectedTypeClean = this.selectedType.toLowerCase();
 
-    // Status filter
+    // 1. Filtre par statut
     if (this.selectedStatus !== 'all') {
-      filtered = filtered.filter(demande => 
-        demande.statut?.toLowerCase() === this.selectedStatus.toLowerCase()
-      );
+      const selected = selectedStatusClean.replace(/\s+/g, '').replace(/_/g, '');
+      filtered = filtered.filter(demande => {
+          const currentStatus = this.getStatusClass(demande.statut || '');
+          return currentStatus === selected;
+      });
     }
 
-    // Type filter
+    // 2. Filtre par type
     if (this.selectedType !== 'all') {
-      filtered = filtered.filter(demande => 
-        demande.typeDemande?.toLowerCase() === this.selectedType.toLowerCase()
-      );
+      filtered = filtered.filter(demande => {
+          return demande.typeDemande?.toLowerCase().replace(/\s+/g, '').replace(/_/g, '') === selectedTypeClean.replace(/\s+/g, '').replace(/_/g, '');
+      });
     }
 
-    // Date range filter
+    // 3. Filtre par plage de dates
     if (this.selectedDateRange !== 'all') {
       const today = new Date();
       let startDate: Date;
@@ -189,13 +267,14 @@ export class CalendarComponent implements OnInit {
       }
 
       filtered = filtered.filter(demande => {
-        if (!demande.dateCreation) return false;
-        const dateCreation = new Date(demande.dateCreation);
-        return dateCreation >= startDate && dateCreation <= endDate;
+        const dateDebutString = this.getEventStartDate(demande);
+        if (!dateDebutString) return false;
+        const dateDebut = new Date(dateDebutString);
+        return dateDebut >= startDate && dateDebut <= endDate;
       });
     }
 
-    // Search filter
+    // 4. Filtre par recherche de matricule
     if (this.searchQuery) {
       const query = this.searchQuery.toLowerCase();
       filtered = filtered.filter(demande => 
@@ -211,120 +290,17 @@ export class CalendarComponent implements OnInit {
   changeView(view: string): void {
     this.currentView = view;
     if (this.calendarOptions) {
-      this.calendarOptions.initialView = view;
-      this.initializeCalendar(this.filteredDemandes);
+      this.initializeCalendar(this.filteredDemandes); 
     }
     this.cdr.detectChanges();
   }
 
   handleSearch(): void {
-    this.filterEvents();
-  }
-
-  // Method to use your specific APIs
-  filterByEmployeAndStatut(): void {
-    this.authService.getCurrentUser().subscribe({
-      next: (user) => {
-        const matricule = user.matricule; // Adjust this based on your user object structure
-        
-        if (matricule && this.selectedStatus !== 'all') {
-          this.loading = true;
-          this.demandeService.findByEmployeAndStatut(matricule, this.selectedStatus).subscribe({
-            next: (demandes: Demande[]) => {
-              this.filteredDemandes = demandes;
-              this.initializeCalendar(demandes);
-              this.loading = false;
-              this.cdr.detectChanges();
-            },
-            error: (error) => {
-              console.error('Error filtering by employe and status:', error);
-              this.loading = false;
-              this.cdr.detectChanges();
-            }
-          });
-        } else {
-          this.filterEvents();
-        }
-      },
-      error: (error) => {
-        console.error('Error getting current user:', error);
-        this.filterEvents();
-      }
-    });
-  }
-
-  filterByTypeDemande(): void {
-    if (this.selectedType !== 'all') {
-      this.loading = true;
-      this.demandeService.findByTypeDemande(this.selectedType).subscribe({
-        next: (demandes: Demande[]) => {
-          console.log("load by type demande ",demandes)
-          this.filteredDemandes = demandes;
-          this.initializeCalendar(demandes);
-          this.loading = false;
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error filtering by type:', error);
-          this.loading = false;
-          this.cdr.detectChanges();
-        }
-      });
-    } else {
-      this.filterEvents();
-    }
-  }
-
-  filterByDateRange(): void {
-    if (this.selectedDateRange !== 'all') {
-      const today = new Date();
-      let start: string;
-      let end: string;
-
-      switch (this.selectedDateRange) {
-        case 'today':
-          start = today.toISOString().split('T')[0];
-          end = today.toISOString().split('T')[0];
-          break;
-        case 'week':
-          const weekStart = new Date(today);
-          weekStart.setDate(today.getDate() - today.getDay());
-          const weekEnd = new Date(weekStart);
-          weekEnd.setDate(weekStart.getDate() + 6);
-          start = weekStart.toISOString().split('T')[0];
-          end = weekEnd.toISOString().split('T')[0];
-          break;
-        case 'month':
-          const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-          const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-          start = monthStart.toISOString().split('T')[0];
-          end = monthEnd.toISOString().split('T')[0];
-          break;
-        default:
-          return;
-      }
-
-      this.loading = true;
-      this.demandeService.findByDateCreationBetween(start, end).subscribe({
-        next: (demandes: Demande[]) => {
-          this.filteredDemandes = demandes;
-          this.initializeCalendar(demandes);
-          this.loading = false;
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error filtering by date range:', error);
-          this.loading = false;
-          this.cdr.detectChanges();
-        }
-      });
-    } else {
-      this.filterEvents();
-    }
+    // Appelle le filtre combiné pour mettre à jour la recherche instantanément
+    this.filterEvents(); 
   }
 
   createNewDemande(): void {
-    // Implement navigation or modal opening for new demande creation
-    console.log('Creating new demande');
+    console.log('Création d’une nouvelle demande');
   }
 }

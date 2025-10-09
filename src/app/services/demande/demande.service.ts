@@ -15,7 +15,7 @@ import { CongeExceptionnelRequest } from '../../models/CongeExceptionnelRequest'
 @Injectable({ providedIn: 'root' })
 export class DemandeService {
 
-  private apiUrl = 'http://localhost:9091/api/demandes';
+  private apiUrl = 'http://localhost:8081/api/demandes';
 
   constructor(private http: HttpClient) {}
 
@@ -25,6 +25,15 @@ export class DemandeService {
 
   getAllDemandes(): Observable<Demande[]>{
     return this.http.get<Demande[]>(`${this.apiUrl}/get-all`)
+  }
+  /**
+   * Ajouté pour supporter le composant DemandesToday et le rôle Concierge.
+   * Récupère toutes les demandes ayant le statut 'VALIDEE'.
+   * Cela assume l'existence d'un endpoint backend dédié pour cette fonction.
+   */
+  getAllValidatedDemandes(): Observable<Demande[]> {
+    // Ceci est l'appel HTTP vers le nouvel endpoint du backend (à implémenter côté serveur)
+    return this.http.get<Demande[]>(`${this.apiUrl}/get-all-validated`); 
   }
 
 
@@ -262,6 +271,15 @@ getDemandesToday():Observable<Demande[]>{
 liberer(demandeId: number, commentaire: string): Observable<any> {
   const body = { demandeId, commentaire };
   return this.http.post<any>(`${this.apiUrl}/liberer`, body);
+}
+
+
+/**
+ * Récupère toutes les demandes pour un service donné.
+ * @param serviceName Le nom du service.
+ */
+getDemandesByService(serviceName: string): Observable<Demande[]> {
+  return this.http.get<Demande[]>(`${this.apiUrl}/service/${serviceName}`);
 }
 
 }

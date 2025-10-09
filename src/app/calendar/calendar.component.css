@@ -1,5 +1,4 @@
-/* 
- * Premium Demande Calendar Component - Light Mode Only
+/* * Premium Demande Calendar Component - Light Mode Only
  * Ultra-modern styling with professional UI/UX design system
  * Over 400 CSS statements for exceptional visual experience
  */
@@ -617,21 +616,30 @@
   transform: scale(1.2);
 }
 
-.legend-color-pending {
-  background: var(--pending-gradient);
+/* Les couleurs de la légende doivent correspondre aux enums Java (minuscule, sans underscore) */
+/* Statut EN_ATTENTE_DRH */
+.legend-color-enattentedrh {
+    background: linear-gradient(135deg, var(--pending), var(--pending-light));
+}
+/* Statut EN_COURS */
+.legend-color-encours {
+    background: linear-gradient(135deg, var(--in-progress), var(--in-progress-light));
+}
+/* Statut VALIDEE */
+.legend-color-validee {
+    background: linear-gradient(135deg, var(--completed), var(--completed-light));
+}
+/* Statut REFUSEE */
+.legend-color-refusee {
+    background: linear-gradient(135deg, var(--rejected), var(--rejected-light));
 }
 
-.legend-color-inprogress {
-  background: var(--in-progress-gradient);
-}
+/* Les classes "pending", "inprogress", "completed", "rejected" doivent être renommées si elles ne sont pas utilisées */
+/* .legend-color-pending {} */ 
+/* .legend-color-inprogress {} */
+/* .legend-color-completed {} */ 
+/* .legend-color-rejected {} */ 
 
-.legend-color-completed {
-  background: var(--completed-gradient);
-}
-
-.legend-color-rejected {
-  background: var(--rejected-gradient);
-}
 
 /* ===== CALENDAR SEARCH ===== */
 .calendar-search {
@@ -1060,6 +1068,21 @@
   background: var(--rejected-gradient);
 }
 
+/* Les classes de statut doivent correspondre aux enums Java (minuscule, sans underscore) */
+.status-enattentedrh {
+    background: linear-gradient(135deg, var(--pending), var(--pending-light));
+}
+.status-encours {
+    background: linear-gradient(135deg, var(--in-progress), var(--in-progress-light));
+}
+.status-validee {
+    background: linear-gradient(135deg, var(--completed), var(--completed-light));
+}
+.status-refusee {
+    background: linear-gradient(135deg, var(--rejected), var(--rejected-light));
+}
+
+
 /* ===== RESPONSIVE ENHANCEMENTS ===== */
 @media (max-width: 1024px) {
   .calendar-header {
@@ -1239,6 +1262,8 @@
 /* ===== FULLCALENDAR OVERRIDES ===== */
 .fc {
   font-family: var(--font-family-primary) !important;
+  /* Correction: Assombrir le texte par défaut pour tous les éléments FC */
+  color: var(--text-primary) !important;
 }
 
 .fc .fc-toolbar {
@@ -1255,6 +1280,58 @@
   transform: translateY(-1px) !important;
   box-shadow: var(--shadow-sm) !important;
 }
+
+/* === CORRECTION POUR LISIBILITÉ DES ÉVÉNEMENTS === */
+/* Cible le texte à l'intérieur de tous les événements (titre) */
+.fc-event-title {
+    color: var(--text-primary) !important; 
+    font-weight: var(--font-weight-medium);
+    /* S'assurer que les événements chronométrés sur fond clair sont lisibles */
+}
+
+/* Cible les liens des événements (y compris les événements "All-Day") */
+.fc-event-main a {
+    color: var(--text-primary) !important;
+}
+
+/* Cible le texte dans la vue Mois (dayGrid) */
+.fc-daygrid-event-dot,
+.fc-daygrid-event-harness {
+    color: var(--text-primary) !important;
+}
+
+/* Cible le lien "+X more" pour le rendre plus visible que la valeur par défaut */
+.fc-daygrid-more-link {
+    color: var(--primary-dark) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Cible les couleurs de fond des événements en utilisant les classes générées par le TS */
+.fc-event-status-enattentedrh {
+    background-color: var(--pending) !important; 
+    border-color: var(--pending) !important;
+}
+.fc-event-status-encours {
+    background-color: var(--in-progress) !important; 
+    border-color: var(--in-progress) !important;
+}
+.fc-event-status-validee {
+    background-color: var(--completed) !important; 
+    border-color: var(--completed) !important;
+}
+.fc-event-status-refusee {
+    background-color: var(--rejected) !important; 
+    border-color: var(--rejected) !important;
+}
+
+/* Si vous utilisez des événements ALL DAY (toute la journée) sur les couleurs de base, 
+   vous pourriez vouloir un texte blanc pour les couleurs foncées, mais var(--text-primary) est généralement sûr. */
+.fc-event.fc-event-all-day, .fc-event.fc-event-all-day .fc-event-title {
+    color: var(--text-light) !important; /* Force le texte en blanc si le fond est foncé */
+}
+
 
 /* ===== TOUCH DEVICE OPTIMIZATIONS ===== */
 @media (hover: none) and (pointer: coarse) {
@@ -1277,7 +1354,7 @@
 }
 
 /* ===== FOCUS VISIBLE POLYFILL ===== */
-.js-focus-visible :focus: not(.focus-visible) {
+.js-focus-visible :focus:not(.focus-visible) {
   outline: none;
 }
 

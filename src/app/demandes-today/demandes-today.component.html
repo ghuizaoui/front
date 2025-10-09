@@ -1,11 +1,25 @@
-<div class="main-content">
+<div class="main-content" style="margin-top: 5em;">
     <!-- En-tête de page -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="page-title">📋 Demandes du Jour</h1>
+        <!-- TITRE MIS À JOUR pour refléter la vue Concierge -->
+        <h1 class="page-title">📅 Demandes Actives Aujourd'hui</h1>
         <button class="btn btn-primary" (click)="loadDemandes()" [disabled]="loading">
             <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
             {{ loading ? 'Chargement...' : '🔄 Actualiser' }}
         </button>
+    </div>
+
+    <!-- Message de Succès (NEW) -->
+    <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mb-4">
+        <span class="alert-icon">🎉</span>
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = null"></button>
+    </div>
+
+    <!-- Message d'erreur (EXISTING) -->
+    <div *ngIf="error" class="alert alert-danger mb-4">
+        <span class="alert-icon">⚠️</span>
+        {{ error }}
     </div>
 
     <!-- Carte des filtres -->
@@ -39,13 +53,14 @@
                     </select>
                 </div>
 
-                <!-- Filtre Statut -->
+                <!-- Filtre Statut (FIXED: Mis à jour pour rester cohérent, bien que le filtre d'activité soit prioritaire) -->
                 <div class="col-md-3">
                     <label class="form-label">📊 Statut</label>
                     <select 
                         class="form-select filter-select" 
                         [(ngModel)]="selectedStatut"
-                        (change)="applyFilters()">
+                        (change)="applyFilters()"
+                        disabled> <!-- Le Concierge voit seulement le statut Validée par défaut pour cette vue -->
                         <option *ngFor="let statut of statuts" [value]="statut.value">
                             {{ statut.label }}
                         </option>
@@ -58,7 +73,7 @@
                     <button 
                         class="btn-clear-filters" 
                         (click)="clearFilters()"
-                        [disabled]="searchTerm === '' && selectedCategorie === 'all' && selectedStatut === 'all'">
+                        [disabled]="searchTerm === '' && selectedCategorie === 'all' && selectedStatut === 'VALIDEE'">
                         <span class="clear-icon">🗑️</span>
                         Effacer
                     </button>
@@ -70,19 +85,13 @@
     <!-- Information des résultats -->
     <div class="results-info mb-3">
         <span class="results-count">{{ filteredDemandes.length }}</span>
-        demande(s) trouvée(s)
-    </div>
-
-    <!-- Message d'erreur -->
-    <div *ngIf="error" class="alert alert-danger mb-4">
-        <span class="alert-icon">⚠️</span>
-        {{ error }}
+        demande(s) active(s) trouvée(s) aujourd'hui
     </div>
 
     <!-- Carte principale des demandes -->
     <div class="card">
         <div class="card-header">
-            <h2 class="card-title">📋 Liste des Demandes</h2>
+            <h2 class="card-title">📋 Liste des Demandes Actives</h2>
         </div>
 
         <div class="card-body p-0">
@@ -95,13 +104,10 @@
             <!-- Aucune donnée -->
             <div *ngIf="!loading && filteredDemandes.length === 0" class="no-data-message">
                 <div class="no-data-icon">📭</div>
-                <h4>Aucune demande trouvée</h4>
-                <p *ngIf="demandes.length === 0">Aucune demande n'a été créée aujourd'hui.</p>
-                <p *ngIf="demandes.length > 0 && filteredDemandes.length === 0">
-                    Aucune demande ne correspond aux critères de recherche.
-                </p>
+                <h4>Aucune demande active trouvée</h4>
+                <p>Aucune demande validée n'est en cours pour la journée d'aujourd'hui.</p>
                 <button *ngIf="demandes.length > 0" class="btn btn-primary" (click)="clearFilters()">
-                    Afficher toutes les demandes
+                    Réinitialiser les filtres
                 </button>
             </div>
 
@@ -205,7 +211,7 @@
                                 </span>
                             </td>
 
-                            <!-- NEW: Liberation Status -->
+                            <!-- Liberation Status -->
                             <td>
                                 <span class="liberation-badge {{ getLiberationClass(demande) }}">
                                     {{ getLiberationLabel(demande) }}
@@ -219,7 +225,7 @@
                                 </span>
                             </td>
 
-                            <!-- NEW: Actions -->
+                            <!-- Actions -->
                             <td>
                                 <button class="btn btn-sm btn-success liberation-btn" 
                                         *ngIf="canLiberateDemande(demande)"
@@ -259,7 +265,6 @@
                         selectedDemandeForLiberation?.autoDateDebut ||
                         selectedDemandeForLiberation?.missionDateDebut
                     ) }}
-                      
                 </div>
                 
                 <div class="mb-3">
@@ -282,8 +287,6 @@
                         [disabled]="isLiberating">
                     <span class="spinner-border spinner-border-sm" *ngIf="isLiberating"></span>
                     {{ isLiberating ? 'Libération...' : 'Confirmer la libération' }}
-                    libération
-
                 </button>
             </div>
         </div>

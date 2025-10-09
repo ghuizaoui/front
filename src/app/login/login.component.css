@@ -61,7 +61,7 @@
 
 /* Left panel styling */
 .auth-left-panel {
-  background: linear-gradient(135deg, #1e293b 0%, #2323ed 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #1616c8 100%);
   color: #ffffff;
   display: flex;
   flex-direction: column;
